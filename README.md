@@ -1,9 +1,13 @@
 # Ragnapax
 
+[![Site](https://img.shields.io/website?url=https%3A%2F%2Fserlizar.github.io%2Fragnapax%2F&label=site&up_message=online&down_message=offline)](https://serlizar.github.io/ragnapax/)
 [![CI](https://github.com/SerLizar/ragnapax/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SerLizar/ragnapax/actions/workflows/ci.yml)
-[![XO code style](https://shields.io/badge/code_style-5ed9c7?logo=xo&labelColor=gray&logoColor=white)](https://github.com/xojs/xo)
-[![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-green)](https://reuse.software)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
+[![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-green)](https://reuse.software)
+[![TypeScript](https://img.shields.io/github/package-json/dependency-version/SerLizar/ragnapax/dev/typescript?logo=typescript&logoColor=white&color=3178c6)](https://www.typescriptlang.org)
+[![Svelte](https://img.shields.io/github/package-json/dependency-version/SerLizar/ragnapax/dev/svelte?logo=svelte&logoColor=white&color=ff3e00)](https://svelte.dev)
+[![Node.js](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FSerLizar%2Fragnapax%2Fmain%2Fpackage.json&query=%24.engines.node&label=node&logo=nodedotjs&logoColor=white&color=5fa04e)](package.json)
+[![XO code style](https://shields.io/badge/code_style-5ed9c7?logo=xo&labelColor=gray&logoSize=auto)](https://github.com/xojs/xo)
 
 Plan fair **point sharing** for Ragnarok in _Tokyo Debunkers_. Tap the towns
 each of the four guilds in your group starts with, choose a goal, and the
