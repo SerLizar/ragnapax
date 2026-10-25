@@ -15,6 +15,12 @@ export default defineConfig({
 		// docs/OPERATIONS.md) and keep tsconfig.json's `lib` in step.
 		target: ['es2023', 'chrome123', 'edge123', 'firefox125', 'safari17.4', 'ios17.4'],
 	},
+	// Module workers, as `PlannerClient` creates them; every browser in the
+	// target runs them. One file: HiGHS's only dynamic import is for Node.
+	worker: {
+		format: 'es',
+		rolldownOptions: {output: {codeSplitting: false}},
+	},
 	// Tests run Svelte's browser build so effects work, as in the app.
 	resolve: process.env.VITEST === undefined ? undefined : {conditions: ['browser']},
 	test: {
