@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- SPDX-FileCopyrightText: 2026 SerLizar -->
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+		<title>Ragnapax · Ragnarok point sharing for Tokyo Debunkers</title>
+		<!-- Before the theme script, which changes it for the dark theme. -->
+		<meta content="#f3f2f8" name="theme-color">
+		<!-- eslint-disable-next-line @html-eslint/head-order -- needs the meta above -->
+		<script>
+			// Apply the saved or system theme before the first paint, so the page
+			// never flashes the wrong colours. Kept in step with state/theme.svelte.ts;
+			// the production CSP allows exactly this script by its hash.
+			(function () {
+				var saved;
+				try {
+					saved = localStorage.getItem('ragnapax/theme');
+				} catch (e) {}
+				var dark =
+					saved === 'dark' ||
+					(saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+				document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+				if (dark) document.querySelector('meta[name="theme-color"]').content = '#121119';
+			})();
+		</script>
+		<meta
+			content="Plan fair point sharing between the four guilds of a Tokyo Debunkers Ragnarok. Runs entirely in your browser."
+			name="description"
+		>
+		<link
+			type="image/svg+xml"
+			href="./icon.svg"
+			rel="icon"
+		>
+		<link href="./manifest.webmanifest" rel="manifest">
+	</head>
+	<body>
+		<div id="app"></div>
+		<noscript>Ragnapax needs JavaScript to plan point sharing.</noscript>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
