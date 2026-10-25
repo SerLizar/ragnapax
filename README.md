@@ -1,5 +1,10 @@
 # Ragnapax
 
+[![CI](https://github.com/SerLizar/ragnapax/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SerLizar/ragnapax/actions/workflows/ci.yml)
+[![XO code style](https://shields.io/badge/code_style-5ed9c7?logo=xo&labelColor=gray&logoColor=white)](https://github.com/xojs/xo)
+[![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-green)](https://reuse.software)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
+
 Plan fair **point sharing** for Ragnarok in _Tokyo Debunkers_. Tap the towns
 each of the four guilds in your group starts with, choose a goal, and the
 planner works out who declares on what each day so every guild ends up with
