@@ -297,6 +297,26 @@ test('remembers settings, including using every kingdom', async ({page}) => {
 	await expect(page.getByRole('switch', {name: 'Use every kingdom', exact: true})).toBeChecked();
 });
 
+test('leaves a guild sitting out alone, and never lets every guild sit out', async ({page}) => {
+	await setUp(page);
+	await page.getByText('Advanced options').click();
+	const sitsOut = (name: string) => page.getByRole('group', {name: 'Guilds sitting out'}).getByRole('switch', {name, exact: true});
+	await sitsOut('Guild 4').check();
+	await page.getByRole('button', {name: 'Find a fair plan'}).click();
+	await expect(page.getByText('Your plan is ready.')).toBeVisible({timeout: 60_000});
+	await expect(page.getByRole('rowheader', {name: 'Guild 4 Sitting out'})).toBeVisible();
+	expect(new URL(page.url()).hash).toContain('i=4');
+
+	// Kept after a refresh, with the options open to show it.
+	await page.reload();
+	await page.getByRole('button', {name: 'Edit setup'}).click();
+	await expect(sitsOut('Guild 4')).toBeChecked();
+	await sitsOut('Nightowls').check();
+	await sitsOut('Guild 2').check();
+	await expect(sitsOut('Guild 3')).toBeDisabled();
+	await expect(page.getByText('At least one guild must play.')).toBeVisible();
+});
+
 test('deletes everything saved from the privacy notice', async ({page}) => {
 	await page.goto('/');
 	await page.getByRole('textbox', {name: 'Name of guild 1'}).fill('Wolves');
@@ -337,6 +357,15 @@ test('says which release it is', async ({page}) => {
 test('explains a broken link instead of failing', async ({page}) => {
 	await page.goto('/#v=1&m=atlantis');
 	await expect(page.getByRole('alert')).toContainText('map the planner does not know');
+});
+
+test('warns about a plan that attacks a guild sitting out, and still shows it', async ({page}) => {
+	// Bears take Town A from Owls, who sit out, on Thursday.
+	await page.goto('/#v=1&m=floating-city&o=r&i=1&g=Owls&g=Bears&g=Cats&g=Dogs&t=11112222333344440&p=...-.0..-...-...-...-...');
+	await expect(page.getByRole('status').filter({hasText: 'which sits out'})).toContainText(
+		'Thursday: Bears declares on Town A, held by Owls, which sits out. Guilds sitting out may defend their kingdoms when attacked.',
+	);
+	await expect(page.getByRole('table')).toBeVisible();
 });
 
 test('says how far apart the scores are in an uneven plan', async ({page}) => {

@@ -14,6 +14,7 @@ export type PlanTextOptions = {
 	readonly goal: Goal;
 	readonly fillMap: boolean;
 	readonly castleLast: boolean;
+	readonly inactive: readonly GuildIndex[];
 	readonly timeline: Timeline;
 	/**
 	Only list this guild's declarations.
@@ -44,6 +45,7 @@ export function planToText({
 	goal,
 	fillMap,
 	castleLast,
+	inactive,
 	timeline,
 	guild,
 }: PlanTextOptions): string {
@@ -57,14 +59,21 @@ export function planToText({
 	const lines = [
 		title.join(' · '),
 		...(guild === undefined ? [] : [t('text.declaresFor', {guild: guildNames[guild]!})]),
+		...(guild === undefined && inactive.length > 0
+			? [t('text.inactive', {guilds: inactive.map(g => guildNames[g]!).join(t('list.separator'))})]
+			: []),
 	];
 
-	const guilds = guild === undefined ? guildNames.map((_, g) => g) : [guild];
+	// Guilds sitting out are named once above rather than with no declares
+	// every day, and their points are not part of the share.
+	const guilds = guild === undefined ? guildNames.map((_, g) => g).filter(g => !inactive.includes(g)) : [guild];
 
 	for (let day = 1; day < timeline.owners.length; day++) {
 		const captures = capturesOn(timeline, day);
 		lines.push('', weekday(day, 'long'));
-		for (const g of guilds) {
+		// Days played before a guild sat out may have its declares.
+		const declaring = guild === undefined ? inactive.filter(g => captures.some(c => c.guild === g)) : [];
+		for (const g of [...guilds, ...declaring].toSorted((a, b) => a - b)) {
 			const targets = captures
 				.filter(c => c.guild === g)
 				.map(c => {

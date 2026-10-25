@@ -3,7 +3,12 @@
 
 <script lang="ts">
 	import type {GuildIndex} from '../domain/types.ts';
-	import {describeQuality, describeViolation, mapName} from '../i18n/describe.ts';
+	import {
+		describeDisturbance,
+		describeQuality,
+		describeViolation,
+		mapName,
+	} from '../i18n/describe.ts';
 	import {t, weekday} from '../i18n/i18n.svelte.ts';
 	import {planToText} from '../share/text.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
@@ -136,6 +141,12 @@
 				</p>
 			</div>
 		{:else}
+			{#if planner.disturbance}
+				<div class="stale" role="status">
+					<Icon name="alert" />
+					<p>{describeDisturbance(planner.map, planner.disturbance, planner.displayNames)}</p>
+				</div>
+			{/if}
 			<div class="body">
 				<Scoreboard
 					scores={planner.scores}

@@ -14,7 +14,7 @@ import {
 	type Violation,
 } from '../domain/plan.ts';
 import {GOALS, type Goal} from '../domain/settings.ts';
-import {DAYS, GUILD_COUNT} from '../domain/types.ts';
+import {DAYS, GUILD_COUNT, type GuildIndex} from '../domain/types.ts';
 import {findMap} from '../maps/index.ts';
 
 /**
@@ -27,6 +27,10 @@ export type SharedPlan = {
 	readonly goal: Goal;
 	readonly fillMap: boolean;
 	readonly castleLast: boolean;
+	/**
+	Guilds sitting out, in guild order; see `PlanSettings.inactive`.
+	*/
+	readonly inactive: readonly GuildIndex[];
 	/**
 	Days already played, as they happened, from Wednesday on; the plan
 	starts with them. Empty until someone records a day.
@@ -53,6 +57,8 @@ Encodes a setup and plan into a URL fragment, e.g.
 
 - `f=1`: use every kingdom, see `PlanSettings.fillMap`.
 - `c=1`: extra castle-days to the last guilds, see `PlanSettings.castleLast`.
+- `i`: the guilds sitting out, one digit `1`–`4` each, in guild order; see
+  `PlanSettings.inactive`. Absent when every guild plays.
 - `t`: one digit per town in link order (see `GameMap.linkOrder`): `0`
   vacant, `1`–`4` the guild.
 - `h`: days already played, see `SharedPlan.played`, written like `p`.
@@ -82,6 +88,10 @@ export function encodeShareLink(shared: SharedPlan): string {
 
 	if (shared.castleLast) {
 		parameters.set('c', '1');
+	}
+
+	if (shared.inactive.length > 0) {
+		parameters.set('i', shared.inactive.map(g => g + 1).join(''));
 	}
 
 	for (const name of shared.guildNames) {
@@ -148,6 +158,24 @@ export class ShareLinkError extends Error {
 }
 
 /**
+The guilds sitting out, from `i`. Links from before guilds could sit out
+have every guild playing. At least one always plays, or there would be
+nothing to plan.
+*/
+function decodeInactive(text: string): GuildIndex[] {
+	if (!/^[1-4]*$/u.test(text)) {
+		throw new ShareLinkError('damaged');
+	}
+
+	const inactive = [...new Set(text)].toSorted().map(digit => Number(digit) - 1);
+	if (inactive.length === GUILD_COUNT) {
+		throw new ShareLinkError('damaged');
+	}
+
+	return inactive;
+}
+
+/**
 Decodes a URL fragment; returns undefined when it is not a share link at all.
 */
 export function decodeShareLink(fragment: string): SharedPlan | undefined {
@@ -186,6 +214,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 	const names = parameters.getAll('g');
 	const guildNames = Array.from({length: GUILD_COUNT}, (_, g) => cleanGuildName(names[g] ?? ''));
 
+	const inactive = decodeInactive(parameters.get('i') ?? '');
 	const towns = parameters.get('t') ?? '';
 	if (towns.length !== map.towns.length || !/^[0-4]+$/u.test(towns)) {
 		throw new ShareLinkError('towns');
@@ -244,6 +273,8 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 	let plan: Plan | undefined;
 	if (p !== null) {
 		plan = {declarations: [...played, ...decodeDays(p)]};
+		// Declares on a guild sitting out break no rule: the plan opens, with
+		// a warning (see `PlannerState.disturbance`).
 		broken(simulate(map, start, plan).violations[0]);
 	}
 
@@ -254,6 +285,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 		goal,
 		fillMap: parameters.get('f') === '1',
 		castleLast: parameters.get('c') === '1',
+		inactive,
 		played,
 		plan,
 		received: parameters.get('s') === '1',

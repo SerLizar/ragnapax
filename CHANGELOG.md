@@ -6,6 +6,17 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.2.0 - 2026-10-25
+
+### Added
+
+- "Advanced options" under the goal, with a switch per guild for guilds
+  sitting out: guilds the game put in the group that don't play Ragnarok.
+  They make no declares, nobody declares on their kingdoms, and the guilds
+  that play share the points between themselves. Share links and plans
+  copied as text say which guilds sit out. A shared plan that declares on a
+  guild sitting out still opens, with a warning that it may defend.
+
 ## 1.1.0 - 2026-10-24
 
 ### Added

@@ -14,6 +14,7 @@ import {
 	score,
 	setupStatus,
 	simulate,
+	disturbances,
 	startingOwnership,
 	type Plan,
 } from './plan.ts';
@@ -179,6 +180,39 @@ describe('dayBetween', () => {
 				rule: 'adjacent', day: 4, guild: 3, kingdom: idx('Darkwick'),
 			},
 		]);
+	});
+});
+
+describe('disturbances', () => {
+	// Guild 1 takes Vagastrom on Wednesday, guild 2 takes it from guild 1 on Thursday.
+	const timeline = simulate(map, start, {
+		declarations: [[[idx('Vagastrom')], [], [], []], [[], [idx('Vagastrom')], [], []], ...Array.from({length: 4}, idle)],
+	});
+
+	it('finds declares by a guild sitting out, and on what it holds', () => {
+		expect(disturbances(timeline, [0])).toEqual([
+			{
+				kind: 'declares', day: 1, guild: 0, kingdom: idx('Vagastrom'),
+			},
+			{
+				kind: 'attacks', day: 2, guild: 1, rival: 0, kingdom: idx('Vagastrom'),
+			},
+		]);
+		expect(disturbances(timeline, [1])).toEqual([
+			{
+				kind: 'declares', day: 2, guild: 1, kingdom: idx('Vagastrom'),
+			},
+		]);
+		expect(disturbances(timeline, [2, 3])).toEqual([]);
+	});
+
+	it('leaves the days already played as they happened', () => {
+		expect(disturbances(timeline, [0], 2)).toEqual([
+			{
+				kind: 'attacks', day: 2, guild: 1, rival: 0, kingdom: idx('Vagastrom'),
+			},
+		]);
+		expect(disturbances(timeline, [0], 3)).toEqual([]);
 	});
 });
 

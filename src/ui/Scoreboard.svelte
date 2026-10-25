@@ -3,7 +3,7 @@
 
 <script lang="ts">
 	import type {GuildScore} from '../domain/plan.ts';
-	import type {PlanSettings} from '../domain/settings.ts';
+	import {activeGuilds, type PlanSettings} from '../domain/settings.ts';
 	import {rich, t} from '../i18n/i18n.svelte.ts';
 	import GuildMark from './GuildMark.svelte';
 	import Rich from './Rich.svelte';
@@ -28,14 +28,16 @@
 		{name: 'declares', goal: undefined},
 	] as const;
 
+	// The headline is about the share, which guilds sitting out are not part of.
+	const playing = $derived(activeGuilds(settings).map(g => ({g, s: scores[g]!})));
 	const spread = (f: (s: GuildScore) => number) =>
-		Math.max(...scores.map(s => f(s))) - Math.min(...scores.map(s => f(s)));
-	const best = $derived(Math.max(...scores.map(s => s.points)));
-	const least = $derived(Math.min(...scores.map(s => s.points)));
+		Math.max(...playing.map(({s}) => f(s))) - Math.min(...playing.map(({s}) => f(s)));
+	const best = $derived(Math.max(...playing.map(({s}) => s.points)));
+	const least = $derived(Math.min(...playing.map(({s}) => s.points)));
 	// Guilds that came out ahead when the map could not be split evenly.
 	const extras = $derived(
-		scores
-			.map((s, g) => ({name: guildNames[g]!, extra: s.points - least}))
+		playing
+			.map(({g, s}) => ({name: guildNames[g]!, extra: s.points - least}))
 			.filter(entry => entry.extra > 0),
 	);
 	const isEven = $derived(
@@ -57,9 +59,9 @@ since few read an abbreviation's title. -->
 			{:else}
 				<Rich
 					parts={rich('score.holdings', {
-						towns: t('score.townDays', {count: scores[0]!.held.town}),
-						dorms: t('score.dormDays', {count: scores[0]!.held.dormitory}),
-						castle: t('score.castleDays', {count: scores[0]!.held.castle}),
+						towns: t('score.townDays', {count: playing[0]!.s.held.town}),
+						dorms: t('score.dormDays', {count: playing[0]!.s.held.dormitory}),
+						castle: t('score.castleDays', {count: playing[0]!.s.held.castle}),
 					})}
 				/>
 			{/if}
@@ -107,7 +109,12 @@ since few read an abbreviation's title. -->
 					<th scope="row" class="name">
 						<span class="who">
 							<GuildMark guild={g} size={16} />
-							<span class="text">{guildNames[g]}</span>
+							<span class="text">
+								{guildNames[g]}
+								{#if settings.inactive.includes(g)}
+									<span class="out">{t('score.inactive')}</span>
+								{/if}
+							</span>
 						</span>
 					</th>
 					<td class:key={goal === 'points'}>{s.points}</td>
@@ -200,6 +207,13 @@ since few read an abbreviation's title. -->
 			font-size: 0.65rem;
 			letter-spacing: 0;
 		}
+	}
+
+	.out {
+		display: block;
+		color: var(--muted);
+		font-size: 0.8rem;
+		font-weight: 400;
 	}
 
 	td.key {

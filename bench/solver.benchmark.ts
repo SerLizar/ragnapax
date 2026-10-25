@@ -16,6 +16,7 @@ import {
 	planFromTimeline,
 	score,
 	simulate,
+	disturbances,
 	startingOwnership,
 } from '../src/domain/plan.ts';
 import {GOALS, type PlanSettings} from '../src/domain/settings.ts';
@@ -25,9 +26,22 @@ import {randomStart} from '../src/test/random.ts';
 
 const STARTS = Number(process.env.BENCH_STARTS ?? 4);
 const SETTINGS: PlanSettings[] = GOALS.flatMap(goal => [
-	{goal, fillMap: false, castleLast: false},
-	{goal, fillMap: true, castleLast: false},
-	{goal, fillMap: true, castleLast: true},
+	{
+		goal, fillMap: false, castleLast: false, inactive: [],
+	},
+	{
+		goal, fillMap: true, castleLast: false, inactive: [],
+	},
+	{
+		goal, fillMap: true, castleLast: true, inactive: [],
+	},
+	// A guild in the middle sits out, so the guild order skips it.
+	{
+		goal, fillMap: false, castleLast: false, inactive: [1],
+	},
+	{
+		goal, fillMap: true, castleLast: false, inactive: [1],
+	},
 ]);
 
 it('solves every map quickly and fairly', async () => {
@@ -66,6 +80,7 @@ it('solves every map quickly and fairly', async () => {
 				const plan = planFromTimeline(map, outcome.owners);
 				const timeline = simulate(map, start, plan);
 				expect(timeline.violations).toEqual([]);
+				expect(disturbances(timeline, settings.inactive)).toEqual([]);
 				const scores = score(map, timeline);
 
 				// Wednesday goes wrong: the first guild forgets to declare. Timed
@@ -98,7 +113,8 @@ it('solves every map quickly and fairly', async () => {
 				rows.push({
 					map: map.id,
 					seed,
-					goal: settings.goal + (settings.fillMap ? '+fill' : '') + (settings.castleLast ? '+castle' : ''),
+					goal: settings.goal + (settings.fillMap ? '+fill' : '') + (settings.castleLast ? '+castle' : '')
+						+ settings.inactive.map(g => `-g${g + 1}`).join(''),
 					quality: outcome.quality,
 					'first plan s': firstPlan.toFixed(1),
 					'proven s': proven.toFixed(1),

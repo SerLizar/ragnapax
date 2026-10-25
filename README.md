@@ -39,6 +39,10 @@ nothing is uploaded.
   are recorded as played, wherever they still fit). Another switch can hand
   the castle's extra days to the last guild instead, while the first guild
   still gets the most points.
+- **Guilds sitting out.** Under "Advanced options", mark any guild the game
+  put in your group that doesn't play Ragnarok: it makes no declares, nobody
+  declares on its kingdoms, and the others share the points between
+  themselves.
 - **Provably fair plans in seconds.** An exact optimiser
   ([HiGHS](https://highs.dev/)) runs in the browser, shows better plans as it
   finds them, and says whether the result is proven fairest. "How plans are

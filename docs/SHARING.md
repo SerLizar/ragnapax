@@ -17,6 +17,7 @@ servers. The format is defined in `src/share/link.ts`:
 | `o`       | Goal: `p` (points) or `r` (resources).                                                               |
 | `f`       | `1` when using every kingdom; absent otherwise.                                                      |
 | `c`       | `1` when extra castle-days go to the last guilds (`castleLast`); absent otherwise, the old behaviour. |
+| `i`       | Guilds sitting out (`inactive`), one digit `1`–`4` each, e.g. `i=24`; absent when every guild plays, the old behaviour. All four is a damaged link. |
 | `g`       | Guild name, repeated once per guild, in order. Trimmed, without hidden characters, cut to 9 characters as players see them; blank is "Guild N". |
 | `t`       | One digit per town in link order: `0` Vacant, `1`–`4` guild.                                         |
 | `h`       | Optional days already played, written like `p`. Absent until someone records a day.                  |
@@ -28,7 +29,9 @@ Example (about 100 characters with short names):
 `#v=1&m=floating-city&o=p&g=A&g=B&g=C&g=D&t=11221124244334303&p=nh.ij.k.ml-o..j.f-...o-9.n.o.-.o..-l..f.`
 
 Decoding validates everything, and a plan must pass `simulate`, so a damaged or
-hand-edited link can never show an illegal plan. A kingdom a guild lists
+hand-edited link can never show an illegal plan. A plan that does not leave
+the guilds sitting out alone breaks no rule: it opens, with a warning (see
+"Settings and priorities" in docs/SOLVER.md). A kingdom a guild lists
 twice on one day (only possible by hand) is read as one declare. Problems are reported as a
 `ShareLinkError` with a `problem` code, explained in the reader's language.
 Untouched guild names travel blank, so each reader sees "Guild 1" in their own

@@ -186,7 +186,7 @@ export default {
 	'goal.resources.description':
 		'Every guild holds towns, dorms and the castle for the same number of days.',
 	'goal.fillMap': 'Use every kingdom',
-	// {guild}: the first guild's name.
+	// {guild}: the name of the first guild that plays (see "advanced.inactive").
 	'goal.fillMap.description':
 		'Hold as much of the map as possible, every day. Totals may then differ slightly; extras are shared out as evenly as possible, with the most going to {guild}.',
 	// Instead of "goal.fillMap.description" once days are recorded as played:
@@ -196,9 +196,19 @@ export default {
 	// Under "goal.fillMap" while it is on, and in the title of a plan copied
 	// as text.
 	'goal.castleLast': 'Extra castle days last',
-	// {first}, {last}: the first and last guild's names.
+	// {first}, {last}: the names of the first and last guilds that play.
 	'goal.castleLast.description':
 		'When the castle cannot be shared evenly, its extra days go to {last} first instead of {first}. {first} still gets the most points, from other kingdoms.',
+
+	// A disclosure under the goal's options, for choices few groups need.
+	'advanced.title': 'Advanced options',
+	// A switch per guild follows, named by the guild's name.
+	'advanced.inactive': 'Guilds sitting out',
+	'advanced.inactive.description':
+		'The game can put guilds that don\'t play Ragnarok in a group. A guild sitting out makes no declares, nobody declares on its kingdoms, and it isn\'t counted when sharing out points.',
+	// Under the guild switches when every guild but one sits out, whose
+	// switch is then disabled.
+	'advanced.inactive.last': 'At least one guild must play.',
 
 	// "How plans are ranked", most important first.
 	'ranking.title': 'How plans are ranked',
@@ -259,6 +269,12 @@ export default {
 	'result.update': 'Update',
 	// {problem}: one of the "rule." messages below.
 	'result.broken': 'This plan breaks Ragnarok\'s rules: {problem}',
+	// A warning above the scores when the plan does not leave a guild sitting
+	// out alone (see "advanced.inactive"), such as in a link edited by hand. It
+	// breaks no rule. {day} is a weekday, {guild} and {rival} guild names.
+	'result.sittingOutAttacked':
+		'{day}: {guild} declares on {kingdom}, held by {rival}, which sits out. Guilds sitting out may defend their kingdoms when attacked.',
+	'result.sittingOutDeclares': '{day}: {guild} declares on {kingdom}, though it sits out.',
 	'result.share': 'Share plan',
 	'result.copy': 'Copy as text',
 	'result.copyDeclares': 'Copy declares for {guild}',
@@ -335,6 +351,9 @@ export default {
 	'score.castleLong': 'Castle-days',
 	'score.declaresShort': 'Decl',
 	'score.declaresLong': 'Declares over the whole Ragnarok',
+	// Under the name of a guild sitting out (see "advanced.inactive"), whose
+	// numbers are left out of the headline.
+	'score.inactive': 'Sitting out',
 
 	// Day-by-day replay. Weekday names need no translation: see `weekday`.
 	'days.focus': 'Show declares for',
@@ -378,6 +397,8 @@ export default {
 	'text.moves': '{guild}: {moves}',
 	'text.from': '{kingdom} (from {guild})',
 	'text.none': 'no declares',
+	// {guilds}: the guilds sitting out (see "advanced.inactive"), e.g. "Bears, Owls".
+	'text.inactive': 'Sitting out: {guilds}',
 	// {scores}: each guild's "text.score", separated by " · ".
 	'text.points': 'Points: {scores}',
 	'text.score': '{guild} {points}',

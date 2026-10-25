@@ -2,7 +2,9 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
 <script lang="ts">
+	import {untrack} from 'svelte';
 	import {
+		activeGuilds,
 		GOALS,
 		priorities,
 		refinements,
@@ -13,6 +15,7 @@
 	import {t} from '../i18n/i18n.svelte.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
 	import {focusFallback} from './focus.ts';
+	import GuildMark from './GuildMark.svelte';
 	import Icon from './Icon.svelte';
 	import SolveProgress from './SolveProgress.svelte';
 
@@ -32,6 +35,11 @@
 	const isSolving = $derived(planner.solve.phase === 'solving');
 	const failure = $derived(planner.solve.phase === 'failed' ? planner.solve : undefined);
 	const isUpToDate = $derived(planner.result !== undefined && !planner.stale);
+	// The guild order runs over the guilds that play.
+	const playing = $derived(activeGuilds(planner.settings).map(g => planner.displayNames[g]!));
+	// Opens with the card when a guild sits out, so the choice is in view,
+	// but never closes by itself while the player changes it.
+	let isAdvancedOpen = $state(untrack(() => planner.inactive.length > 0));
 </script>
 
 <section class="card" aria-labelledby="goal-title">
@@ -76,12 +84,12 @@
 			<!-- Played days drop the guild order: see `buildModel`. -->
 			{planner.played.length > 0
 				? t('goal.fillMap.description.played')
-				: t('goal.fillMap.description', {guild: planner.displayNames[0]!})}
+				: t('goal.fillMap.description', {guild: playing[0]!})}
 		</span>
 	</label>
 
 	<!-- Only while the guild order applies: see `guildOrders`. -->
-	{#if planner.fillMap && planner.played.length === 0}
+	{#if planner.fillMap && planner.played.length === 0 && playing.length > 1}
 		<label class="option nested">
 			<input
 				type="checkbox"
@@ -94,12 +102,36 @@
 			<span class="title" id="{id}-castle">{t('goal.castleLast')}</span>
 			<span class="desc" id="{id}-castle-desc">
 				{t('goal.castleLast.description', {
-					first: planner.displayNames[0]!,
-					last: planner.displayNames.at(-1)!,
+					first: playing[0]!,
+					last: playing.at(-1)!,
 				})}
 			</span>
 		</label>
 	{/if}
+
+	<details class="advanced" bind:open={isAdvancedOpen}>
+		<summary>{t('advanced.title')}</summary>
+		<fieldset class="sitting-out" aria-describedby="{id}-out-desc">
+			<legend class="title">{t('advanced.inactive')}</legend>
+			<p class="desc" id="{id}-out-desc">{t('advanced.inactive.description')}</p>
+			{#each planner.displayNames as name, g (g)}
+				{@const isOut = planner.inactive.includes(g)}
+				<label class="option guild">
+					<input
+						type="checkbox"
+						role="switch"
+						checked={isOut}
+						disabled={!isOut && playing.length === 1}
+						onchange={event => planner.setSittingOut(g, event.currentTarget.checked)}
+					/>
+					<span class="title"><GuildMark guild={g} size={16} /> {name}</span>
+				</label>
+			{/each}
+			{#if playing.length === 1}
+				<p class="desc">{t('advanced.inactive.last')}</p>
+			{/if}
+		</fieldset>
+	</details>
 
 	<details class="ranking">
 		<summary>{t('ranking.title')}</summary>
@@ -231,6 +263,11 @@
 			background 0.15s;
 	}
 
+	.option input:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
 	.option input:checked {
 		border-color: var(--accent);
 		background: var(--accent);
@@ -279,13 +316,15 @@
 		font-size: 1.05rem;
 	}
 
-	.ranking {
+	.ranking,
+	.advanced {
 		margin: -8px 0 16px;
 		color: var(--muted);
 		font-size: 0.9rem;
 	}
 
-	.ranking summary {
+	.ranking summary,
+	.advanced summary {
 		width: fit-content;
 		padding: 4px 0;
 		color: var(--accent);
@@ -300,6 +339,37 @@
 
 	.ranking p {
 		margin: 0;
+	}
+
+	.sitting-out {
+		display: grid;
+		gap: 8px;
+		min-inline-size: 0;
+		margin: 8px 0 0;
+		padding: 0;
+		border: 0;
+		color: var(--text);
+		font-size: 1rem;
+	}
+
+	.sitting-out legend {
+		padding: 0;
+	}
+
+	.sitting-out p {
+		margin: 0;
+	}
+
+	.option.guild {
+		margin: 0;
+	}
+
+	.option.guild .title {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 
 	.hint {

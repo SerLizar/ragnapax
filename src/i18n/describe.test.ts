@@ -15,6 +15,7 @@ import {decodeShareLink, type ShareLinkError} from '../share/link.ts';
 import {FLOATING_CITY_START} from '../test/fixtures.ts';
 import {
 	describeCriterion,
+	describeDisturbance,
 	describeLinkError,
 	describeViolation,
 	mapName,
@@ -50,7 +51,9 @@ it('names the days Wednesday to Monday', () => {
 });
 
 it('describes the priorities in words', () => {
-	const settings = {goal: 'resources', fillMap: true, castleLast: false} as const;
+	const settings = {
+		goal: 'resources', fillMap: true, castleLast: false, inactive: [],
+	} as const;
 	expect(
 		[...priorities(settings), ...refinements(settings)].map(c => describeCriterion(c)),
 	).toEqual([
@@ -104,6 +107,23 @@ describe('describeViolation', () => {
 				'This link\'s plan breaks Ragnarok\'s rules: Wednesday: Guild 1 declares on Town A, which it already holds.',
 			);
 		}
+	});
+});
+
+describe('describeDisturbance', () => {
+	const map = DEFAULT_MAP;
+	const idx = (id: string) => map.indexOf(id)!;
+	const names = ['Owls', 'Bears', 'Cats', 'Dogs'];
+
+	it('warns that a guild sitting out may defend, rather than calling it a broken rule', () => {
+		expect(describeDisturbance(map, {
+			kind: 'attacks', day: 2, guild: 1, rival: 0, kingdom: idx('Vagastrom'),
+		}, names)).toBe(
+			'Thursday: Bears declares on Vagastrom, held by Owls, which sits out. Guilds sitting out may defend their kingdoms when attacked.',
+		);
+		expect(describeDisturbance(map, {
+			kind: 'declares', day: 1, guild: 0, kingdom: idx('Vagastrom'),
+		}, names)).toBe('Wednesday: Owls declares on Vagastrom, though it sits out.');
 	});
 });
 

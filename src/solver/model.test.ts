@@ -6,7 +6,9 @@
 // a model that allows too much, but not one that forbids a legal week: the
 // solver would just never make it. So these tests take random weeks, legal
 // and not, pin the model's ownership to them, and check that the model can
-// hold exactly the ones the rules engine accepts.
+// hold exactly the ones the rules engine accepts. Half the weeks have a
+// guild sitting out, which the model must leave alone just as
+// `disturbances` does.
 
 import loadHighs from 'highs';
 import {beforeAll, expect, it} from 'vitest';
@@ -15,14 +17,17 @@ import {
 	followPlan,
 	planFromTimeline,
 	simulate,
+	disturbances,
 	startingOwnership,
 	type Ownership,
 } from '../domain/plan.ts';
 import {
 	DAYS,
+	GUILD_COUNT,
 	GUILDS,
 	MAX_DECLARATIONS_PER_DAY,
 	VACANT,
+	type GuildIndex,
 } from '../domain/types.ts';
 import {MAPS} from '../maps/index.ts';
 import {random, randomStart} from '../test/random.ts';
@@ -36,13 +41,20 @@ beforeAll(async () => {
 /**
 A random legal week: each day, each guild declares on up to the most it
 may of the kingdoms it could, and `followPlan` drops whatever clashes.
+Guilds sitting out declare nothing, and nobody declares on what they hold.
 */
-function randomWeek(map: GameMap, start: Ownership, next: () => number): Ownership[] {
+function randomWeek(
+	map: GameMap,
+	start: Ownership,
+	inactive: readonly GuildIndex[],
+	next: () => number,
+): Ownership[] {
 	const owners = [start];
 	for (let day = 1; day <= DAYS; day++) {
 		const before = owners.at(-1)!;
 		const declarations = GUILDS.map(g => {
 			const options = map.kingdoms
+				.filter(t => !inactive.includes(g) && !inactive.includes(before[t.index]!))
 				.filter(t => before[t.index] !== g && t.neighbors.some(n => before[n] === g))
 				.map(t => t.index)
 				.toSorted(() => next() - 0.5);
@@ -55,13 +67,20 @@ function randomWeek(map: GameMap, start: Ownership, next: () => number): Ownersh
 }
 
 /**
-Whether the rules engine accepts a week: its declarations break no rule,
-and replaying them gives back the week itself (a kingdom that falls back to
-Vacant has no declaration that could explain it).
+Whether the rules engine accepts a week: its declarations break no rule
+or, after the days played, disturb no guild sitting out, and replaying them
+gives back the week itself (a kingdom that falls back to Vacant has no
+declaration that could explain it).
 */
-function isLegal(map: GameMap, owners: readonly Ownership[]): boolean {
+function isLegal(
+	map: GameMap,
+	owners: readonly Ownership[],
+	played: number,
+	inactive: readonly GuildIndex[],
+): boolean {
 	const timeline = simulate(map, owners[0]!, planFromTimeline(map, owners));
 	return timeline.violations.length === 0
+		&& disturbances(timeline, inactive, played + 1).length === 0
 		&& timeline.owners.every((day, d) => day.every((owner, t) => owner === owners[d]![t]));
 }
 
@@ -69,9 +88,14 @@ function isLegal(map: GameMap, owners: readonly Ownership[]): boolean {
 Whether the model can hold a week, with every day from `played` on decided
 by the model and the days before it given as played.
 */
-function canModelHold(map: GameMap, owners: readonly Ownership[], played: number): boolean {
+function canModelHold(
+	map: GameMap,
+	owners: readonly Ownership[],
+	played: number,
+	inactive: readonly GuildIndex[],
+): boolean {
 	const {milp} = buildModel({
-		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false, castleLast: false,
+		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false, castleLast: false, inactive,
 	});
 	const column = new Map(milp.names.map((name, col) => [name, col]));
 	const data = milp.toArrays();
@@ -79,11 +103,14 @@ function canModelHold(map: GameMap, owners: readonly Ownership[], played: number
 		map.kingdoms.flatMap(t => GUILDS.map(g => ({
 			col: column.get(`own_g${g}_d${d}_${t.id}`),
 			doesHold: owners[d]![t.index] === g,
+			// Guilds sitting out keep what they held when the days played ended.
+			isFixed: inactive.includes(g) && owners[played]![t.index] === g,
 		}))));
-	for (const {col, doesHold} of decided) {
-		// Left out of the model as out of reach, it can only be 0.
+	for (const {col, doesHold, isFixed} of decided) {
+		// Left out of the model as out of reach, it can only be 0, or as
+		// held by a guild sitting out, only 1.
 		if (col === undefined) {
-			if (doesHold) {
+			if (doesHold !== isFixed) {
 				return false;
 			}
 
@@ -141,17 +168,19 @@ it.each(MAPS.map(map => [map.id, map] as const))(
 		let illegal = 0;
 		for (let seed = 1; seed <= WEEKS; seed++) {
 			const next = random(seed);
-			const owners = randomWeek(map, startingOwnership(map, randomStart(map, seed)), next);
+			// Every guild in turn sits out, in half the weeks.
+			const inactive = seed % 2 === 0 ? [] : [Math.floor(seed / 2) % GUILD_COUNT];
+			const owners = randomWeek(map, startingOwnership(map, randomStart(map, seed)), inactive, next);
 			// Some days already played, as when planning the rest of the week.
 			const played = seed % 3;
-			expect(isLegal(map, owners)).toBe(true);
-			expect(canModelHold(map, owners, played), `legal week, seed ${seed}`).toBe(true);
+			expect(isLegal(map, owners, played, inactive)).toBe(true);
+			expect(canModelHold(map, owners, played, inactive), `legal week, seed ${seed}`).toBe(true);
 			legal++;
 
 			for (let i = 0; i < MUTATIONS; i++) {
 				const mutated = mutate(owners, played, next);
-				const isAllowed = isLegal(map, mutated);
-				expect(canModelHold(map, mutated, played), `seed ${seed}, change ${i}`).toBe(isAllowed);
+				const isAllowed = isLegal(map, mutated, played, inactive);
+				expect(canModelHold(map, mutated, played, inactive), `seed ${seed}, change ${i}`).toBe(isAllowed);
 				if (isAllowed) {
 					legal++;
 				} else {

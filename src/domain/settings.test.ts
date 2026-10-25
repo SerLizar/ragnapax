@@ -3,6 +3,7 @@
 
 import {describe, expect, it} from 'vitest';
 import {
+	activeGuilds,
 	guildOrders,
 	priorities,
 	refinements,
@@ -16,7 +17,9 @@ const TOTAL: Criterion = {kind: 'total'};
 // These orders are in "Settings and priorities" in docs/SOLVER.md; keep both in step.
 describe('priorities', () => {
 	it('puts equal points first, then everyone\'s points, then fair holdings', () => {
-		expect(priorities({goal: 'points', fillMap: false, castleLast: false})).toEqual([
+		expect(priorities({
+			goal: 'points', fillMap: false, castleLast: false, inactive: [],
+		})).toEqual([
 			gap('points'),
 			TOTAL,
 			gap('castle'),
@@ -25,7 +28,9 @@ describe('priorities', () => {
 	});
 
 	it('balances every kind of holding before points for equal resources', () => {
-		expect(priorities({goal: 'resources', fillMap: false, castleLast: false})).toEqual([
+		expect(priorities({
+			goal: 'resources', fillMap: false, castleLast: false, inactive: [],
+		})).toEqual([
 			gap('castle'),
 			gap('dormitory'),
 			gap('town'),
@@ -35,18 +40,33 @@ describe('priorities', () => {
 
 	it('fills the map before anything else when asked', () => {
 		for (const goal of ['points', 'resources'] as const) {
-			expect(priorities({goal, fillMap: true, castleLast: false})[0]).toEqual(TOTAL);
+			expect(priorities({
+				goal, fillMap: true, castleLast: false, inactive: [],
+			})[0]).toEqual(TOTAL);
 		}
 	});
 });
 
 describe('refinements', () => {
 	it('spreads leftover resources across guilds when filling the map', () => {
-		expect(refinements({goal: 'resources', fillMap: true, castleLast: false})).toEqual([gap('points')]);
-		expect(refinements({goal: 'resources', fillMap: false, castleLast: false})).toEqual([]);
+		expect(refinements({
+			goal: 'resources', fillMap: true, castleLast: false, inactive: [],
+		})).toEqual([gap('points')]);
+		expect(refinements({
+			goal: 'resources', fillMap: false, castleLast: false, inactive: [],
+		})).toEqual([]);
 		for (const isFillMap of [false, true]) {
-			expect(refinements({goal: 'points', fillMap: isFillMap, castleLast: false})).toEqual([]);
+			expect(refinements({
+				goal: 'points', fillMap: isFillMap, castleLast: false, inactive: [],
+			})).toEqual([]);
 		}
+	});
+});
+
+describe('activeGuilds', () => {
+	it('lists the guilds that play, in guild order', () => {
+		expect(activeGuilds({inactive: []})).toEqual([0, 1, 2, 3]);
+		expect(activeGuilds({inactive: [1, 3]})).toEqual([0, 2]);
 	});
 });
 
@@ -55,16 +75,22 @@ describe('guildOrders', () => {
 
 	it('only orders guilds when filling the map', () => {
 		for (const isCastleLast of [false, true]) {
-			expect(guildOrders({goal: 'points', fillMap: false, castleLast: isCastleLast})).toEqual([]);
+			expect(guildOrders({
+				goal: 'points', fillMap: false, castleLast: isCastleLast, inactive: [],
+			})).toEqual([]);
 		}
 
 		for (const goal of ['points', 'resources'] as const) {
-			expect(guildOrders({goal, fillMap: true, castleLast: false})).toEqual([points]);
+			expect(guildOrders({
+				goal, fillMap: true, castleLast: false, inactive: [],
+			})).toEqual([points]);
 		}
 	});
 
 	it('can hand extra castle-days to the last guilds, keeping points in order', () => {
-		expect(guildOrders({goal: 'resources', fillMap: true, castleLast: true})).toEqual([
+		expect(guildOrders({
+			goal: 'resources', fillMap: true, castleLast: true, inactive: [],
+		})).toEqual([
 			points,
 			{measure: 'castle', ascending: true},
 		]);

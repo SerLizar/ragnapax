@@ -12,13 +12,19 @@ import {
 	score,
 	setupStatus,
 	simulate,
+	disturbances,
 	startingOwnership,
 	type DayDeclarations,
 	type Ownership,
 	type Plan,
 } from '../domain/plan.ts';
 import {DEFAULT_SETTINGS, type Goal, type PlanSettings} from '../domain/settings.ts';
-import {DAYS, GUILDS, type GuildIndex} from '../domain/types.ts';
+import {
+	DAYS,
+	GUILD_COUNT,
+	GUILDS,
+	type GuildIndex,
+} from '../domain/types.ts';
 import {DEFAULT_MAP, mapOfWeek} from '../maps/index.ts';
 import {
 	decodeShareLink,
@@ -112,6 +118,11 @@ export class PlannerState {
 	fillMap = $state(DEFAULT_SETTINGS.fillMap);
 	castleLast = $state(DEFAULT_SETTINGS.castleLast);
 	/**
+	Guilds sitting out, in guild order. Raw, as it goes to the solver worker,
+	which cannot be sent a proxy.
+	*/
+	inactive = $state.raw<readonly GuildIndex[]>(DEFAULT_SETTINGS.inactive);
+	/**
 	Days already played, as they happened; see `recordDay`.
 	*/
 	played = $state.raw<readonly DayDeclarations[]>([]);
@@ -140,6 +151,7 @@ export class PlannerState {
 		goal: this.goal,
 		fillMap: this.fillMap,
 		castleLast: this.castleLast,
+		inactive: this.inactive,
 	});
 
 	/**
@@ -188,6 +200,17 @@ export class PlannerState {
 	);
 
 	readonly scores = $derived(this.timeline ? score(this.map, this.timeline) : undefined);
+	/**
+	The first declare of an up-to-date plan, after the days played, that does
+	not leave a guild sitting out alone, such as in a link made by hand. It
+	breaks no rule, so the plan is shown, with a warning.
+	*/
+	readonly disturbance = $derived(
+		this.timeline && !this.stale
+			? disturbances(this.timeline, this.inactive, this.played.length + 1)[0]
+			: undefined,
+	);
+
 	/**
 	True while the plan is up to date and proven the best there is, so
 	planning again could not improve on it.
@@ -239,6 +262,7 @@ export class PlannerState {
 		this.goal = setup.goal;
 		this.fillMap = setup.fillMap;
 		this.castleLast = setup.castleLast;
+		this.inactive = setup.inactive;
 		this.played = setup.played;
 		this.result = setup.plan && {
 			plan: setup.plan,
@@ -526,6 +550,17 @@ export class PlannerState {
 	}
 
 	/**
+	Has a guild sit this Ragnarok out, or play again. Ignored when it would
+	leave no guild playing.
+	*/
+	setSittingOut(guild: GuildIndex, isOut: boolean): void {
+		const inactive = GUILDS.filter(g => (g === guild ? isOut : this.inactive.includes(g)));
+		if (inactive.length < GUILD_COUNT) {
+			this.inactive = inactive;
+		}
+	}
+
+	/**
 	Starts downloading the solver, unless the user asked to save data.
 	*/
 	warmUpSolver(): void {
@@ -551,9 +586,16 @@ export class PlannerState {
 			},
 			(owners, quality: PlanQuality) => {
 				const plan = planFromTimeline(map, owners);
-				const {violations} = simulate(map, start, plan);
-				if (violations.length > 0) {
-					throw new Error(`The solver broke a rule: ${JSON.stringify(violations[0])}`);
+				const timeline = simulate(map, start, plan);
+				const [violation] = timeline.violations;
+				if (violation) {
+					throw new Error(`The solver broke a rule: ${JSON.stringify(violation)}`);
+				}
+
+				// The model leaves guilds sitting out alone: anything else is a bug.
+				const [disturbance] = disturbances(timeline, settings.inactive, history.length);
+				if (disturbance) {
+					throw new Error(`The solver disturbed a guild sitting out: ${JSON.stringify(disturbance)}`);
 				}
 
 				this.result = {

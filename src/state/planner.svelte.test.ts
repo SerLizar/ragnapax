@@ -33,6 +33,7 @@ const link = encodeShareLink({
 	goal: 'points',
 	fillMap: false,
 	castleLast: false,
+	inactive: [],
 	played: [],
 	plan,
 	received: false,
@@ -45,6 +46,7 @@ const sent = encodeShareLink({
 	goal: 'points',
 	fillMap: false,
 	castleLast: false,
+	inactive: [],
 	played: [],
 	plan,
 	received: true,
@@ -336,6 +338,7 @@ describe('PlannerState', () => {
 		flushSync();
 		planner.setFillMap(true);
 		planner.setCastleLast(true);
+		planner.setSittingOut(2, true);
 		flushSync();
 		stop();
 
@@ -343,6 +346,65 @@ describe('PlannerState', () => {
 		again.restore('');
 		expect(again.fillMap).toBe(true);
 		expect(again.castleLast).toBe(true);
+		expect(again.inactive).toEqual([2]);
+	});
+
+	it('warns about a plan that does not leave a guild sitting out alone, after the days played', () => {
+		const planner = new PlannerState();
+		// Guild 1, sitting out, takes Vagastrom on Wednesday.
+		planner.restore('#' + link.replace('&g=', '&i=1&g='));
+		expect(planner.result).toBeDefined();
+		expect(planner.disturbance).toEqual({
+			kind: 'declares', day: 1, guild: 0, kingdom: idx('Vagastrom'),
+		});
+		planner.recordAsPlanned(1);
+		expect(planner.disturbance).toBeUndefined();
+	});
+
+	it('lets guilds sit out, in guild order, but never every guild', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + link);
+		planner.setSittingOut(3, true);
+		planner.setSittingOut(1, true);
+		expect(planner.inactive).toEqual([1, 3]);
+		expect(planner.stale).toBe(true);
+		planner.setSittingOut(0, true);
+		planner.setSittingOut(2, true);
+		expect(planner.inactive).toEqual([0, 1, 3]);
+		planner.setSittingOut(1, false);
+		planner.setSittingOut(0, false);
+		planner.setSittingOut(3, false);
+		expect(planner.inactive).toEqual([]);
+		expect(planner.stale).toBe(false);
+	});
+
+	it('asks the solver to leave guilds sitting out alone, and refuses plans that do not', async () => {
+		let request: SolveRequest | undefined;
+		const client: SolverClient = {
+			ready: true,
+			onReady: () => () => undefined,
+			warmUp: () => undefined,
+			solve(asked) {
+				// The worker can only be sent what can be cloned.
+				request = structuredClone(asked);
+				// Guild 1, sitting out, takes Vagastrom on Wednesday.
+				const owners: Ownership[] = Array.from({length: 7}, (_, day) =>
+					asked.start.map((owner, t) => (day > 0 && t === idx('Vagastrom') ? 0 : owner)),
+				);
+				return {
+					result: Promise.resolve({
+						kind: 'solved', quality: 'optimal', owners, elapsed: 0,
+					}),
+					cancel: () => undefined,
+				};
+			},
+		};
+		const planner = new PlannerState(client);
+		planner.restore('#' + link);
+		planner.setSittingOut(0, true);
+		await planner.findPlan();
+		expect(request?.settings.inactive).toEqual([0]);
+		expect(planner.solve.phase === 'failed' && planner.solve.detail).toMatch(/disturbed a guild sitting out.*declares/u);
 	});
 
 	it('locks the starting towns while a plan is found for them', async () => {

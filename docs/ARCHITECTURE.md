@@ -55,7 +55,9 @@ Ragnapax does it automatically:
 1. During Wednesday's opening phase, the user names the four guilds and taps
    each guild's starting towns on the map.
 2. They pick a goal (equal resources, the default, or equal points) and
-   optionally ask to use every kingdom.
+   optionally ask to use every kingdom. Under "Advanced options", they can
+   mark guilds the game put in the group that do not play: those are left
+   alone and left out of the share.
 3. A mixed-integer optimiser finds the declarations for every guild on every
    day, and proves whether the result is the fairest possible.
 4. The plan is shown as a day-by-day map replay and per-guild lists of declares, and
@@ -217,7 +219,8 @@ helpers keep it to the setup and its plan:
   when Safari refuses too many changes in a few seconds.
 
 - **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
-  castleLast, and the days recorded as played (`played`).
+  castleLast, the guilds sitting out (`inactive`), and the days recorded as
+  played (`played`).
 - **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away.
 - **Result** (`$state.raw`): the plan plus the start, settings and input key it
   was made for, and its quality, known only for plans the solver made in
@@ -228,13 +231,14 @@ helpers keep it to the setup and its plan:
   played), `nextDay` (the day that can be recorded next, never Monday),
   `lastPlannedDay` (the last day that can be recorded as planned, while the
   plan agrees with every day recorded), the
-  timeline and scores, `stale` (inputs
+  timeline and scores, `disturbance` (the first declare, after the days
+  played, that does not leave a guild sitting out alone), `stale` (inputs
   changed since the plan was made), `isBest` (up to date and proven best),
   `isReceived` and `openedFromLink`, and the
   serialised forms: `ownFragment` and `address`.
 - **Actions:** `restore`, `switchMap`, `toggleTown`, `clearTowns`, `setGuildName`,
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
-  `recordDay`,
+  `setSittingOut`, `recordDay`,
   `recordAsPlanned`, `forgetDay`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.
@@ -369,5 +373,6 @@ Short records of the choices that are not obvious from the code.
 | Kingdom-day   | One kingdom held for one scored day, e.g. "castle-days".                                                  |
 | Point sharing | Agreeing on declarations so every guild gets the same reward.                                             |
 | Setup         | Guild names, starting towns, goal and options for one map.                                                |
+| Sitting out   | A guild in the group that does not play: it makes no declares, nobody declares on it, and it is not part of the share. |
 | Plan          | Every guild's declarations for every day.                                                                 |
 | Proven        | The solver showed nothing better exists for every priority.                                               |

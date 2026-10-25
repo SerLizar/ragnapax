@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 SerLizar
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import type {KingdomKind} from './types.ts';
+import {GUILDS, type GuildIndex, type KingdomKind} from './types.ts';
 
 /**
 What "fair" means for a plan.
@@ -26,9 +26,27 @@ export type PlanSettings = {
 	first guilds make theirs up with other kingdoms.
 	*/
 	readonly castleLast: boolean;
+	/**
+	Guilds sitting this Ragnarok out, in guild order: the game put them in
+	the group for their power, but they do not play. They make no
+	declarations, nobody declares on what they hold, and they do not count
+	when sharing out the points. At least one guild always plays.
+	*/
+	readonly inactive: readonly GuildIndex[];
 };
 
-export const DEFAULT_SETTINGS: PlanSettings = {goal: 'resources', fillMap: false, castleLast: false};
+export const DEFAULT_SETTINGS: PlanSettings = {
+	goal: 'resources',
+	fillMap: false,
+	castleLast: false,
+	inactive: [],
+};
+
+/**
+The guilds that play, in guild order: every one not sitting out.
+*/
+export const activeGuilds = ({inactive}: Pick<PlanSettings, 'inactive'>): GuildIndex[] =>
+	GUILDS.filter(g => !inactive.includes(g));
 
 /**
 A per-guild quantity summed over the Ragnarok: points, or days holding a kind.
@@ -91,8 +109,9 @@ never decrease.
 export type GuildOrder = {readonly measure: Measure; readonly ascending: boolean};
 
 /**
-How guild totals are ordered down the guild list, so any uneven share goes to
-the first guilds, or for castle-days with `castleLast`, to the last. Only used
+How guild totals are ordered down the list of guilds that play, so any
+uneven share goes to the first guilds, or for castle-days with `castleLast`,
+to the last. Only used
 when filling the map, as otherwise the main measure is perfectly even anyway.
 
 Ordering each kind of holding separately would hand every kind's extra to the

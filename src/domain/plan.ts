@@ -156,6 +156,28 @@ export type Violation =
 		readonly kingdom: KingdomIndex;
 	};
 
+/**
+A declaration that does not leave a guild sitting out alone: `declares`, a
+guild sitting out declares; `attacks`, a guild declares on a kingdom held
+by `rival`, who sits out. Not against the game's rules, only unkind, and a
+guild sitting out may well defend; the interface warns about it in words
+(`describeDisturbance` in `src/i18n/describe.ts`).
+*/
+export type Disturbance =
+	| {
+		readonly kind: 'declares';
+		readonly day: number;
+		readonly guild: GuildIndex;
+		readonly kingdom: KingdomIndex;
+	}
+	| {
+		readonly kind: 'attacks';
+		readonly day: number;
+		readonly guild: GuildIndex;
+		readonly rival: GuildIndex;
+		readonly kingdom: KingdomIndex;
+	};
+
 export type Timeline = {
 	/**
 	`owners[day]` for days `0 .. DAYS`.
@@ -277,6 +299,34 @@ export function capturesOn(timeline: Timeline, day: number): Capture[] {
 	}
 
 	return captures;
+}
+
+/**
+Declarations of a legal timeline that disturb the guilds sitting out, from
+`firstDay` on: they make none, and nobody declares on what they hold. Days
+before `firstDay` were played already, and happened however they did.
+*/
+export function disturbances(
+	timeline: Timeline,
+	inactive: readonly GuildIndex[],
+	firstDay = 1,
+): Disturbance[] {
+	const found: Disturbance[] = [];
+	for (let day = firstDay; day < timeline.owners.length; day++) {
+		for (const {kingdom, guild, from} of capturesOn(timeline, day)) {
+			if (inactive.includes(guild)) {
+				found.push({
+					kind: 'declares', day, guild, kingdom,
+				});
+			} else if (inactive.includes(from)) {
+				found.push({
+					kind: 'attacks', day, guild, rival: from, kingdom,
+				});
+			}
+		}
+	}
+
+	return found;
 }
 
 export type GuildScore = {

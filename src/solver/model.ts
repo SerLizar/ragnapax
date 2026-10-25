@@ -4,6 +4,7 @@
 import type {GameMap, Kingdom} from '../domain/map.ts';
 import type {Ownership} from '../domain/plan.ts';
 import {
+	activeGuilds,
 	guildOrders,
 	priorities,
 	refinements,
@@ -107,20 +108,31 @@ someone holds never fall back to vacant.
 Objectives follow `priorities(settings)` in strict order, then
 `refinements(settings)` and the fewest declarations so nobody does needless
 work. Days already played are constants: they count towards every total,
-so the days left make up for what happened. See "Formulation" in
+so the days left make up for what happened. Guilds sitting out keep what
+they hold, untouched, and are left out of every gap and order, so the
+others share the rest of the map. See "Formulation" in
 docs/SOLVER.md for the whole of it.
 */
 export function buildModel({map, start, played = [], ...settings}: PlanningProblem): PlanningModel {
 	const milp = new MilpBuilder();
+	const active = activeGuilds(settings);
+	if (active.length === 0) {
+		throw new Error('Every guild sits out: there is nothing to plan.');
+	}
+
 	// Positions already decided: the start, then each day played.
 	const known = [start, ...played];
 	const reach = reachable(map, known);
+	// Guilds sitting out keep what they hold now, untouched, for the rest of
+	// the week, so those holdings are constants too.
+	const latest = known.at(-1)!;
+	const isLeftAlone = (g: GuildIndex) => settings.inactive.includes(g);
 
 	// Own[g][d][t]: guild g holds t at the end of day d.
 	const own: Operand[][][] = GUILDS.map(g =>
 		Array.from({length: DAYS + 1}, (_, d) =>
 			map.kingdoms.map((t): Operand => {
-				const owners = known[d];
+				const owners = known[d] ?? (isLeftAlone(g) || isLeftAlone(latest[t.index]!) ? latest : undefined);
 				if (owners) {
 					return owners[t.index] === g ? 1 : 0;
 				}
@@ -214,11 +226,14 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 			? (t: Kingdom) => POINTS[t.kind]
 			: (t: Kingdom) => (t.kind === measure ? 1 : 0);
 
-	// Gap between the best and worst-off guild in a measure.
+	// Gap between the best and worst-off guild in a measure, among those
+	// that play: the guilds sitting out are not part of the share.
 	const gap = (measure: Measure): Objective => {
 		const most = milp.continuous(`most_${measure}`, -Infinity, Infinity);
 		const least = milp.continuous(`least_${measure}`, -Infinity, Infinity);
-		for (const total of totals(amountOf(measure))) {
+		const all = totals(amountOf(measure));
+		for (const g of active) {
+			const total = all[g]!;
 			const negated = total.map(([k, v]): Term => [-k, v]);
 			milp.atLeast([[1, most], ...negated], 0);
 			milp.atMost([[1, least], ...negated], 0);
@@ -239,13 +254,14 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 		span: bound(amountOf('points')),
 	});
 
-	// Totals never increase down the guild list, or never decrease when
-	// ascending. Doing nothing all week leaves every guild with the same
-	// starting towns, so this never rules out a plan. Once days are played
-	// that no longer holds, as a guild may already be out of reach, so
+	// Totals never increase down the list of guilds that play, or never
+	// decrease when ascending. Doing nothing all week leaves every guild with
+	// the same starting towns, so this never rules out a plan. Once days are
+	// played that no longer holds, as a guild may already be out of reach, so
 	// extras then go wherever they fit.
 	for (const {measure, ascending} of played.length === 0 ? guildOrders(settings) : []) {
-		const all = totals(amountOf(measure));
+		const everyone = totals(amountOf(measure));
+		const all = active.map(g => everyone[g]!);
 		for (let g = 0; g + 1 < all.length; g++) {
 			const [higher, lower] = ascending ? [all[g + 1]!, all[g]!] : [all[g]!, all[g + 1]!];
 			milp.atLeast([...higher, ...lower.map(([k, v]): Term => [-k, v])], 0);

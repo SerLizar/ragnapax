@@ -5,7 +5,7 @@
 // data; everything a player reads about them is worded here.
 
 import type {GameMap, Kingdom} from '../domain/map.ts';
-import type {Violation} from '../domain/plan.ts';
+import type {Disturbance, Violation} from '../domain/plan.ts';
 import type {Criterion, Goal} from '../domain/settings.ts';
 import {DAYS, MAX_DECLARATIONS_PER_DAY, type GuildIndex} from '../domain/types.ts';
 import type {Dormitory} from '../maps/kingdoms.ts';
@@ -170,6 +170,25 @@ export function describeViolation(
 			});
 		}
 	}
+}
+
+/**
+A declare that does not leave a guild sitting out alone, in words, with
+the guilds' names.
+*/
+export function describeDisturbance(
+	map: GameMap,
+	disturbance: Disturbance,
+	guildNames: readonly string[],
+): string {
+	const day = weekday(disturbance.day, 'long');
+	const guild = guildNames[disturbance.guild] ?? '';
+	const kingdom = kingdomName(map.kingdoms[disturbance.kingdom]!);
+	return disturbance.kind === 'declares'
+		? t('result.sittingOutDeclares', {day, guild, kingdom})
+		: t('result.sittingOutAttacked', {
+			day, guild, kingdom, rival: guildNames[disturbance.rival] ?? '',
+		});
 }
 
 /**

@@ -110,8 +110,8 @@ they break.
 
 ### Settings and priorities
 
-`src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap` and
-`castleLast`), their
+`src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap`,
+`castleLast` and `inactive`), their
 labels, and `priorities(settings)`: what the planner optimises, most important
 first, each proven optimal; and `refinements(settings)`: tie-breakers the
 solver improves while polishing but does not prove. Together they are the single
@@ -154,6 +154,20 @@ difference with other kingdoms. Like the points order, it is a hard
 constraint that doing nothing always satisfies, and it is dropped once days
 are recorded as played.
 
+**Guilds sitting out** (`inactive`, under "Advanced options"): the game
+puts guilds in a group by power, so a group can include guilds that do not
+play Ragnarok. Those guilds make no declarations, nobody declares on what
+they hold, and they are not part of the share: every gap and guild order
+runs over the guilds that play (`activeGuilds`), and the guild order's
+"first" and "last" guilds are the first and last that play. At least one
+guild always plays. The rules engine itself is unchanged, as sitting out is
+a choice, not a rule of the game: declaring on a guild sitting out is only
+unkind, and it may well defend. `disturbances` in `src/domain/plan.ts`
+finds such declares after the days played (which happened however they
+did). The solver never makes them, so one in its plans is a bug, reported
+as an error; one in a link, such as a link edited by hand, opens with a
+warning on the plan (`PlannerState.disturbance`).
+
 ## The planner
 
 ### Formulation
@@ -169,6 +183,8 @@ Variables, for guild _g_, scored day _d_ and kingdom _t_:
   neighbours, so by day _d_ it cannot be more than _d_ roads from its start;
   those variables are the constant 0 and never reach the solver. On The
   Floating City 477 of 600 ownership variables remain; maps with more kingdoms gain more.
+  Guilds sitting out keep what they held at the end of the last day played,
+  so their ownership, and everyone else's of those kingdoms, is constant too.
 - `gain[g,d,t]` ∈ `[0, 1]`, continuous: _g_ declares on _t_ on day _d_. The
   constraints pin it to exactly 0 or 1, so it needs no integrality.
 - `most_m`, `least_m`, free: bounds on every guild's total of measure _m_, one
@@ -185,10 +201,12 @@ gain[g,d,t] ≤ own[g,d,t]                    a declaration gains it
 gain[g,d,t] + own[g,d−1,t] ≤ 1              no declaring on your own kingdom
 gain[g,d,t] ≤ Σ_{n ∈ N(t)} own[g,d−1,n]     adjacency to yesterday's holdings
 Σ_t gain[g,d,t] ≤ MAX_DECLARATIONS_PER_DAY   declaration limit
-least_m ≤ total_m(g) ≤ most_m               for every gap objective
-total_m(g) ≥ total_m(g+1)                   guild order, when filling the map
-castle(g) ≤ castle(g+1)                     castle order, with castleLast too
+least_m ≤ total_m(g) ≤ most_m               for every gap objective, g playing
+total_m(g) ≥ total_m(g′)                    guild order, when filling the map
+castle(g) ≤ castle(g′)                      castle order, with castleLast too
 ```
+
+In the orders, _g′_ is the next guild down the list that plays.
 
 ### Days already played
 
