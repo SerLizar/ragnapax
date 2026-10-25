@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 SerLizar
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Monthly, grouped updates, so keeping up costs a few pull requests a month
+# rather than a stream of them. With Dependabot security updates turned on in
+# the repository's settings, fixes for known vulnerabilities come as soon as
+# they are published, whatever the schedule.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      # Tooling only: none of it ships, and CI shows whether it still works.
+      # Major versions come one at a time, as they may need changes.
+      development:
+        dependency-type: development
+        update-types: [minor, patch]
+        # xo pulls in packages with known vulnerabilities (katex, through
+        # eslint-config-xo) until it releases a fix. Kept out of the group,
+        # its update comes as a pull request of its own, quick to spot and
+        # merge rather than waiting on the rest of the tooling.
+        exclude-patterns: [xo]
+    # HiGHS, the only package that ships, is never grouped: its updates can
+    # change solve times, so each wants `npm run bench` before merging.
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']

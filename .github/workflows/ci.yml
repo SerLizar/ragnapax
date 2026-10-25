@@ -1,0 +1,120 @@
+# SPDX-FileCopyrightText: 2026 SerLizar
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to a pull request makes its running checks pointless, so they
+# are cancelled. On main, runs queue instead: a deploy is never cut short.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Actions are pinned to a commit, as a tag can be moved to other code; the
+# comment names the release. Dependabot updates both (.github/dependabot.yml).
+# Each job checks out without keeping the token: nothing here runs git.
+jobs:
+  check:
+    name: Lint, types, unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      # Only what ships: advisories in the tooling wait for its updates.
+      - run: npm audit --omit=dev
+
+  reuse:
+    name: Copyright and licences (REUSE)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # uv runs the checker; the script pins the checker's version.
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: npm run lint:reuse
+
+  e2e:
+    name: Build, end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Built once: the end-to-end tests run on this very build, and it is
+      # what gets deployed (playwright.config.ts only serves it on CI).
+      - run: npm run build
+      - run: npm run size
+      # The browsers are a few hundred MB; the lockfile fixes Playwright's
+      # version, and so which browsers it wants.
+      - id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium webkit
+      # The system libraries they need are not in the cache.
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium webkit
+      - run: npm run test:e2e
+      # The report, with a trace of each failed test, to see what went wrong.
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  deploy:
+    # Publishes main to GitHub Pages. Enable Pages with "GitHub Actions" as
+    # the source in the repository settings for this to take effect.
+    #
+    # The privacy notice names who runs the site and that GitHub Pages hosts
+    # it. In a fork, or if this job publishes anywhere else, update OPERATOR
+    # in src/ui/PrivacyNotice.svelte and privacy.host* in src/i18n/en.ts
+    # first (see "Privacy" in docs/PRIVACY.md).
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [check, reuse, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
