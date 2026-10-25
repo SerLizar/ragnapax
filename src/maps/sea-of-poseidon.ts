@@ -1,0 +1,80 @@
+// SPDX-FileCopyrightText: 2026 SerLizar
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import type {MapDefinition} from '../domain/types.ts';
+import {castle, dorm, town} from './kingdoms.ts';
+
+/**
+The Sea of Poseidon. Positions follow the in-game layout; only roads affect
+planning. A game update replaced Frostheim with Dionysia on this map, in the
+same place.
+*/
+export const seaOfPoseidon: MapDefinition = {
+	id: 'sea-of-poseidon',
+	name: 'The Sea of Poseidon',
+	kingdoms: [
+		town('A', 47, 10),
+		town('B', 71, 13),
+		town('C', 85, 27),
+		town('D', 86, 46),
+		town('E', 60, 91),
+		town('F', 35, 88),
+		town('G', 12, 80),
+		town('H', 14, 65),
+		town('J', 9, 51),
+		town('K', 22, 16),
+		town('L', 52, 19),
+		town('M', 35, 26),
+		town('N', 30, 45),
+		town('O', 74, 57),
+		town('P', 76, 68),
+		town('Q', 65, 73),
+		dorm('Sinostra', 15, 28),
+		dorm('Vagastrom', 48, 35),
+		dorm('Jabberwock', 71, 39),
+		dorm('Dionysia', 32, 57),
+		dorm('Obscuary', 50, 70),
+		dorm('Hotarubi', 84, 84),
+		castle(51, 48),
+	],
+	roads: [
+		['A', 'B'],
+		['A', 'K'],
+		['A', 'L'],
+		['B', 'C'],
+		['B', 'Vagastrom'],
+		['B', 'Jabberwock'],
+		['C', 'D'],
+		['C', 'Jabberwock'],
+		['D', 'O'],
+		['D', 'Hotarubi'],
+		['E', 'F'],
+		['E', 'Hotarubi'],
+		['F', 'G'],
+		['F', 'Obscuary'],
+		['G', 'H'],
+		['G', 'Dionysia'],
+		['G', 'Obscuary'],
+		['H', 'J'],
+		['H', 'N'],
+		['H', 'Dionysia'],
+		['J', 'Sinostra'],
+		['K', 'L'],
+		['K', 'M'],
+		['K', 'Sinostra'],
+		['L', 'Vagastrom'],
+		['M', 'N'],
+		['M', 'Vagastrom'],
+		['N', 'Sinostra'],
+		['N', 'Darkwick'],
+		['O', 'Q'],
+		['O', 'Jabberwock'],
+		['P', 'Q'],
+		['P', 'Hotarubi'],
+		['Q', 'Obscuary'],
+		['Vagastrom', 'Darkwick'],
+		['Jabberwock', 'Darkwick'],
+		['Dionysia', 'Obscuary'],
+		['Obscuary', 'Darkwick'],
+	],
+};
