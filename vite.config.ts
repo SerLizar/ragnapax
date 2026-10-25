@@ -259,6 +259,53 @@ function licenses(): Plugin {
 	};
 }
 
+/**
+A strict Content Security Policy for production. Share links carry text from
+strangers, so the page only ever runs its own code: bundled scripts, plus
+inline scripts in index.html allowed by their exact hash (the theme script
+that runs before first paint). `wasm-unsafe-eval` allows compiling the
+solver; nothing else is evaluated.
+*/
+function contentSecurityPolicy(): Plugin {
+	return {
+		name: 'ragna-content-security-policy',
+		apply: 'build',
+		transformIndexHtml: {
+			order: 'post',
+			handler(html) {
+				const inline = Array.from(
+					html.matchAll(/<script>(?<code>[\s\S]*?)<\/script>/gu),
+					({groups}) => `'sha256-${createHash('sha256').update(groups!.code!).digest('base64')}'`,
+				);
+				const policy = [
+					'default-src \'self\'',
+					['script-src \'self\' \'wasm-unsafe-eval\'', ...inline].join(' '),
+					'worker-src \'self\'',
+					'style-src \'self\' \'unsafe-inline\'',
+					'img-src \'self\' data:',
+					'connect-src \'self\'',
+					'object-src \'none\'',
+					'base-uri \'none\'',
+					'form-action \'none\'',
+				].join('; ');
+				// Right after the charset, so the policy covers every script after it.
+				// Formatting may write the tag either way; a page without the policy
+				// must never ship, so a missing tag stops the build.
+				const charset = /<meta charset="utf-8"\s*\/?>/iu;
+				if (!charset.test(html)) {
+					throw new Error('index.html has no <meta charset="utf-8"> to put the CSP after.');
+				}
+
+				return html.replace(
+					charset,
+					tag => `${tag}
+		<meta http-equiv="Content-Security-Policy" content="${policy}">`,
+				);
+			},
+		},
+	};
+}
+
 export default defineConfig({
 	// Relative asset URLs so the build works from any static host sub-path.
 	base: './',
@@ -268,6 +315,7 @@ export default defineConfig({
 		icons(),
 		licenses(),
 		serviceWorker(),
+		contentSecurityPolicy(),
 	],
 	// eslint-disable-next-line @typescript-eslint/naming-convention -- a build-time constant
 	define: {__SOURCE_URL__: JSON.stringify(sourceUrl)},
