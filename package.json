@@ -18,6 +18,7 @@
 		"lint:reuse": "uvx --from \"reuse[charset-normalizer]==6.2.0\" reuse lint",
 		"test": "vitest run",
 		"test:watch": "vitest",
+		"test:e2e": "playwright test",
 		"bench": "vitest run --config vitest.bench.config.ts",
 		"i18n:status": "node scripts/i18n-status.ts"
 	},
