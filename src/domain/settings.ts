@@ -1,0 +1,92 @@
+// SPDX-FileCopyrightText: 2026 SerLizar
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import type {KingdomKind} from './types.ts';
+
+/**
+What "fair" means for a plan.
+*/
+export type Goal = 'points' | 'resources';
+
+export const GOALS: readonly Goal[] = ['resources', 'points'];
+
+/**
+How a plan should be made.
+*/
+export type PlanSettings = {
+	readonly goal: Goal;
+	/**
+	Hold as much of the map as possible before evening guilds out. Totals may
+	then differ slightly; the guilds with extra points come first.
+	*/
+	readonly fillMap: boolean;
+};
+
+export const DEFAULT_SETTINGS: PlanSettings = {goal: 'resources', fillMap: false};
+
+/**
+A per-guild quantity summed over the Ragnarok: points, or days holding a kind.
+*/
+export type Measure = 'points' | KingdomKind;
+
+/**
+Something the planner optimises, from most to least important.
+*/
+export type Criterion =
+	/**
+	Smallest difference in a measure between the best and worst-off guild.
+	*/
+	| {readonly kind: 'gap'; readonly measure: Measure}
+	/**
+	Most points for all guilds together, i.e. the most of the map held.
+	*/
+	| {readonly kind: 'total'};
+
+const gap = (measure: Measure): Criterion => ({kind: 'gap', measure});
+const TOTAL: Criterion = {kind: 'total'};
+
+/**
+The planner's priorities for some settings, most important first. Each one
+strictly outranks everything after it, and the solver proves each optimal.
+`refinements` and then the fewest declarations break remaining ties.
+
+Equal points also narrows the castle and dormitory gaps: otherwise one guild
+could hold the castle all week and make the points up elsewhere.
+*/
+export function priorities({goal, fillMap}: PlanSettings): Criterion[] {
+	const fairness =
+		goal === 'points'
+			? [gap('points'), gap('castle'), gap('dormitory')]
+			: [gap('castle'), gap('dormitory'), gap('town')];
+	if (fillMap) {
+		return [TOTAL, ...fairness];
+	}
+
+	return goal === 'points' ? [fairness[0]!, TOTAL, ...fairness.slice(1)] : [...fairness, TOTAL];
+}
+
+/**
+Tie-breakers after the priorities, most important first, still outranking
+the fewest declarations. The solver improves these while it polishes a plan
+but does not prove them optimal: proving them took minutes on some openings.
+
+Equal resources while filling the map narrows the points gap, so leftover
+days of different kinds go to different guilds: two extra castle-days and
+two extra town-days go to four guilds, not to the same two.
+*/
+export function refinements({goal, fillMap}: PlanSettings): Criterion[] {
+	return goal === 'resources' && fillMap ? [gap('points')] : [];
+}
+
+/**
+Measures that must never increase down the guild list, so any uneven share
+goes to the first guilds. Only used when filling the map, as otherwise the
+main measure is perfectly even anyway.
+
+Ordering each kind of holding separately would hand every kind's extra to the
+first guild, so equal resources orders by points too: the guilds with the
+most valuable extras come first.
+*/
+export function guildOrderMeasures({fillMap}: PlanSettings): Measure[] {
+	return fillMap ? ['points'] : [];
+}
