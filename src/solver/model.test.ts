@@ -71,7 +71,7 @@ by the model and the days before it given as played.
 */
 function canModelHold(map: GameMap, owners: readonly Ownership[], played: number): boolean {
 	const {milp} = buildModel({
-		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false,
+		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false, castleLast: false,
 	});
 	const column = new Map(milp.names.map((name, col) => [name, col]));
 	const data = milp.toArrays();

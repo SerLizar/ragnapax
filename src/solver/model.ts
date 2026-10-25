@@ -4,7 +4,7 @@
 import type {GameMap, Kingdom} from '../domain/map.ts';
 import type {Ownership} from '../domain/plan.ts';
 import {
-	guildOrderMeasures,
+	guildOrders,
 	priorities,
 	refinements,
 	type Criterion,
@@ -239,14 +239,16 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 		span: bound(amountOf('points')),
 	});
 
-	// Totals never increase down the guild list. Doing nothing all week leaves
-	// every guild with the same starting towns, so this never rules out a plan.
-	// Once days are played that no longer holds, as a guild may already be
-	// out of reach, so extras then go wherever they fit.
-	for (const measure of played.length === 0 ? guildOrderMeasures(settings) : []) {
+	// Totals never increase down the guild list, or never decrease when
+	// ascending. Doing nothing all week leaves every guild with the same
+	// starting towns, so this never rules out a plan. Once days are played
+	// that no longer holds, as a guild may already be out of reach, so
+	// extras then go wherever they fit.
+	for (const {measure, ascending} of played.length === 0 ? guildOrders(settings) : []) {
 		const all = totals(amountOf(measure));
 		for (let g = 0; g + 1 < all.length; g++) {
-			milp.atLeast([...all[g]!, ...all[g + 1]!.map(([k, v]): Term => [-k, v])], 0);
+			const [higher, lower] = ascending ? [all[g + 1]!, all[g]!] : [all[g]!, all[g + 1]!];
+			milp.atLeast([...higher, ...lower.map(([k, v]): Term => [-k, v])], 0);
 		}
 	}
 

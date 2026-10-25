@@ -16,6 +16,7 @@ servers. The format is defined in `src/share/link.ts`:
 | `m`       | Map id.                                                                                              |
 | `o`       | Goal: `p` (points) or `r` (resources).                                                               |
 | `f`       | `1` when using every kingdom; absent otherwise.                                                      |
+| `c`       | `1` when extra castle-days go to the last guilds (`castleLast`); absent otherwise, the old behaviour. |
 | `g`       | Guild name, repeated once per guild, in order. Trimmed, without hidden characters, cut to 9 characters as players see them; blank is "Guild N". |
 | `t`       | One digit per town in link order: `0` Vacant, `1`–`4` guild.                                         |
 | `h`       | Optional days already played, written like `p`. Absent until someone records a day.                  |

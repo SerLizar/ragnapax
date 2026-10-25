@@ -20,9 +20,15 @@ export type PlanSettings = {
 	then differ slightly; the guilds with extra points come first.
 	*/
 	readonly fillMap: boolean;
+	/**
+	While filling the map, hand the extra castle-days to the last guilds rather
+	than the first. Points still never increase down the guild list, so the
+	first guilds make theirs up with other kingdoms.
+	*/
+	readonly castleLast: boolean;
 };
 
-export const DEFAULT_SETTINGS: PlanSettings = {goal: 'resources', fillMap: false};
+export const DEFAULT_SETTINGS: PlanSettings = {goal: 'resources', fillMap: false, castleLast: false};
 
 /**
 A per-guild quantity summed over the Ragnarok: points, or days holding a kind.
@@ -79,14 +85,25 @@ export function refinements({goal, fillMap}: PlanSettings): Criterion[] {
 }
 
 /**
-Measures that must never increase down the guild list, so any uneven share
-goes to the first guilds. Only used when filling the map, as otherwise the
-main measure is perfectly even anyway.
+A measure that must never increase down the guild list, or with `ascending`,
+never decrease.
+*/
+export type GuildOrder = {readonly measure: Measure; readonly ascending: boolean};
+
+/**
+How guild totals are ordered down the guild list, so any uneven share goes to
+the first guilds, or for castle-days with `castleLast`, to the last. Only used
+when filling the map, as otherwise the main measure is perfectly even anyway.
 
 Ordering each kind of holding separately would hand every kind's extra to the
 first guild, so equal resources orders by points too: the guilds with the
 most valuable extras come first.
 */
-export function guildOrderMeasures({fillMap}: PlanSettings): Measure[] {
-	return fillMap ? ['points'] : [];
+export function guildOrders({fillMap, castleLast}: PlanSettings): GuildOrder[] {
+	if (!fillMap) {
+		return [];
+	}
+
+	const points: GuildOrder = {measure: 'points', ascending: false};
+	return castleLast ? [points, {measure: 'castle', ascending: true}] : [points];
 }

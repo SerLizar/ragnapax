@@ -40,6 +40,7 @@ const shared: SharedPlan = {
 	startingTowns: FLOATING_CITY_START,
 	goal: 'resources',
 	fillMap: true,
+	castleLast: false,
 	played: [],
 	plan,
 	received: false,
@@ -72,6 +73,14 @@ describe('share links', () => {
 	it('round-trip a setup without a plan', () => {
 		const setup = {...shared, plan: undefined};
 		expect(decodeShareLink(encodeShareLink(setup))).toEqual(setup);
+	});
+
+	it('round-trip extra castle-days going to the last guilds', () => {
+		const castleLast = {...shared, castleLast: true};
+		expect(new URLSearchParams(encodeShareLink(castleLast)).get('c')).toBe('1');
+		expect(decodeShareLink(encodeShareLink(castleLast))).toEqual(castleLast);
+		// Links from before the setting hand them to the first guilds.
+		expect(new URLSearchParams(encodeShareLink(shared)).has('c')).toBe(false);
 	});
 
 	it('round-trip the mark of a plan sent to someone else', () => {
@@ -215,7 +224,7 @@ describe('planToText', () => {
 
 	it('lists every guild\'s declarations per day', () => {
 		const text = planToText({
-			map, guildNames, goal: 'points', fillMap: false, timeline,
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, timeline,
 		});
 		expect(text.split('\n').slice(0, 12)).toEqual([
 			'The Floating City · Equal points',
@@ -239,6 +248,7 @@ describe('planToText', () => {
 			guildNames,
 			goal: 'points',
 			fillMap: false,
+			castleLast: false,
 			timeline,
 			guild: 1,
 		});
@@ -253,6 +263,7 @@ describe('planToText', () => {
 			guildNames: ['@everyone', '**Bold**', 'x_y', 'Delta'],
 			goal: 'points',
 			fillMap: false,
+			castleLast: false,
 			timeline,
 		});
 		expect(text).toContain(String.raw`• \@everyone: Vagastrom, Dionysia`);
@@ -264,9 +275,19 @@ describe('planToText', () => {
 
 	it('mentions when every kingdom is used', () => {
 		const text = planToText({
-			map, guildNames, goal: 'resources', fillMap: true, timeline,
+			map, guildNames, goal: 'resources', fillMap: true, castleLast: false, timeline,
 		});
 		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal resources · Use every kingdom');
+	});
+
+	it('mentions when extra castle days go last, only while every kingdom is used', () => {
+		const title = (isFillMap: boolean) => planToText({
+			map, guildNames, goal: 'resources', fillMap: isFillMap, castleLast: true, timeline,
+		}).split('\n', 1)[0];
+		expect(title(true)).toBe(
+			'The Floating City · Equal resources · Use every kingdom · Extra castle days last',
+		);
+		expect(title(false)).toBe('The Floating City · Equal resources');
 	});
 });
 

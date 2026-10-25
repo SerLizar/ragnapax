@@ -193,6 +193,12 @@ export default {
 	// the first guild may then be unable to get the most.
 	'goal.fillMap.description.played':
 		'Hold as much of the map as possible, every day. Totals may then differ slightly; extras are shared out as evenly as the days already played allow.',
+	// Under "goal.fillMap" while it is on, and in the title of a plan copied
+	// as text.
+	'goal.castleLast': 'Extra castle days last',
+	// {first}, {last}: the first and last guild's names.
+	'goal.castleLast.description':
+		'When the castle cannot be shared evenly, its extra days go to {last} first instead of {first}. {first} still gets the most points, from other kingdoms.',
 
 	// "How plans are ranked", most important first.
 	'ranking.title': 'How plans are ranked',

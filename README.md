@@ -32,7 +32,9 @@ nothing is uploaded.
 - **Use every kingdom.** Optionally hold as much of the map as possible on
   every day, even if totals then differ slightly. Extras are shared out as
   evenly as possible, with the most going to the first guild (once days
-  are recorded as played, wherever they still fit).
+  are recorded as played, wherever they still fit). Another switch can hand
+  the castle's extra days to the last guild instead, while the first guild
+  still gets the most points.
 - **Provably fair plans in seconds.** An exact optimiser
   ([HiGHS](https://highs.dev/)) runs in the browser, shows better plans as it
   finds them, and says whether the result is proven fairest. "How plans are

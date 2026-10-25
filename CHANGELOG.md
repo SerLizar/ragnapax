@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.1.0 - 2026-10-24
+
+### Added
+
+- With "Use every kingdom" on, a new "Extra castle days last" switch: when
+  the castle cannot be shared evenly, its extra days go to the last guild
+  rather than the first, while the first guild still gets the most points.
+  Share links remember it.
+
 ## 1.0.0 - 2026-10-24
 
 The first public release.

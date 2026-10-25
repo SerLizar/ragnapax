@@ -26,6 +26,7 @@ export type SharedPlan = {
 	readonly startingTowns: StartingTowns;
 	readonly goal: Goal;
 	readonly fillMap: boolean;
+	readonly castleLast: boolean;
 	/**
 	Days already played, as they happened, from Wednesday on; the plan
 	starts with them. Empty until someone records a day.
@@ -51,6 +52,7 @@ Encodes a setup and plan into a URL fragment, e.g.
 `v=1&m=floating-city&o=p&g=Alpha&g=Beta…&t=1111222…&p=3k.7.-…`.
 
 - `f=1`: use every kingdom, see `PlanSettings.fillMap`.
+- `c=1`: extra castle-days to the last guilds, see `PlanSettings.castleLast`.
 - `t`: one digit per town in link order (see `GameMap.linkOrder`): `0`
   vacant, `1`–`4` the guild.
 - `h`: days already played, see `SharedPlan.played`, written like `p`.
@@ -76,6 +78,10 @@ export function encodeShareLink(shared: SharedPlan): string {
 	});
 	if (shared.fillMap) {
 		parameters.set('f', '1');
+	}
+
+	if (shared.castleLast) {
+		parameters.set('c', '1');
 	}
 
 	for (const name of shared.guildNames) {
@@ -247,6 +253,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 		startingTowns,
 		goal,
 		fillMap: parameters.get('f') === '1',
+		castleLast: parameters.get('c') === '1',
 		played,
 		plan,
 		received: parameters.get('s') === '1',

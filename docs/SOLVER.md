@@ -110,7 +110,8 @@ they break.
 
 ### Settings and priorities
 
-`src/domain/settings.ts` holds `PlanSettings` (`goal` and `fillMap`), their
+`src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap` and
+`castleLast`), their
 labels, and `priorities(settings)`: what the planner optimises, most important
 first, each proven optimal; and `refinements(settings)`: tie-breakers the
 solver improves while polishing but does not prove. Together they are the single
@@ -131,7 +132,7 @@ one guild held the castle all week and made the difference up with towns, which
 no alliance accepts as fair.
 
 With **Use every kingdom**, guild points must not increase down the guild
-list (`guildOrderMeasures`), so any uneven remainder goes to the first guilds.
+list (`guildOrders`), so any uneven remainder goes to the first guilds.
 This is a hard constraint, which is safe: a Ragnarok in which nobody declares
 gives every guild identical totals, so it can never make the problem infeasible.
 Once days are recorded as played that no longer holds (a guild may already be
@@ -144,6 +145,14 @@ go to four different guilds, castle first, rather than all to the first.
 It is a refinement rather than a priority because proving it took up to two
 minutes on some Floating City openings, against about a second without it;
 polishing reaches the best spread on every benchmark opening.
+
+**Extra castle days last** (`castleLast`, only offered with Use every
+kingdom) adds a second order: castle-days must not decrease down the guild
+list, so when the castle cannot be shared evenly its extra days go to the last
+guilds. Points still must not increase, so the first guilds make up the
+difference with other kingdoms. Like the points order, it is a hard
+constraint that doing nothing always satisfies, and it is dropped once days
+are recorded as played.
 
 ## The planner
 
@@ -178,6 +187,7 @@ gain[g,d,t] ≤ Σ_{n ∈ N(t)} own[g,d−1,n]     adjacency to yesterday's hold
 Σ_t gain[g,d,t] ≤ MAX_DECLARATIONS_PER_DAY   declaration limit
 least_m ≤ total_m(g) ≤ most_m               for every gap objective
 total_m(g) ≥ total_m(g+1)                   guild order, when filling the map
+castle(g) ≤ castle(g+1)                     castle order, with castleLast too
 ```
 
 ### Days already played
@@ -314,7 +324,7 @@ order (see [Maps](#maps)).
 
 1. Add the field to `PlanSettings` and `DEFAULT_SETTINGS` in
    `src/domain/settings.ts`, and express its effect through `priorities` or
-   `guildOrderMeasures` if possible, so the model and the "How plans are
+   `guildOrders` if possible, so the model and the "How plans are
    ranked" list stay in step.
 2. Add an optional share link parameter whose absence means the old
    behaviour; decode it in `decodeShareLink`.

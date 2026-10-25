@@ -110,6 +110,7 @@ export class PlannerState {
 	startingTowns = $state<Record<string, GuildIndex>>({});
 	goal = $state<Goal>(DEFAULT_SETTINGS.goal);
 	fillMap = $state(DEFAULT_SETTINGS.fillMap);
+	castleLast = $state(DEFAULT_SETTINGS.castleLast);
 	/**
 	Days already played, as they happened; see `recordDay`.
 	*/
@@ -135,7 +136,12 @@ export class PlannerState {
 
 	readonly status = $derived(setupStatus(this.map, this.startingTowns));
 	readonly start = $derived(startingOwnership(this.map, this.startingTowns));
-	readonly settings: PlanSettings = $derived({goal: this.goal, fillMap: this.fillMap});
+	readonly settings: PlanSettings = $derived({
+		goal: this.goal,
+		fillMap: this.fillMap,
+		castleLast: this.castleLast,
+	});
+
 	/**
 	Position at the start and at the end of each day played.
 	*/
@@ -232,6 +238,7 @@ export class PlannerState {
 		this.startingTowns = {...setup.startingTowns};
 		this.goal = setup.goal;
 		this.fillMap = setup.fillMap;
+		this.castleLast = setup.castleLast;
 		this.played = setup.played;
 		this.result = setup.plan && {
 			plan: setup.plan,
@@ -512,6 +519,10 @@ export class PlannerState {
 
 	setFillMap(isOn: boolean): void {
 		this.fillMap = isOn;
+	}
+
+	setCastleLast(isOn: boolean): void {
+		this.castleLast = isOn;
 	}
 
 	/**

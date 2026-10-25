@@ -13,6 +13,7 @@ export type PlanTextOptions = {
 	readonly guildNames: readonly string[];
 	readonly goal: Goal;
 	readonly fillMap: boolean;
+	readonly castleLast: boolean;
 	readonly timeline: Timeline;
 	/**
 	Only list this guild's declarations.
@@ -42,11 +43,17 @@ export function planToText({
 	guildNames: names,
 	goal,
 	fillMap,
+	castleLast,
 	timeline,
 	guild,
 }: PlanTextOptions): string {
 	const guildNames = names.map(name => forChat(name));
-	const title = [mapName(map), goalLabel(goal), ...(fillMap ? [t('goal.fillMap')] : [])];
+	const title = [
+		mapName(map),
+		goalLabel(goal),
+		...(fillMap ? [t('goal.fillMap')] : []),
+		...(fillMap && castleLast ? [t('goal.castleLast')] : []),
+	];
 	const lines = [
 		title.join(' · '),
 		...(guild === undefined ? [] : [t('text.declaresFor', {guild: guildNames[guild]!})]),

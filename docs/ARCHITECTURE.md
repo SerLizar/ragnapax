@@ -216,8 +216,8 @@ helpers keep it to the setup and its plan:
 - `AddressBar` (`src/state/address.ts`) writes the address bar, retrying
   when Safari refuses too many changes in a few seconds.
 
-- **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap, and
-  the days recorded as played (`played`).
+- **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
+  castleLast, and the days recorded as played (`played`).
 - **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away.
 - **Result** (`$state.raw`): the plan plus the start, settings and input key it
   was made for, and its quality, known only for plans the solver made in
@@ -233,7 +233,8 @@ helpers keep it to the setup and its plan:
   `isReceived` and `openedFromLink`, and the
   serialised forms: `ownFragment` and `address`.
 - **Actions:** `restore`, `switchMap`, `toggleTown`, `clearTowns`, `setGuildName`,
-  `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `recordDay`,
+  `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
+  `recordDay`,
   `recordAsPlanned`, `forgetDay`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.

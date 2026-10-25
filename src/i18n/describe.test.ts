@@ -50,7 +50,7 @@ it('names the days Wednesday to Monday', () => {
 });
 
 it('describes the priorities in words', () => {
-	const settings = {goal: 'resources', fillMap: true} as const;
+	const settings = {goal: 'resources', fillMap: true, castleLast: false} as const;
 	expect(
 		[...priorities(settings), ...refinements(settings)].map(c => describeCriterion(c)),
 	).toEqual([

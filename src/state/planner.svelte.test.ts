@@ -32,6 +32,7 @@ const link = encodeShareLink({
 	startingTowns: FLOATING_CITY_START,
 	goal: 'points',
 	fillMap: false,
+	castleLast: false,
 	played: [],
 	plan,
 	received: false,
@@ -43,6 +44,7 @@ const sent = encodeShareLink({
 	startingTowns: FLOATING_CITY_START,
 	goal: 'points',
 	fillMap: false,
+	castleLast: false,
 	played: [],
 	plan,
 	received: true,
@@ -327,18 +329,20 @@ describe('PlannerState', () => {
 		expect(planner.displayNames[0]).toBe('Guild 1');
 	});
 
-	it('autosaves every setting, including using every kingdom', () => {
+	it('autosaves every setting, including the options for using every kingdom', () => {
 		const planner = new PlannerState();
 		planner.restore('#' + link);
 		const stop = planner.sync();
 		flushSync();
 		planner.setFillMap(true);
+		planner.setCastleLast(true);
 		flushSync();
 		stop();
 
 		const again = new PlannerState();
 		again.restore('');
 		expect(again.fillMap).toBe(true);
+		expect(again.castleLast).toBe(true);
 	});
 
 	it('locks the starting towns while a plan is found for them', async () => {

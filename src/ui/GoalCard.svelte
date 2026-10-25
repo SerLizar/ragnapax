@@ -80,6 +80,27 @@
 		</span>
 	</label>
 
+	<!-- Only while the guild order applies: see `guildOrders`. -->
+	{#if planner.fillMap && planner.played.length === 0}
+		<label class="option nested">
+			<input
+				type="checkbox"
+				role="switch"
+				checked={planner.castleLast}
+				aria-labelledby="{id}-castle"
+				aria-describedby="{id}-castle-desc"
+				onchange={event => planner.setCastleLast(event.currentTarget.checked)}
+			/>
+			<span class="title" id="{id}-castle">{t('goal.castleLast')}</span>
+			<span class="desc" id="{id}-castle-desc">
+				{t('goal.castleLast.description', {
+					first: planner.displayNames[0]!,
+					last: planner.displayNames.at(-1)!,
+				})}
+			</span>
+		</label>
+	{/if}
+
 	<details class="ranking">
 		<summary>{t('ranking.title')}</summary>
 		<ol>
@@ -170,6 +191,11 @@
 		padding-block: 4px;
 		padding-inline: 64px 0;
 		cursor: pointer;
+	}
+
+	/* Belongs to the option above it. */
+	.option.nested {
+		margin-inline-start: 24px;
 	}
 
 	.option input {

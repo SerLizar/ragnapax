@@ -17,7 +17,7 @@ const request: SolveRequest = {
 	mapId: 'floating-city',
 	start: [],
 	played: [],
-	settings: {goal: 'points', fillMap: false},
+	settings: {goal: 'points', fillMap: false, castleLast: false},
 };
 const owners: Ownership[] = [[0, 1]];
 

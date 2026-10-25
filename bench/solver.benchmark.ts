@@ -25,8 +25,9 @@ import {randomStart} from '../src/test/random.ts';
 
 const STARTS = Number(process.env.BENCH_STARTS ?? 4);
 const SETTINGS: PlanSettings[] = GOALS.flatMap(goal => [
-	{goal, fillMap: false},
-	{goal, fillMap: true},
+	{goal, fillMap: false, castleLast: false},
+	{goal, fillMap: true, castleLast: false},
+	{goal, fillMap: true, castleLast: true},
 ]);
 
 it('solves every map quickly and fairly', async () => {
@@ -97,7 +98,7 @@ it('solves every map quickly and fairly', async () => {
 				rows.push({
 					map: map.id,
 					seed,
-					goal: settings.goal + (settings.fillMap ? '+fill' : ''),
+					goal: settings.goal + (settings.fillMap ? '+fill' : '') + (settings.castleLast ? '+castle' : ''),
 					quality: outcome.quality,
 					'first plan s': firstPlan.toFixed(1),
 					'proven s': proven.toFixed(1),
