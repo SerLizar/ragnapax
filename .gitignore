@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 SerLizar
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+node_modules/
+dist/
+coverage/
+*.local
+.DS_Store
+test-results/
+playwright-report/
+# Worktrees that AI coding agents check out inside the repository; xo reads
+# this file, and would otherwise lint every copy.
+.claude/worktrees/

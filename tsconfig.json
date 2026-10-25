@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "ES2023",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ES2023"],
+		"types": [],
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"exactOptionalPropertyTypes": false,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"allowImportingTsExtensions": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"allowJs": false,
+		"resolveJsonModule": true
+	},
+	"files": [],
+	"references": [
+		{"path": "./tsconfig.app.json"},
+		{"path": "./tsconfig.node.json"}
+	]
+}

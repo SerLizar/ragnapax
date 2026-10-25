@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 SerLizar
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Copyright and licence of the files that cannot say so themselves, under
+# the REUSE specification (https://reuse.software). Every other file starts
+# with its own SPDX header, which wins over anything here. See "Licensing
+# of contributions" in CONTRIBUTING.md; `npm run lint:reuse` checks that
+# every file is covered, and so does `npm test`, without needing Python.
+version = 1
+
+# JSON cannot hold comments, nor can .nvmrc. The docs could, but a header
+# would sit above every page's title for nothing.
+[[annotations]]
+path = ["*.json", "public/manifest.webmanifest", ".nvmrc", "**/*.md"]
+SPDX-FileCopyrightText = "2026 SerLizar"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
