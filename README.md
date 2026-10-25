@@ -62,6 +62,7 @@ nothing is uploaded.
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to contribute and the licence terms.
 - [docs/TRANSLATING.md](docs/TRANSLATING.md): how to translate the planner into
   your language.
+- [CHANGELOG.md](CHANGELOG.md): what changed in each release.
 
 ## Development
 

@@ -37,7 +37,9 @@ timings in the pull request. The same checks run automatically on every pull req
 5. Match the existing code style; `npm run lint:fix` applies it for you.
 6. Share links must keep working. If the link format has to change, bump its version in
    `src/share/link.ts` rather than breaking old links silently.
-7. Update the documents in `docs/` in the same pull request when you change behaviour they describe;
+7. If players will notice the change, raise the version and add an entry to
+   [CHANGELOG.md](CHANGELOG.md), as [Versioning](docs/OPERATIONS.md#versioning) explains.
+8. Update the documents in `docs/` in the same pull request when you change behaviour they describe;
    [Keeping the docs true](AGENTS.md#keeping-the-docs-true) says how to check them for drift.
 
 ## Translations

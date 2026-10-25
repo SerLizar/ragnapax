@@ -66,8 +66,9 @@ from a component.
   remove a kingdom: links place kingdoms by id (`GameMap.linkOrder`).
   Reordering a map file is harmless to links but changes solve times. New link
   parameters must be optional, with absence meaning the old behaviour; anything
-  else needs a new `v` version (see "Share links" in docs/SHARING.md), released
-  on a Tuesday, when no plan is in use (Ragnarok runs Wednesday to Monday).
+  else needs a new `v` version (see "Share links" in docs/SHARING.md) and a
+  major release, on a Tuesday, when no plan is in use (Ragnarok runs
+  Wednesday to Monday).
 - **Everything incoming is validated.** Plans from the solver, links and
   storage all pass through `simulate`. Do not add a path that skips it.
 - **The rules engine and the model agree.** If you change a rule, change both
@@ -145,6 +146,10 @@ from a component.
   themes, and that nothing overflows at 300 px wide or overlaps on desktop.
 - Commits are small and logically grouped, with a body explaining the why,
   and each passes its own tests.
+- A change players can notice is a release: raise `version` in
+  `package.json` (and `package-lock.json`) and add an entry for players to
+  `CHANGELOG.md` in the same change. "Versioning" in docs/OPERATIONS.md says
+  which number to raise; tests, docs and tooling are not releases.
 - Update `docs/` in the same commit when behaviour they describe changes,
   putting new material in the document for that part of the app and keeping
   `docs/ARCHITECTURE.md` an overview.

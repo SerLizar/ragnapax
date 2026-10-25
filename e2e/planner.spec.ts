@@ -1,8 +1,14 @@
 // SPDX-FileCopyrightText: 2026 SerLizar
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import {readFileSync} from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import {expect, test, type Page} from '@playwright/test';
+
+/**
+The release, as package.json numbers it and the footer shows it.
+*/
+const {version} = JSON.parse(readFileSync('package.json', 'utf8')) as {version: string};
 
 /**
 Four towns per guild, in the order each guild's towns are tapped.
@@ -320,6 +326,12 @@ test('lists the licences of the code it includes', async ({page, request}) => {
 	expect(text).toContain('highs');
 	expect(text).toContain('svelte');
 	expect(text).toContain('MIT License');
+	expect(text).toContain(`Ragnapax ${version} is free software`);
+});
+
+test('says which release it is', async ({page}) => {
+	await page.goto('/');
+	await expect(page.getByRole('contentinfo')).toContainText(`Version ${version}.`);
 });
 
 test('explains a broken link instead of failing', async ({page}) => {

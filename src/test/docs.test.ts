@@ -309,3 +309,26 @@ describe('the Node.js version', () => {
 		expect(minimum?.split('.', 1)[0]).toBe(read('.nvmrc').trim());
 	});
 });
+
+describe('the version, as "Versioning" in docs/OPERATIONS.md describes it', () => {
+	const {version} = JSON.parse(read('package.json')) as {version: string};
+	const lock = JSON.parse(read('package-lock.json')) as {version: string; packages: Record<string, {version?: string}>};
+	const releases = [...read('CHANGELOG.md').matchAll(/^## (?<version>\S+) - (?<date>\S+)$/gmu)]
+		.map(({groups}) => groups!);
+
+	it('is a Semantic Versioning release number', () => {
+		expect(version).toMatch(/^\d+\.\d+\.\d+$/u);
+	});
+
+	it('is the same in package-lock.json', () => {
+		expect(lock.version).toBe(version);
+		expect(lock.packages['']?.version).toBe(version);
+	});
+
+	it('is the newest release in CHANGELOG.md, each dated', () => {
+		expect(releases[0]?.version).toBe(version);
+		for (const {date} of releases) {
+			expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
+		}
+	});
+});
