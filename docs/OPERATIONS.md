@@ -1,7 +1,8 @@
 # Building, testing and running
 
 How the planner is cached for offline use, kept secure and small, which
-browsers it supports, how it is tested, and how it is built and published.
+browsers it supports, how it is tested, how it is built and published, and
+how releases are numbered.
 Part of the architecture docs; [ARCHITECTURE.md](ARCHITECTURE.md) is the
 overview.
 
@@ -239,3 +240,27 @@ these globs is not type-checked: widen the matching project's `include`.
   listed without anyone remembering to; it fails the build if one has no
   licence file. The dev server bundles nothing, so it answers the link with a
   note pointing to a build instead.
+
+## Versioning
+
+Releases are numbered with [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
+`MAJOR.MINOR.PATCH`, in `version` in `package.json`. The planner has no API,
+so the numbers describe what players notice:
+
+- **Major**: links or saved setups made with the previous release no longer
+  open, such as a new link `v` (see "Share links" in
+  [SHARING.md](SHARING.md#share-links)). Ship it on a Tuesday, when no plan
+  is in use.
+- **Minor**: something new players can do or see, such as a feature, a map, a
+  goal or option, a finished translation, or an optional link parameter.
+- **Patch**: a fix or improvement to what is already there, such as a bug
+  fix, wording, layout, speed, or an update to a dependency that ships.
+
+Changes players cannot notice (tests, docs, tooling, refactoring) are not
+releases. `main` is deployed on every push, so a change that is a release
+raises the version and adds its entry under a new heading in
+[CHANGELOG.md](../CHANGELOG.md) in the same pull request, written for
+players; Dependabot's updates get theirs in a follow-up. Once it is on
+`main`, tag that commit `vMAJOR.MINOR.PATCH` (`git tag -a v1.2.3 -m 1.2.3`)
+and push the tag. The footer and `licenses.txt` show the version, so a
+player reporting a problem can say which release they have.

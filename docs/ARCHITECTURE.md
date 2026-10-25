@@ -114,6 +114,7 @@ docs/PRIVACY.md            What the privacy notice rests on
 docs/OPERATIONS.md         Caching, security, size, browsers, tests, CI
 docs/TRANSLATING.md        Guide for translators
 e2e/                       Playwright end-to-end tests
+CHANGELOG.md               What changed for players in each release
 LICENSE                    The AGPL-3.0, where GitHub and people look for it
 LICENSES/                  The same, where the REUSE specification looks for it
 public/                    Copied as-is: icon and web app manifest

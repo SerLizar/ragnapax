@@ -29,7 +29,7 @@ const xoConfig = [
 	},
 	{
 		files: ['src/**'],
-		languageOptions: {globals: {...globals.browser, __SOURCE_URL__: 'readonly'}},
+		languageOptions: {globals: {...globals.browser, __SOURCE_URL__: 'readonly', __APP_VERSION__: 'readonly'}},
 	},
 	{
 		files: ['src/service-worker.js'],

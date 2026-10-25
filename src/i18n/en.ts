@@ -27,6 +27,8 @@ export default {
 	'footer.licences': '{link}.',
 	'footer.licencesLink': 'Third-party licences',
 	'footer.disclaimer': 'A fan-made tool for Tokyo Debunkers, not affiliated with ZigZaGame Inc.',
+	// {version} is the planner's release number, such as "1.0.0".
+	'footer.version': 'Version {version}.',
 
 	// The privacy notice, opened from the footer. It must stay true: see
 	// "Privacy" in docs/PRIVACY.md before changing what the app stores or

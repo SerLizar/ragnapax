@@ -218,6 +218,7 @@
 		<!-- Written by the build (see vite.config.ts). -->
 		{licences[0]}<a href="./licenses.txt">{t('footer.licencesLink')}</a>{licences[1]}
 		{t('footer.disclaimer')}
+		{t('footer.version', {version: __APP_VERSION__})}
 	</p>
 	<PrivacyNotice {planner} />
 </footer>

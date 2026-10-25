@@ -21,6 +21,10 @@ const sourceUrl =
 	SOURCE_URL
 	?? ((GITHUB_REPOSITORY ?? '') === '' ? '' : `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}`);
 
+// The release, shown in the footer so a player reporting a problem can say
+// which one they have: the service worker may serve an older one for a visit.
+const {version: release} = JSON.parse(readFileSync('package.json', 'utf8')) as {version: string};
+
 /**
 Stops a build that does not know where its source code is. The AGPL asks a
 hosted copy to offer its source, and the privacy notice's contact link
@@ -247,7 +251,7 @@ function licenses(): Plugin {
 				type: 'asset',
 				fileName: 'licenses.txt',
 				source: [
-					'Ragnapax is free software under the GNU Affero General Public License,',
+					`Ragnapax ${release} is free software under the GNU Affero General Public License,`,
 					`version 3 or later. Its source code: ${sourceUrl}`,
 					'',
 					'It includes the following third-party software.',
@@ -317,8 +321,12 @@ export default defineConfig({
 		serviceWorker(),
 		contentSecurityPolicy(),
 	],
-	// eslint-disable-next-line @typescript-eslint/naming-convention -- a build-time constant
-	define: {__SOURCE_URL__: JSON.stringify(sourceUrl)},
+	/* eslint-disable @typescript-eslint/naming-convention -- build-time constants */
+	define: {
+		__SOURCE_URL__: JSON.stringify(sourceUrl),
+		__APP_VERSION__: JSON.stringify(release),
+	},
+	/* eslint-enable @typescript-eslint/naming-convention */
 	build: {
 		// Baseline Widely Available, checked October 2026. It moves every month,
 		// so recheck it from time to time (see "Browser support" in
