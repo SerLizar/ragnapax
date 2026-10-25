@@ -1,0 +1,15 @@
+<!-- SPDX-FileCopyrightText: 2026 SerLizar -->
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!-- The four guilds, in their map colours, joined by roads around Darkwick
+Castle. Coordinates are even where they can be, so the 32 px icons stay crisp. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#8f5fa9"/>
+  <path d="M32 13L51 32L32 51L13 32ZM32 13V51M13 32H51" fill="none" stroke="#dcc6ea" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 40V24H28V28H30V24H34V28H36V24H40V40Z" fill="#ffffff"/>
+  <g stroke="#ffffff" stroke-width="2">
+    <circle cx="32" cy="13" r="7" fill="#cc3311"/>
+    <circle cx="51" cy="32" r="7" fill="#56b4e9"/>
+    <circle cx="32" cy="51" r="7" fill="#f0e442"/>
+    <circle cx="13" cy="32" r="7" fill="#332288"/>
+  </g>
+</svg>

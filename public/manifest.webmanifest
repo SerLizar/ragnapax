@@ -1,0 +1,11 @@
+{
+	"name": "Ragnapax",
+	"short_name": "Ragnapax",
+	"description": "Plan fair point sharing between the four guilds of a Tokyo Debunkers Ragnarok.",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"background_color": "#f3f2f8",
+	"theme_color": "#f3f2f8",
+	"icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+}

@@ -1,0 +1,262 @@
+/* SPDX-FileCopyrightText: 2026 SerLizar */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+/*
+ * Colour tokens. The theme is resolved before first paint by the script in
+ * index.html, which sets data-theme on <html> from the saved choice or the
+ * system setting. accessibility.test.ts checks every pairing used for text
+ * and map markers against WCAG contrast minimums in both themes.
+ */
+:root {
+	color-scheme: light;
+	--font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--radius: 16px;
+	--radius-sm: 8px;
+	--space: 16px;
+
+	--bg: #f3f2f8;
+	--surface: #ffffff;
+	--surface-2: #f6f5fb;
+	--border: #e3e1ec;
+	--text: #1d1b26;
+	--muted: #6b6880;
+	--accent: #84529f;
+	--accent-ink: #ffffff;
+	--accent-hover: #723f8d;
+	--accent-soft: #f3ebf8;
+	--success: #156b40;
+	--success-soft: #e3f6ea;
+	--warning: #9a6200;
+	--warning-soft: #fff3d6;
+	--danger: #c4314b;
+	--danger-soft: #fde8ec;
+	--shadow: 0 1px 2px rgb(30 20 60 / 6%), 0 4px 16px rgb(30 20 60 / 6%);
+
+	/* Map */
+	--map-bg: #f4f3fa;
+	--map-grid: #e6e4f0;
+	--road: #8a86a0;
+	--vacant: #e2e0ea;
+	--vacant-ink: #4f4c62;
+	--vacant-stroke: #8a86a0;
+	/* Faded markers' outlines: must stand out from the map in every theme. */
+	--outline: #1d1b26;
+	/* Each guild's outline: the grey that stands out most from both its fill
+	and the map. */
+	--guild-1-outline: #000000;
+	--guild-2-outline: #000000;
+	--guild-3-outline: #000000;
+	--guild-4-outline: #868686;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--bg: #121119;
+	--surface: #1b1a24;
+	--surface-2: #23222e;
+	--border: #2f2d3c;
+	--text: #ecebf3;
+	--muted: #9c99b0;
+	--accent: #bf8fdb;
+	--accent-ink: #1e1226;
+	--accent-hover: #d0a8e6;
+	--accent-soft: #3a2547;
+	--success: #4cc985;
+	--success-soft: #173325;
+	--warning: #f0b347;
+	--warning-soft: #352a12;
+	--danger: #ff7189;
+	--danger-soft: #3a1820;
+	--shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 16px rgb(0 0 0 / 25%);
+
+	--map-bg: #17161f;
+	--map-grid: #22212d;
+	--road: #66627c;
+	--vacant: #2c2b38;
+	--vacant-ink: #b4b1c6;
+	--vacant-stroke: #807c96;
+	--outline: #ecebf3;
+	--guild-1-outline: #ffffff;
+	--guild-2-outline: #5f5f5f;
+	--guild-3-outline: #717171;
+	--guild-4-outline: #ffffff;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font);
+	/* The browser's own text size, 16 px unless the player changed it. */
+	font-size: 100%;
+	line-height: 1.5;
+	/* Long guild names wrap instead of widening the page. */
+	overflow-wrap: break-word;
+	background: var(--bg);
+	color: var(--text);
+	-webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+	margin: 0;
+	line-height: 1.2;
+}
+
+button,
+input,
+select {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+button:disabled {
+	cursor: default;
+}
+
+:focus-visible {
+	outline: 3px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Buttons */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 16px;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--surface);
+	font-weight: 600;
+	white-space: nowrap;
+	transition:
+		background 0.15s,
+		transform 0.1s;
+}
+
+.btn:active:not(:disabled) {
+	transform: scale(0.97);
+}
+
+.btn:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+
+.btn.primary {
+	border-color: transparent;
+	background: var(--accent);
+	color: var(--accent-ink);
+}
+
+.btn.primary:hover:not(:disabled) {
+	background: var(--accent-hover);
+}
+
+.btn.primary:disabled {
+	background: var(--border);
+	color: var(--muted);
+}
+
+.btn.ghost {
+	border-color: transparent;
+	background: transparent;
+	color: var(--accent);
+}
+
+.btn.ghost:hover:not(:disabled) {
+	background: var(--accent-soft);
+}
+
+.btn.small {
+	min-height: 36px;
+	padding: 0 12px;
+	font-size: 0.9rem;
+}
+
+.btn svg {
+	width: 20px;
+	height: 20px;
+	flex: none;
+}
+
+/* A single, instant run: an endless animation cut short would flicker. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Cards */
+.card {
+	--card-pad: 16px;
+	padding: var(--card-pad);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	box-shadow: var(--shadow);
+}
+
+@media (min-width: 480px) {
+	.card {
+		--card-pad: 24px;
+	}
+}
+
+/* On the smallest phones every pixel of width goes to the map and the table. */
+@media (max-width: 359px) {
+	:root {
+		--space: 12px;
+	}
+
+	.card {
+		--card-pad: 12px;
+	}
+}
+
+.card-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.card h2 {
+	font-size: 1.15rem;
+}
+
+.sub {
+	margin: 4px 0 0;
+	color: var(--muted);
+	font-size: 0.9rem;
+}
