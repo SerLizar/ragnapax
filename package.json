@@ -17,7 +17,8 @@
 		"lint:fix": "xo --fix",
 		"lint:reuse": "uvx --from \"reuse[charset-normalizer]==6.2.0\" reuse lint",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"bench": "vitest run --config vitest.bench.config.ts"
 	},
 	"dependencies": {
 		"highs": "^1.15.4"
