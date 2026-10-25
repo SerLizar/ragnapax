@@ -277,10 +277,12 @@ function contentSecurityPolicy(): Plugin {
 		transformIndexHtml: {
 			order: 'post',
 			handler(html) {
-				const inline = Array.from(
-					html.matchAll(/<script>(?<code>[\s\S]*?)<\/script>/gu),
-					({groups}) => `'sha256-${createHash('sha256').update(groups!.code!).digest('base64')}'`,
-				);
+				// Any spelling of the tags, with or without attributes, so an inline
+				// script never goes unhashed and silently blocked; those with a src
+				// are files, which 'self' already covers.
+				const inline = [...html.matchAll(/<script\b(?<attributes>[^>]*)>(?<code>[\s\S]*?)<\/script\b[^>]*>/giu)]
+					.filter(({groups}) => !/(?:^|\s)src\s*=/iu.test(groups!.attributes!))
+					.map(({groups}) => `'sha256-${createHash('sha256').update(groups!.code!).digest('base64')}'`);
 				const policy = [
 					'default-src \'self\'',
 					['script-src \'self\' \'wasm-unsafe-eval\'', ...inline].join(' '),
