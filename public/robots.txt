@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 SerLizar
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Every crawler is welcome: the site is one public page, and plans never
+# reach it (they travel in the link's fragment). Crawlers only read this file
+# at the root of a host, so it takes effect where the build is published at
+# one; under a sub-path, such as a GitHub Pages project site, the host's own
+# robots.txt applies instead. See "Crawlers and AI agents" in
+# docs/OPERATIONS.md.
+
+User-agent: *
+Allow: /

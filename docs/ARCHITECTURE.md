@@ -13,7 +13,8 @@ Each part of the app has a document of its own:
 - [Privacy](PRIVACY.md): what the privacy notice rests on, and what a fork or
   another host must change.
 - [Building, testing and running](OPERATIONS.md): offline caching, security, the
-  performance budget, browser support, testing, CI and deployment.
+  performance budget, browser support, testing, CI and deployment, crawlers
+  and AI agents.
 - [Translating](TRANSLATING.md): how to translate the interface.
 
 Keep them current: fix what a change makes wrong in the same commit, as
@@ -119,7 +120,7 @@ e2e/                       Playwright end-to-end tests
 CHANGELOG.md               What changed for players in each release
 LICENSE                    The AGPL-3.0, where GitHub and people look for it
 LICENSES/                  The same, where the REUSE specification looks for it
-public/                    Copied as-is: icon and web app manifest
+public/                    Copied into the build: icon, web app manifest, robots.txt, llms.txt
 scripts/i18n-status.ts     Translation progress (npm run i18n:status)
 scripts/icons.ts           Draws the PNG icons from public/icon.svg at build time
 scripts/size.ts            First-visit and solver sizes of the build (npm run size)

@@ -247,6 +247,23 @@ describe('the theme script in index.html, kept in step with theme.svelte.ts', ()
 	});
 });
 
+describe('"Crawlers and AI agents" in docs/OPERATIONS.md', () => {
+	it('sends AI agents only to files that exist in the repository', () => {
+		const links = [...read('public/llms.txt').matchAll(/\]\(%SOURCE_URL%(?<path>[^)]*)\)/gu)]
+			.map(({groups}) => groups!.path!.replace(/^\/blob\/HEAD\//u, ''));
+		expect(links.length).toBeGreaterThan(0);
+		expect(links.filter(path => path !== '' && !existsSync(join(root, path)))).toEqual([]);
+	});
+
+	it('links only to the source repository, which the build fills in', () => {
+		// An address written out would send a fork's agents to another repository.
+		const others = [...read('public/llms.txt').matchAll(/\]\((?<target>[^)]*)\)/gu)]
+			.map(({groups}) => groups!.target!)
+			.filter(target => !target.startsWith('%SOURCE_URL%'));
+		expect(others).toEqual([]);
+	});
+});
+
 type Tsconfig = {
 	compilerOptions?: {lib?: string[]; types?: string[]};
 	references?: Array<{path: string}>;

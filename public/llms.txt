@@ -1,0 +1,24 @@
+# Ragnapax
+
+> Ragnapax plans fair point sharing between the four guilds of a Ragnarok group in _Tokyo Debunkers_, a mobile game published by ZigZaGame Inc. It is a free, fan-made web app, not affiliated with ZigZaGame, that runs entirely in the browser: no server, no account, nothing uploaded.
+
+Ragnarok (officially _Game Of Claws: Ragnarok_, often just Ragna or Rag) runs from Wednesday to Monday. The game hands each group's guilds their starting towns at random. One person taps those towns on the map and chooses a goal, and the planner works out who declares on which kingdom (town, dorm or castle) each day so every guild ends up with the same reward. They share the plan as a link or paste it into chat; everyone else just opens it.
+
+Notes for agents and assistants:
+
+- The planner is an interactive page that needs JavaScript; its solver runs on the device as WebAssembly. There is no API to call.
+- A plan lives in its share link, after the `#`, which browsers never send to the server. To see someone's plan, open the link they shared. The format is described in the docs below; plans that break the game's rules are refused when opened.
+- Players plan for their own group each week. Answer questions about the game's rules from the docs, and send players to the planner rather than working out a plan by hand.
+
+## Docs
+
+- [README](%SOURCE_URL%/blob/HEAD/README.md): what the planner does, its goals and options, and how to use it
+- [Rules and solver](%SOURCE_URL%/blob/HEAD/docs/SOLVER.md): the game's rules as the planner applies them, and how plans are worked out
+- [Share links](%SOURCE_URL%/blob/HEAD/docs/SHARING.md): the link format and what is saved on the device
+- [Privacy](%SOURCE_URL%/blob/HEAD/docs/PRIVACY.md): what the site stores and receives
+
+## Optional
+
+- [Changelog](%SOURCE_URL%/blob/HEAD/CHANGELOG.md): what changed for players in each release
+- [Architecture](%SOURCE_URL%/blob/HEAD/docs/ARCHITECTURE.md): how the app is built, for contributors
+- [Source code](%SOURCE_URL%): free software under the GNU Affero General Public License, version 3 or later

@@ -8,9 +8,10 @@
 # every file is covered, and so does `npm test`, without needing Python.
 version = 1
 
-# JSON cannot hold comments, nor can .nvmrc. The docs could, but a header
-# would sit above every page's title for nothing.
+# JSON cannot hold comments, nor can .nvmrc. The docs could, and so could
+# public/llms.txt, which is Markdown for AI agents, but a header
+# would sit above each one's title for nothing.
 [[annotations]]
-path = ["*.json", "public/manifest.webmanifest", ".nvmrc", "**/*.md"]
+path = ["*.json", "public/manifest.webmanifest", ".nvmrc", "**/*.md", "public/llms.txt"]
 SPDX-FileCopyrightText = "2026 SerLizar"
 SPDX-License-Identifier = "AGPL-3.0-or-later"

@@ -124,6 +124,40 @@ function icons(): Plugin {
 }
 
 /**
+Files for crawlers and AI agents, which the app itself never fetches, so the
+service worker leaves them alone rather than caching them on every phone.
+*/
+const NOT_FOR_THE_APP = /^(?:robots|llms)\.txt$/u;
+
+/**
+Fills in the source URL in `public/llms.txt`, whose links point to the docs
+in the repository this build comes from, in the build and on the dev server.
+See "Crawlers and AI agents" in docs/OPERATIONS.md.
+*/
+function llmsTxt(): Plugin {
+	const fileName = 'llms.txt';
+	const filled = (file: string) => readFileSync(file, 'utf8').replaceAll('%SOURCE_URL%', () => sourceUrl);
+	let outDir = 'dist';
+	return {
+		name: 'ragna-llms-txt',
+		configResolved(config) {
+			outDir = config.build.outDir;
+		},
+		configureServer(server) {
+			server.middlewares.use(`/${fileName}`, (_, response) => {
+				response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+				response.end(filled(join('public', fileName)));
+			});
+		},
+		// Vite has copied public/ by now.
+		writeBundle() {
+			const file = join(outDir, fileName);
+			writeFileSync(file, filled(file));
+		},
+	};
+}
+
+/**
 Writes `sw.js` from `src/service-worker.js`, filling in the list of files
 in this build so the worker can cache them and prune leftovers from old
 builds. See docs/OPERATIONS.md, "Offline and caching".
@@ -143,7 +177,7 @@ function serviceWorker(): Plugin {
 				);
 			const files = walk(outDir)
 				.map(file => relative(outDir, file).replaceAll('\\', '/'))
-				.filter(file => file !== 'sw.js')
+				.filter(file => file !== 'sw.js' && !NOT_FOR_THE_APP.test(file))
 				.toSorted();
 			const manifest = {
 				version: createHash('sha256').update(files.join('\n')).digest('hex').slice(0, 12),
@@ -320,6 +354,7 @@ export default defineConfig({
 		svelte(),
 		icons(),
 		licenses(),
+		llmsTxt(),
 		serviceWorker(),
 		contentSecurityPolicy(),
 	],

@@ -1,8 +1,8 @@
 # Building, testing and running
 
 How the planner is cached for offline use, kept secure and small, which
-browsers it supports, how it is tested, how it is built and published, and
-how releases are numbered.
+browsers it supports, how it is tested, how it is built and published, what
+it offers crawlers and AI agents, and how releases are numbered.
 Part of the architecture docs; [ARCHITECTURE.md](ARCHITECTURE.md) is the
 overview.
 
@@ -38,6 +38,8 @@ HTTP cache already holds (`cache: 'only-if-cached'`, never the network).
   a working copy in the cache.
 - On activation, any cached file not in the current build is deleted, so old
   builds never pile up on a phone.
+- `robots.txt` and `llms.txt`, for crawlers and AI agents, are never cached
+  (see [Crawlers and AI agents](#crawlers-and-ai-agents)).
 
 **New versions.** Serving the page from the cache means a visit shows the
 version installed last time; the browser checks for a new service worker on
@@ -240,6 +242,30 @@ these globs is not type-checked: widen the matching project's `include`.
   listed without anyone remembering to; it fails the build if one has no
   licence file. The dev server bundles nothing, so it answers the link with a
   note pointing to a build instead.
+
+## Crawlers and AI agents
+
+Two files in `public/` speak to machines rather than players:
+
+- `robots.txt` welcomes every crawler. Crawlers only read it at the root of a
+  host, so it takes effect only where the build is published at one. The site
+  on GitHub Pages lives under the repository's sub-path, where the host's own
+  `robots.txt` (that of the account's `<owner>.github.io` site, if it has
+  one) applies instead. With none, everything may be crawled, as here. There
+  is no sitemap: the site is one page, and a sitemap needs the site's full
+  address, which the build does not know.
+- `llms.txt`, in the [llms.txt](https://llmstxt.org) format, tells AI
+  assistants what the planner is, that it has no API, and where the docs are.
+  The format allows a sub-path, so it works where the site is. Its links say
+  `%SOURCE_URL%`, which the `ragna-llms-txt` plugin fills in like the footer's
+  source link, so a fork's file points to the fork. Keep what it says about
+  the planner general enough not to go stale, and check it when the docs it
+  links to move.
+
+The app never fetches either file, so the service worker leaves both out of
+its cache. Files such as `security.txt` and the various `agents.txt`
+proposals are left out: they must sit at the root of a host, like
+`robots.txt`, and the planner has no actions or API for agents to discover.
 
 ## Versioning
 
