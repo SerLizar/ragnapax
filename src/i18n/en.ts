@@ -209,6 +209,10 @@ export default {
 	// Under the guild switches when every guild but one sits out, whose
 	// switch is then disabled.
 	'advanced.inactive.last': 'At least one guild must play.',
+	// A switch, also in the title of a plan copied as text.
+	'advanced.fewestDays': 'Declare on fewer days',
+	'advanced.fewestDays.description':
+		'Each guild declares on as few days as possible, so players log in to declare less often. Plans may then need more declares in all.',
 
 	// "How plans are ranked", most important first.
 	'ranking.title': 'How plans are ranked',
@@ -217,6 +221,8 @@ export default {
 	'ranking.gap.castle': 'Smallest gap in castle-days between guilds',
 	'ranking.gap.dormitory': 'Smallest gap in dorm-days between guilds',
 	'ranking.gap.town': 'Smallest gap in town-days between guilds',
+	// Before "ranking.declarations" with "advanced.fewestDays" on.
+	'ranking.days': 'Fewest days with declares, per guild',
 	'ranking.declarations': 'Fewest declares',
 	'ranking.note': 'Each step only breaks ties left by the ones before it.',
 
@@ -260,6 +266,11 @@ export default {
 	'result.optimal.fillMap':
 		'Uses as much of the map as possible, shared as evenly as it allows, with the fewest declares.',
 	'result.proven.fillMap': 'Uses as much of the map as possible, shared as evenly as it allows.',
+	// Instead of "result.optimal" and "result.optimal.fillMap" with
+	// "advanced.fewestDays" on.
+	'result.optimal.fewestDays': 'The fairest plan possible, with declares on the fewest days.',
+	'result.optimal.fillMap.fewestDays':
+		'Uses as much of the map as possible, shared as evenly as it allows, with declares on the fewest days.',
 	'result.unproven': 'The best plan found in the time given. A better one may exist.',
 	// Under the title of a plan brought back from this device, such as after
 	// a refresh or on the next visit.

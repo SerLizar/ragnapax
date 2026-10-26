@@ -34,6 +34,7 @@ const link = encodeShareLink({
 	fillMap: false,
 	castleLast: false,
 	inactive: [],
+	fewestDays: false,
 	played: [],
 	plan,
 	received: false,
@@ -47,6 +48,7 @@ const sent = encodeShareLink({
 	fillMap: false,
 	castleLast: false,
 	inactive: [],
+	fewestDays: false,
 	played: [],
 	plan,
 	received: true,
@@ -331,7 +333,7 @@ describe('PlannerState', () => {
 		expect(planner.displayNames[0]).toBe('Guild 1');
 	});
 
-	it('autosaves every setting, including the options for using every kingdom', () => {
+	it('autosaves every setting, including the options for using every kingdom and the advanced ones', () => {
 		const planner = new PlannerState();
 		planner.restore('#' + link);
 		const stop = planner.sync();
@@ -339,6 +341,7 @@ describe('PlannerState', () => {
 		planner.setFillMap(true);
 		planner.setCastleLast(true);
 		planner.setSittingOut(2, true);
+		planner.setFewestDays(true);
 		flushSync();
 		stop();
 
@@ -347,6 +350,7 @@ describe('PlannerState', () => {
 		expect(again.fillMap).toBe(true);
 		expect(again.castleLast).toBe(true);
 		expect(again.inactive).toEqual([2]);
+		expect(again.fewestDays).toBe(true);
 	});
 
 	it('warns about a plan that does not leave a guild sitting out alone, after the days played', () => {

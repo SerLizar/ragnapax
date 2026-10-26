@@ -58,7 +58,8 @@ Ragnapax does it automatically:
 2. They pick a goal (equal resources, the default, or equal points) and
    optionally ask to use every kingdom. Under "Advanced options", they can
    mark guilds the game put in the group that do not play: those are left
-   alone and left out of the share.
+   alone and left out of the share. They can also ask for declares on as
+   few days as possible, rather than as few declares as possible.
 3. A mixed-integer optimiser finds the declarations for every guild on every
    day, and proves whether the result is the fairest possible.
 4. The plan is shown as a day-by-day map replay and per-guild lists of declares, and
@@ -220,8 +221,8 @@ helpers keep it to the setup and its plan:
   when Safari refuses too many changes in a few seconds.
 
 - **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
-  castleLast, the guilds sitting out (`inactive`), and the days recorded as
-  played (`played`).
+  castleLast, the guilds sitting out (`inactive`), fewestDays, and the days
+  recorded as played (`played`).
 - **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away.
 - **Result** (`$state.raw`): the plan plus the start, settings and input key it
   was made for, and its quality, known only for plans the solver made in
@@ -239,7 +240,7 @@ helpers keep it to the setup and its plan:
   serialised forms: `ownFragment` and `address`.
 - **Actions:** `restore`, `switchMap`, `toggleTown`, `clearTowns`, `setGuildName`,
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
-  `setSittingOut`, `recordDay`,
+  `setSittingOut`, `setFewestDays`, `recordDay`,
   `recordAsPlanned`, `forgetDay`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.

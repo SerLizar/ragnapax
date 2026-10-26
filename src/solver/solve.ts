@@ -7,7 +7,7 @@ import {buildModel, TIE_BREAKER_BUDGET, type PlanningProblem} from './model.ts';
 
 /**
 How good a plan is known to be:
-- `optimal`: nothing better exists, down to the declaration count.
+- `optimal`: nothing better exists, down to the last tie-breaker (`efforts`).
 - `proven`: fairness and total points are proven best; a plan with fewer
 declarations might exist.
 - `unproven`: the best plan found in the time available.

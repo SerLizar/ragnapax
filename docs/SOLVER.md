@@ -111,10 +111,12 @@ they break.
 ### Settings and priorities
 
 `src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap`,
-`castleLast` and `inactive`), their
+`castleLast`, `inactive` and `fewestDays`), their
 labels, and `priorities(settings)`: what the planner optimises, most important
-first, each proven optimal; and `refinements(settings)`: tie-breakers the
-solver improves while polishing but does not prove. Together they are the single
+first, each proven optimal; `refinements(settings)`: tie-breakers the
+solver improves while polishing but does not prove; and `efforts(settings)`:
+the work a plan asks of the guilds, kept down last, also polished rather
+than proven. Together they are the single
 source of truth for both the solver and the "How plans are ranked" disclosure in
 the interface.
 
@@ -126,6 +128,10 @@ the interface.
 | 4        | Smallest gap in dormitory-days | Most points for everyone       |                                   |
 | Polished |                                |                                | Equal resources: gap in points    |
 | Last     | Fewest declarations            | Fewest declarations            | Fewest declarations               |
+
+With **Declare on fewer days** (`fewestDays`), the last row becomes two:
+fewest days with declarations, summed over the guilds, then fewest
+declarations.
 
 Why the holding gaps under equal points: equal points alone allowed plans where
 one guild held the castle all week and made the difference up with towns, which
@@ -168,6 +174,15 @@ did). The solver never makes them, so one in its plans is a bug, reported
 as an error; one in a link, such as a link edited by hand, opens with a
 warning on the plan (`PlannerState.disturbance`).
 
+**Declare on fewer days** (`fewestDays`, under "Advanced options") keeps
+down the days on which each guild declares, so players log in to declare
+less often, before the declaration count. Like every tie-breaker it never
+costs fairness or points. It may cost declarations: a guild then makes
+three declarations on one day rather than one on each of three days. On the
+benchmark it cuts the days with declarations by about a seventh, for a few
+more declarations. It makes some proofs slower: most still take under 4 s,
+but two Floating City openings with equal points took about 12 s.
+
 ## The planner
 
 ### Formulation
@@ -187,6 +202,10 @@ Variables, for guild _g_, scored day _d_ and kingdom _t_:
   so their ownership, and everyone else's of those kingdoms, is constant too.
 - `gain[g,d,t]` ∈ `[0, 1]`, continuous: _g_ declares on _t_ on day _d_. The
   constraints pin it to exactly 0 or 1, so it needs no integrality.
+- `declares[g,d]` ∈ `[0, 1]`, continuous, only with `fewestDays`: _g_
+  declares on day _d_. The gains and minimising it pin it to 0 or 1. As a
+  binary column it made some proofs ten times slower, and with one row for
+  the day's total rather than one per gain, polishing left a fifth more days.
 - `most_m`, `least_m`, free: bounds on every guild's total of measure _m_, one
   pair per gap objective.
 
@@ -201,6 +220,7 @@ gain[g,d,t] ≤ own[g,d,t]                    a declaration gains it
 gain[g,d,t] + own[g,d−1,t] ≤ 1              no declaring on your own kingdom
 gain[g,d,t] ≤ Σ_{n ∈ N(t)} own[g,d−1,n]     adjacency to yesterday's holdings
 Σ_t gain[g,d,t] ≤ MAX_DECLARATIONS_PER_DAY   declaration limit
+gain[g,d,t] ≤ declares[g,d]                 a day with declarations, with fewestDays
 least_m ≤ total_m(g) ≤ most_m               for every gap objective, g playing
 total_m(g) ≥ total_m(g′)                    guild order, when filling the map
 castle(g) ≤ castle(g′)                      castle order, with castleLast too
@@ -234,7 +254,8 @@ after another. Each priority is a whole-number quantity with a known range
 (`span`). Working upwards from the tie-breakers, each objective's weight is one
 more than the most everything below it can ever contribute, so one unit of a
 higher priority always outweighs any change below it. The tie-breakers
-(refinements, then the declaration count) are weighted the same way among
+(refinements, then `efforts`: the days with declarations when asked, then the
+declaration count) are weighted the same way among
 themselves, then scaled so their total stays under `TIE_BREAKER_BUDGET` = 0.5.
 
 The largest coefficient is about 1.4 × 10⁶ on The Floating City (equal
@@ -260,7 +281,7 @@ Result quality, shown to users:
 
 | Quality    | Meaning                                                       | Interface          |
 | ---------- | ------------------------------------------------------------- | ------------------ |
-| `optimal`  | Proven best, down to the declaration count                    | "Fairest" badge    |
+| `optimal`  | Proven best, down to the last tie-breaker                     | "Fairest" badge    |
 | `proven`   | Every priority proven best; tie-breakers polished, not proven | "Fairest" badge    |
 | `unproven` | Best found before the time limit or before the user stopped   | "Best found" badge |
 | `saved`    | Brought back from this device; checked against the rules      | "Saved plan" text  |
@@ -341,8 +362,8 @@ order (see [Maps](#maps)).
 ### Add a plan setting
 
 1. Add the field to `PlanSettings` and `DEFAULT_SETTINGS` in
-   `src/domain/settings.ts`, and express its effect through `priorities` or
-   `guildOrders` if possible, so the model and the "How plans are
+   `src/domain/settings.ts`, and express its effect through `priorities`,
+   `refinements`, `efforts` or `guildOrders` if possible, so the model and the "How plans are
    ranked" list stay in step.
 2. Add an optional share link parameter whose absence means the old
    behaviour; decode it in `decodeShareLink`.

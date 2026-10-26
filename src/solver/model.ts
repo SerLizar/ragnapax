@@ -5,10 +5,12 @@ import type {GameMap, Kingdom} from '../domain/map.ts';
 import type {Ownership} from '../domain/plan.ts';
 import {
 	activeGuilds,
+	efforts,
 	guildOrders,
 	priorities,
 	refinements,
 	type Criterion,
+	type Effort,
 	type Measure,
 	type PlanSettings,
 } from '../domain/settings.ts';
@@ -106,7 +108,7 @@ before, at most `MAX_DECLARATIONS_PER_DAY` times a day. Kingdoms that
 someone holds never fall back to vacant.
 
 Objectives follow `priorities(settings)` in strict order, then
-`refinements(settings)` and the fewest declarations so nobody does needless
+`refinements(settings)` and `efforts(settings)`, so nobody does needless
 work. Days already played are constants: they count towards every total,
 so the days left make up for what happened. Guilds sitting out keep what
 they hold, untouched, and are left out of every gap and order, so the
@@ -144,6 +146,8 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 	const ownAt = (g: GuildIndex, d: number, t: KingdomIndex) => own[g]![d]![t]!;
 
 	const declarations: Term[] = [];
+	// Days on which each guild declares, one term per guild and day.
+	const declarationDays: Term[] = [];
 
 	// Played days were checked by the rules engine; only the rest need rules.
 	for (let d = known.length; d <= DAYS; d++) {
@@ -200,6 +204,26 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 
 			if (declared.length > MAX_DECLARATIONS_PER_DAY) {
 				milp.atMost(declared, MAX_DECLARATIONS_PER_DAY);
+			}
+
+			if (!settings.fewestDays || declared.length === 0) {
+				continue;
+			}
+
+			// 1 on a day g declares; continuous like the gains, as the gains
+			// and minimising it pin it to 0 or 1. Binary, it made some proofs
+			// ten times slower; one row for the day's total instead of one per
+			// gain left polishing with a fifth more days.
+			const declares = milp.continuous(`declares_g${g}_d${d}`, 0, 1);
+			declarationDays.push([1, declares]);
+			for (const [, gain] of declared) {
+				milp.atMost(
+					[
+						[1, gain],
+						[-1, declares],
+					],
+					0,
+				);
 			}
 		}
 	}
@@ -278,10 +302,15 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 		}
 	};
 
+	const effort: Record<Effort, Objective> = {
+		days: {terms: declarationDays, span: GUILD_COUNT * DAYS},
+		declarations: {terms: declarations, span: GUILD_COUNT * DAYS * MAX_DECLARATIONS_PER_DAY},
+	};
+
 	// Tie-breakers, scaled so that together they stay under TIE_BREAKER_BUDGET.
 	const tieBreakers = [
 		...refinements(settings).map(c => objective(c)),
-		{terms: declarations, span: GUILD_COUNT * DAYS * MAX_DECLARATIONS_PER_DAY},
+		...efforts(settings).map(kind => effort[kind]),
 	];
 	const tie = strictWeights(tieBreakers, 0);
 	const scale = TIE_BREAKER_BUDGET / (tie.most + 1);

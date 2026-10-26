@@ -5,13 +5,19 @@
 	import {untrack} from 'svelte';
 	import {
 		activeGuilds,
+		efforts,
 		GOALS,
 		priorities,
 		refinements,
 		type Goal,
 	} from '../domain/settings.ts';
 	import {MAX_DECLARATIONS_PER_DAY, POINTS} from '../domain/types.ts';
-	import {describeCriterion, describeFailure, goalLabel} from '../i18n/describe.ts';
+	import {
+		describeCriterion,
+		describeEffort,
+		describeFailure,
+		goalLabel,
+	} from '../i18n/describe.ts';
 	import {t} from '../i18n/i18n.svelte.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
 	import {focusFallback} from './focus.ts';
@@ -37,9 +43,9 @@
 	const isUpToDate = $derived(planner.result !== undefined && !planner.stale);
 	// The guild order runs over the guilds that play.
 	const playing = $derived(activeGuilds(planner.settings).map(g => planner.displayNames[g]!));
-	// Opens with the card when a guild sits out, so the choice is in view,
-	// but never closes by itself while the player changes it.
-	let isAdvancedOpen = $state(untrack(() => planner.inactive.length > 0));
+	// Opens with the card when an advanced option is in use, so the choice
+	// is in view, but never closes by itself while the player changes it.
+	let isAdvancedOpen = $state(untrack(() => planner.fewestDays || planner.inactive.length > 0));
 </script>
 
 <section class="card" aria-labelledby="goal-title">
@@ -111,6 +117,18 @@
 
 	<details class="advanced" bind:open={isAdvancedOpen}>
 		<summary>{t('advanced.title')}</summary>
+		<label class="option advanced-option">
+			<input
+				type="checkbox"
+				role="switch"
+				checked={planner.fewestDays}
+				aria-labelledby="{id}-days"
+				aria-describedby="{id}-days-desc"
+				onchange={event => planner.setFewestDays(event.currentTarget.checked)}
+			/>
+			<span class="title" id="{id}-days">{t('advanced.fewestDays')}</span>
+			<span class="desc" id="{id}-days-desc">{t('advanced.fewestDays.description')}</span>
+		</label>
 		<fieldset class="sitting-out" aria-describedby="{id}-out-desc">
 			<legend class="title">{t('advanced.inactive')}</legend>
 			<p class="desc" id="{id}-out-desc">{t('advanced.inactive.description')}</p>
@@ -139,7 +157,9 @@
 			{#each [...priorities(planner.settings), ...refinements(planner.settings)] as criterion, i (i)}
 				<li>{describeCriterion(criterion)}</li>
 			{/each}
-			<li>{t('ranking.declarations')}</li>
+			{#each efforts(planner.settings) as effort (effort)}
+				<li>{describeEffort(effort)}</li>
+			{/each}
 		</ol>
 		<p>{t('ranking.note')}</p>
 	</details>
@@ -339,6 +359,13 @@
 
 	.ranking p {
 		margin: 0;
+	}
+
+	/* Reads like the options outside the disclosure. */
+	.advanced-option {
+		margin: 8px 0 16px;
+		color: var(--text);
+		font-size: 1rem;
 	}
 
 	.sitting-out {

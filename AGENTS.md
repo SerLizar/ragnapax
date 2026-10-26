@@ -74,7 +74,7 @@ from a component.
 - **The rules engine and the model agree.** If you change a rule, change both
   `simulate` (`src/domain/plan.ts`) and `buildModel`, with tests.
 - **Priorities stay strict.** Objectives are weighted so each outranks
-  everything below it, and the tie-breakers (refinements, then declarations)
+  everything below it, and the tie-breakers (refinements, then `efforts`)
   stay under `TIE_BREAKER_BUDGET`. The early stop depends on that.
 - **Client-only, nothing heavy up front.** No servers, analytics or
   third-party requests (the CSP forbids them), no CSS frameworks or icon

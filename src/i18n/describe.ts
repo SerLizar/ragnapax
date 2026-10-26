@@ -6,7 +6,12 @@
 
 import type {GameMap, Kingdom} from '../domain/map.ts';
 import type {Disturbance, Violation} from '../domain/plan.ts';
-import type {Criterion, Goal} from '../domain/settings.ts';
+import type {
+	Criterion,
+	Effort,
+	Goal,
+	PlanSettings,
+} from '../domain/settings.ts';
 import {DAYS, MAX_DECLARATIONS_PER_DAY, type GuildIndex} from '../domain/types.ts';
 import type {Dormitory} from '../maps/kingdoms.ts';
 import type {LinkProblem, ShareLinkError} from '../share/link.ts';
@@ -80,16 +85,27 @@ export const describeCriterion = (criterion: Criterion): string =>
 	t(criterion.kind === 'total' ? 'ranking.total' : `ranking.gap.${criterion.measure}`);
 
 /**
-What is known about a plan's quality, e.g. "The fairest plan possible…".
+A tie-breaker on the work a plan asks for, e.g. "Fewest declares".
 */
-export function describeQuality(quality: ResultQuality, isFillMap: boolean): string {
+export const describeEffort = (effort: Effort): string => t(`ranking.${effort}`);
+
+/**
+What is known about a plan's quality, e.g. "The fairest plan possible…",
+for the settings it was made with.
+*/
+export function describeQuality(
+	quality: ResultQuality,
+	{fillMap, fewestDays}: Pick<PlanSettings, 'fillMap' | 'fewestDays'>,
+): string {
 	switch (quality) {
 		case 'optimal': {
-			return t(isFillMap ? 'result.optimal.fillMap' : 'result.optimal');
+			return fewestDays
+				? t(fillMap ? 'result.optimal.fillMap.fewestDays' : 'result.optimal.fewestDays')
+				: t(fillMap ? 'result.optimal.fillMap' : 'result.optimal');
 		}
 
 		case 'proven': {
-			return t(isFillMap ? 'result.proven.fillMap' : 'result.proven');
+			return t(fillMap ? 'result.proven.fillMap' : 'result.proven');
 		}
 
 		case 'unproven': {

@@ -6,6 +6,16 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.3.0 - 2026-10-26
+
+### Added
+
+- A "Declare on fewer days" switch under "Advanced options": plans have each
+  guild declare on as few days as possible, so players log in to declare
+  less often, even if that takes more declares in all. Plans stay just as
+  fair, though finding them can take a little longer. Share links and plans
+  copied as text remember it.
+
 ## 1.2.0 - 2026-10-25
 
 ### Added

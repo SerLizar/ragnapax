@@ -113,7 +113,7 @@
 		// A cancelled solve leaves the plan as it was.
 		if (solvedFrom !== false && result && result !== solvedFrom) {
 			announcement = t('solve.done', {
-				summary: describeQuality(result.quality, result.settings.fillMap),
+				summary: describeQuality(result.quality, result.settings),
 			});
 		}
 

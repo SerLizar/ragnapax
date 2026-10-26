@@ -33,6 +33,12 @@ export type PlanSettings = {
 	when sharing out the points. At least one guild always plays.
 	*/
 	readonly inactive: readonly GuildIndex[];
+	/**
+	Once fairness is settled, have each guild declare on as few days as
+	possible, so players log in to declare less often, before making the
+	fewest declarations.
+	*/
+	readonly fewestDays: boolean;
 };
 
 export const DEFAULT_SETTINGS: PlanSettings = {
@@ -40,6 +46,7 @@ export const DEFAULT_SETTINGS: PlanSettings = {
 	fillMap: false,
 	castleLast: false,
 	inactive: [],
+	fewestDays: false,
 };
 
 /**
@@ -72,7 +79,7 @@ const TOTAL: Criterion = {kind: 'total'};
 /**
 The planner's priorities for some settings, most important first. Each one
 strictly outranks everything after it, and the solver proves each optimal.
-`refinements` and then the fewest declarations break remaining ties.
+`refinements` and then `efforts` break remaining ties.
 
 Equal points also narrows the castle and dormitory gaps: otherwise one guild
 could hold the castle all week and make the points up elsewhere.
@@ -91,7 +98,7 @@ export function priorities({goal, fillMap}: PlanSettings): Criterion[] {
 
 /**
 Tie-breakers after the priorities, most important first, still outranking
-the fewest declarations. The solver improves these while it polishes a plan
+`efforts`. The solver improves these while it polishes a plan
 but does not prove them optimal: proving them took minutes on some openings.
 
 Equal resources while filling the map narrows the points gap, so leftover
@@ -101,6 +108,18 @@ two extra town-days go to four guilds, not to the same two.
 export function refinements({goal, fillMap}: PlanSettings): Criterion[] {
 	return goal === 'resources' && fillMap ? [gap('points')] : [];
 }
+
+/**
+The work a plan asks of the guilds, kept down after every priority and
+refinement, most important first.
+
+- `days`: days on which a guild declares, summed over the guilds.
+- `declarations`: declarations over the Ragnarok, by every guild.
+*/
+export type Effort = 'days' | 'declarations';
+
+export const efforts = ({fewestDays}: Pick<PlanSettings, 'fewestDays'>): Effort[] =>
+	fewestDays ? ['days', 'declarations'] : ['declarations'];
 
 /**
 A measure that must never increase down the guild list, or with `ascending`,

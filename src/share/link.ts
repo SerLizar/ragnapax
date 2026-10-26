@@ -31,6 +31,7 @@ export type SharedPlan = {
 	Guilds sitting out, in guild order; see `PlanSettings.inactive`.
 	*/
 	readonly inactive: readonly GuildIndex[];
+	readonly fewestDays: boolean;
 	/**
 	Days already played, as they happened, from Wednesday on; the plan
 	starts with them. Empty until someone records a day.
@@ -59,6 +60,7 @@ Encodes a setup and plan into a URL fragment, e.g.
 - `c=1`: extra castle-days to the last guilds, see `PlanSettings.castleLast`.
 - `i`: the guilds sitting out, one digit `1`–`4` each, in guild order; see
   `PlanSettings.inactive`. Absent when every guild plays.
+- `d=1`: declare on the fewest days, see `PlanSettings.fewestDays`.
 - `t`: one digit per town in link order (see `GameMap.linkOrder`): `0`
   vacant, `1`–`4` the guild.
 - `h`: days already played, see `SharedPlan.played`, written like `p`.
@@ -92,6 +94,10 @@ export function encodeShareLink(shared: SharedPlan): string {
 
 	if (shared.inactive.length > 0) {
 		parameters.set('i', shared.inactive.map(g => g + 1).join(''));
+	}
+
+	if (shared.fewestDays) {
+		parameters.set('d', '1');
 	}
 
 	for (const name of shared.guildNames) {
@@ -286,6 +292,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 		fillMap: parameters.get('f') === '1',
 		castleLast: parameters.get('c') === '1',
 		inactive,
+		fewestDays: parameters.get('d') === '1',
 		played,
 		plan,
 		received: parameters.get('s') === '1',

@@ -21,6 +21,7 @@ import {
 	startingOwnership,
 	type Ownership,
 } from '../domain/plan.ts';
+import type {PlanSettings} from '../domain/settings.ts';
 import {
 	DAYS,
 	GUILD_COUNT,
@@ -92,10 +93,10 @@ function canModelHold(
 	map: GameMap,
 	owners: readonly Ownership[],
 	played: number,
-	inactive: readonly GuildIndex[],
+	{inactive, fewestDays}: Pick<PlanSettings, 'inactive' | 'fewestDays'>,
 ): boolean {
 	const {milp} = buildModel({
-		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false, castleLast: false, inactive,
+		map, start: owners[0]!, played: owners.slice(1, played + 1), goal: 'points', fillMap: false, castleLast: false, inactive, fewestDays,
 	});
 	const column = new Map(milp.names.map((name, col) => [name, col]));
 	const data = milp.toArrays();
@@ -173,14 +174,16 @@ it.each(MAPS.map(map => [map.id, map] as const))(
 			const owners = randomWeek(map, startingOwnership(map, randomStart(map, seed)), inactive, next);
 			// Some days already played, as when planning the rest of the week.
 			const played = seed % 3;
+			// Counting the days each guild declares must rule nothing out.
+			const settings = {inactive, fewestDays: seed % 4 >= 2};
 			expect(isLegal(map, owners, played, inactive)).toBe(true);
-			expect(canModelHold(map, owners, played, inactive), `legal week, seed ${seed}`).toBe(true);
+			expect(canModelHold(map, owners, played, settings), `legal week, seed ${seed}`).toBe(true);
 			legal++;
 
 			for (let i = 0; i < MUTATIONS; i++) {
 				const mutated = mutate(owners, played, next);
 				const isAllowed = isLegal(map, mutated, played, inactive);
-				expect(canModelHold(map, mutated, played, inactive), `seed ${seed}, change ${i}`).toBe(isAllowed);
+				expect(canModelHold(map, mutated, played, settings), `seed ${seed}, change ${i}`).toBe(isAllowed);
 				if (isAllowed) {
 					legal++;
 				} else {

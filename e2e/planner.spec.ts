@@ -317,6 +317,25 @@ test('leaves a guild sitting out alone, and never lets every guild sit out', asy
 	await expect(page.getByText('At least one guild must play.')).toBeVisible();
 });
 
+test('can rank plans by the days with declares, and remembers it', async ({page}) => {
+	await page.goto('/');
+	await page.getByText('Advanced options').click();
+	const fewerDays = page.getByRole('switch', {name: 'Declare on fewer days', exact: true});
+	await expect(fewerDays).toHaveAccessibleDescription(/^Each guild declares on as few days as possible/u);
+	await fewerDays.check();
+	await page.getByText('How plans are ranked').click();
+	await expect(page.getByRole('listitem').filter({hasText: /^Fewest (?:days with )?declares/u})).toHaveText([
+		'Fewest days with declares, per guild',
+		'Fewest declares',
+	]);
+	await expect(page).toHaveURL(/&d=1&/u);
+
+	// Kept after a refresh, with the options open to show it.
+	await page.reload();
+	await expect(fewerDays).toBeVisible();
+	await expect(fewerDays).toBeChecked();
+});
+
 test('deletes everything saved from the privacy notice', async ({page}) => {
 	await page.goto('/');
 	await page.getByRole('textbox', {name: 'Name of guild 1'}).fill('Wolves');

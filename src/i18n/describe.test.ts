@@ -8,7 +8,7 @@ import {
 	it,
 } from 'vitest';
 import {simulate, startingOwnership, type Plan} from '../domain/plan.ts';
-import {priorities, refinements} from '../domain/settings.ts';
+import {efforts, priorities, refinements} from '../domain/settings.ts';
 import {DAY_NAMES} from '../domain/types.ts';
 import {DEFAULT_MAP, MAPS} from '../maps/index.ts';
 import {decodeShareLink, type ShareLinkError} from '../share/link.ts';
@@ -16,7 +16,9 @@ import {FLOATING_CITY_START} from '../test/fixtures.ts';
 import {
 	describeCriterion,
 	describeDisturbance,
+	describeEffort,
 	describeLinkError,
+	describeQuality,
 	describeViolation,
 	mapName,
 	kingdomLabel,
@@ -52,7 +54,7 @@ it('names the days Wednesday to Monday', () => {
 
 it('describes the priorities in words', () => {
 	const settings = {
-		goal: 'resources', fillMap: true, castleLast: false, inactive: [],
+		goal: 'resources', fillMap: true, castleLast: false, inactive: [], fewestDays: false,
 	} as const;
 	expect(
 		[...priorities(settings), ...refinements(settings)].map(c => describeCriterion(c)),
@@ -63,6 +65,23 @@ it('describes the priorities in words', () => {
 		'Smallest gap in town-days between guilds',
 		'Smallest gap in points between guilds',
 	]);
+	expect(efforts(settings).map(effort => describeEffort(effort))).toEqual(['Fewest declares']);
+	expect(efforts({fewestDays: true}).map(effort => describeEffort(effort))).toEqual([
+		'Fewest days with declares, per guild',
+		'Fewest declares',
+	]);
+});
+
+it('says what an optimal plan keeps down', () => {
+	const optimal = (isFillMap: boolean, isFewestDays: boolean) =>
+		describeQuality('optimal', {fillMap: isFillMap, fewestDays: isFewestDays});
+	expect(optimal(false, false)).toBe('The fairest plan possible, with the fewest declares.');
+	expect(optimal(false, true)).toBe('The fairest plan possible, with declares on the fewest days.');
+	expect(optimal(true, true)).toMatch(/^Uses as much of the map as possible.*, with declares on the fewest days\.$/u);
+	// Only an optimal plan is proven to make the fewest of either.
+	expect(describeQuality('proven', {fillMap: false, fewestDays: true})).toBe(
+		describeQuality('proven', {fillMap: false, fewestDays: false}),
+	);
 });
 
 describe('describeViolation', () => {

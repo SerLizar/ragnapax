@@ -42,7 +42,8 @@ nothing is uploaded.
 - **Guilds sitting out.** Under "Advanced options", mark any guild the game
   put in your group that doesn't play Ragnarok: it makes no declares, nobody
   declares on its kingdoms, and the others share the points between
-  themselves.
+  themselves. Another advanced switch has each guild declare on as few days
+  as possible, so players log in less often, even if that takes more declares.
 - **Provably fair plans in seconds.** An exact optimiser
   ([HiGHS](https://highs.dev/)) runs in the browser, shows better plans as it
   finds them, and says whether the result is proven fairest. "How plans are

@@ -122,6 +122,7 @@ export class PlannerState {
 	which cannot be sent a proxy.
 	*/
 	inactive = $state.raw<readonly GuildIndex[]>(DEFAULT_SETTINGS.inactive);
+	fewestDays = $state(DEFAULT_SETTINGS.fewestDays);
 	/**
 	Days already played, as they happened; see `recordDay`.
 	*/
@@ -152,6 +153,7 @@ export class PlannerState {
 		fillMap: this.fillMap,
 		castleLast: this.castleLast,
 		inactive: this.inactive,
+		fewestDays: this.fewestDays,
 	});
 
 	/**
@@ -263,6 +265,7 @@ export class PlannerState {
 		this.fillMap = setup.fillMap;
 		this.castleLast = setup.castleLast;
 		this.inactive = setup.inactive;
+		this.fewestDays = setup.fewestDays;
 		this.played = setup.played;
 		this.result = setup.plan && {
 			plan: setup.plan,
@@ -558,6 +561,10 @@ export class PlannerState {
 		if (inactive.length < GUILD_COUNT) {
 			this.inactive = inactive;
 		}
+	}
+
+	setFewestDays(isOn: boolean): void {
+		this.fewestDays = isOn;
 	}
 
 	/**

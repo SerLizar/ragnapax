@@ -15,6 +15,7 @@ export type PlanTextOptions = {
 	readonly fillMap: boolean;
 	readonly castleLast: boolean;
 	readonly inactive: readonly GuildIndex[];
+	readonly fewestDays: boolean;
 	readonly timeline: Timeline;
 	/**
 	Only list this guild's declarations.
@@ -46,6 +47,7 @@ export function planToText({
 	fillMap,
 	castleLast,
 	inactive,
+	fewestDays,
 	timeline,
 	guild,
 }: PlanTextOptions): string {
@@ -55,6 +57,7 @@ export function planToText({
 		goalLabel(goal),
 		...(fillMap ? [t('goal.fillMap')] : []),
 		...(fillMap && castleLast ? [t('goal.castleLast')] : []),
+		...(fewestDays ? [t('advanced.fewestDays')] : []),
 	];
 	const lines = [
 		title.join(' · '),

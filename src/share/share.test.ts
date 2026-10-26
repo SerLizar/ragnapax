@@ -42,6 +42,7 @@ const shared: SharedPlan = {
 	fillMap: true,
 	castleLast: false,
 	inactive: [],
+	fewestDays: false,
 	played: [],
 	plan,
 	received: false,
@@ -82,6 +83,14 @@ describe('share links', () => {
 		expect(decodeShareLink(encodeShareLink(castleLast))).toEqual(castleLast);
 		// Links from before the setting hand them to the first guilds.
 		expect(new URLSearchParams(encodeShareLink(shared)).has('c')).toBe(false);
+	});
+
+	it('round-trip declaring on the fewest days', () => {
+		const fewestDays = {...shared, fewestDays: true};
+		expect(new URLSearchParams(encodeShareLink(fewestDays)).get('d')).toBe('1');
+		expect(decodeShareLink(encodeShareLink(fewestDays))).toEqual(fewestDays);
+		// Links from before the setting make the fewest declares.
+		expect(new URLSearchParams(encodeShareLink(shared)).has('d')).toBe(false);
 	});
 
 	it('round-trip the guilds sitting out', () => {
@@ -248,7 +257,7 @@ describe('planToText', () => {
 
 	it('lists every guild\'s declarations per day', () => {
 		const text = planToText({
-			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], timeline,
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false, timeline,
 		});
 		expect(text.split('\n').slice(0, 12)).toEqual([
 			'The Floating City · Equal points',
@@ -268,7 +277,7 @@ describe('planToText', () => {
 
 	it('names the guilds sitting out once, and leaves them out of the days and points', () => {
 		const text = planToText({
-			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [1], timeline,
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [1], fewestDays: false, timeline,
 		});
 		expect(text.split('\n').slice(0, 13)).toEqual([
 			'The Floating City · Equal points',
@@ -297,6 +306,7 @@ describe('planToText', () => {
 			fillMap: false,
 			castleLast: false,
 			inactive: [],
+			fewestDays: false,
 			timeline,
 			guild: 1,
 		});
@@ -313,6 +323,7 @@ describe('planToText', () => {
 			fillMap: false,
 			castleLast: false,
 			inactive: [],
+			fewestDays: false,
 			timeline,
 		});
 		expect(text).toContain(String.raw`• \@everyone: Vagastrom, Dionysia`);
@@ -324,19 +335,26 @@ describe('planToText', () => {
 
 	it('mentions when every kingdom is used', () => {
 		const text = planToText({
-			map, guildNames, goal: 'resources', fillMap: true, castleLast: false, inactive: [], timeline,
+			map, guildNames, goal: 'resources', fillMap: true, castleLast: false, inactive: [], fewestDays: false, timeline,
 		});
 		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal resources · Use every kingdom');
 	});
 
 	it('mentions when extra castle days go last, only while every kingdom is used', () => {
 		const title = (isFillMap: boolean) => planToText({
-			map, guildNames, goal: 'resources', fillMap: isFillMap, castleLast: true, inactive: [], timeline,
+			map, guildNames, goal: 'resources', fillMap: isFillMap, castleLast: true, inactive: [], fewestDays: false, timeline,
 		}).split('\n', 1)[0];
 		expect(title(true)).toBe(
 			'The Floating City · Equal resources · Use every kingdom · Extra castle days last',
 		);
 		expect(title(false)).toBe('The Floating City · Equal resources');
+	});
+
+	it('mentions when guilds declare on the fewest days', () => {
+		const text = planToText({
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: true, timeline,
+		});
+		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal points · Declare on fewer days');
 	});
 });
 

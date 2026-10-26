@@ -33,7 +33,7 @@
 			return t('result.improving');
 		}
 
-		return quality === undefined ? '' : describeQuality(quality, isFillMap);
+		return quality === undefined || !planner.result ? '' : describeQuality(quality, planner.result.settings);
 	});
 
 	function notify(message: string) {

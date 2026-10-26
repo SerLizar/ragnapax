@@ -18,7 +18,7 @@ const request: SolveRequest = {
 	start: [],
 	played: [],
 	settings: {
-		goal: 'points', fillMap: false, castleLast: false, inactive: [],
+		goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false,
 	},
 };
 const owners: Ownership[] = [[0, 1]];

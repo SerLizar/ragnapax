@@ -27,20 +27,27 @@ import {randomStart} from '../src/test/random.ts';
 const STARTS = Number(process.env.BENCH_STARTS ?? 4);
 const SETTINGS: PlanSettings[] = GOALS.flatMap(goal => [
 	{
-		goal, fillMap: false, castleLast: false, inactive: [],
+		goal, fillMap: false, castleLast: false, inactive: [], fewestDays: false,
 	},
 	{
-		goal, fillMap: true, castleLast: false, inactive: [],
+		goal, fillMap: true, castleLast: false, inactive: [], fewestDays: false,
 	},
 	{
-		goal, fillMap: true, castleLast: true, inactive: [],
+		goal, fillMap: true, castleLast: true, inactive: [], fewestDays: false,
 	},
 	// A guild in the middle sits out, so the guild order skips it.
 	{
-		goal, fillMap: false, castleLast: false, inactive: [1],
+		goal, fillMap: false, castleLast: false, inactive: [1], fewestDays: false,
 	},
 	{
-		goal, fillMap: true, castleLast: false, inactive: [1],
+		goal, fillMap: true, castleLast: false, inactive: [1], fewestDays: false,
+	},
+	// Fewer days with declares, against the first two settings.
+	{
+		goal, fillMap: false, castleLast: false, inactive: [], fewestDays: true,
+	},
+	{
+		goal, fillMap: true, castleLast: false, inactive: [], fewestDays: true,
 	},
 ]);
 
@@ -114,7 +121,7 @@ it('solves every map quickly and fairly', async () => {
 					map: map.id,
 					seed,
 					goal: settings.goal + (settings.fillMap ? '+fill' : '') + (settings.castleLast ? '+castle' : '')
-						+ settings.inactive.map(g => `-g${g + 1}`).join(''),
+						+ settings.inactive.map(g => `-g${g + 1}`).join('') + (settings.fewestDays ? '+days' : ''),
 					quality: outcome.quality,
 					'first plan s': firstPlan.toFixed(1),
 					'proven s': proven.toFixed(1),
@@ -124,6 +131,8 @@ it('solves every map quickly and fairly', async () => {
 					dorms: split(s => s.held.dormitory),
 					towns: split(s => s.held.town),
 					moves: scores.reduce((sum, s) => sum + s.declarations, 0),
+					// Days on which a guild declares, summed over the guilds.
+					days: plan.declarations.flat().filter(targets => targets.length > 0).length,
 					'replan first s': replanFirst.toFixed(2),
 					'replan proven s': replanProven.toFixed(1),
 				});
