@@ -25,7 +25,10 @@
 
 	const isSolving = $derived(planner.solve.phase === 'solving');
 	const quality = $derived(planner.result?.quality);
-	const isFillMap = $derived(planner.result?.settings.fillMap ?? false);
+	// Fairest is for plans that share by the goal alone.
+	const isFair = $derived(
+		planner.result !== undefined && !planner.result.settings.fillMap && !planner.result.settings.targets,
+	);
 	// Days the plan keeps as they happened; an out-of-date plan predates them.
 	const played = $derived(planner.stale ? 0 : planner.played.length);
 	const summary = $derived.by(() => {
@@ -102,7 +105,7 @@
 					{#if !isSolving && (quality === 'optimal' || quality === 'proven')}
 						<span class="badge good">
 							<Icon name="trophy" />
-							{t(isFillMap ? 'result.best' : 'result.fairest')}
+							{t(isFair ? 'result.fairest' : 'result.best')}
 						</span>
 					{:else if !isSolving && quality === 'unproven'}
 						<span class="badge">{t('result.bestFound')}</span>

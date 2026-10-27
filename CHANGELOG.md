@@ -6,6 +6,19 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.6.0 - 2026-10-27
+
+### Added
+
+- A "Set holdings by hand" switch under "Advanced options", for groups
+  that agree on their own shares: type in how many days each guild holds
+  towns, dorms and the castle, and plans come as close to them as they
+  can. The numbers start from what equal resources usually gives on the
+  map, and Reset brings them back. While it is on, the goal and "Use every
+  kingdom" are turned off, and a warning says when a kind adds up to more
+  days than the map has, such as more than 6 castle-days in all. Share
+  links and plans copied as text remember it.
+
 ## 1.5.0 - 2026-10-27
 
 ### Added

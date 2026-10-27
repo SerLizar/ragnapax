@@ -37,6 +37,7 @@ export const seaOfPoseidon: MapDefinition = {
 		dorm('Hotarubi', 84, 84),
 		castle(51, 48),
 	],
+	fairHoldings: {town: 24, dormitory: 9, castle: 1},
 	roads: [
 		['A', 'B'],
 		['A', 'K'],

@@ -336,6 +336,43 @@ test('can rank plans by the days with declares, and remembers it', async ({page}
 	await expect(fewerDays).toBeChecked();
 });
 
+test('plans holdings set by hand, in place of the goal, and warns of totals the map cannot hold', async ({page}) => {
+	await setUp(page);
+	await page.getByText('Advanced options').click();
+	const byHand = page.getByRole('switch', {name: 'Set holdings by hand', exact: true});
+	await expect(byHand).toHaveAccessibleDescription(/^Choose how many days each guild holds/u);
+	await byHand.check();
+	await expect(page.getByRole('radio', {name: 'Equal resources'})).toBeDisabled();
+	await expect(page.getByRole('switch', {name: 'Use every kingdom'})).toBeDisabled();
+	await expect(page).toHaveURL(/&k=25\.10\.1-25\.10\.1-25\.10\.1-25\.10\.1&/u);
+
+	// Seven castle-days in a six-day week.
+	const castle = page.getByRole('spinbutton', {name: 'Castle-days for Nightowls'});
+	await expect(castle).toHaveValue('1');
+	await castle.fill('4');
+	await expect(page.getByRole('alert')).toHaveText(/Castle-days add up to 7, but the map only has 6 in a week\./u);
+	await expect(castle).toHaveAttribute('aria-invalid', 'true');
+	await page.getByRole('button', {name: 'Reset'}).click();
+	await expect(castle).toHaveValue('1');
+	await expect(page.getByRole('alert')).toBeHidden();
+
+	await page.getByText('How plans are ranked').click();
+	await expect(page.getByRole('listitem').filter({hasText: /closest to those set/u})).toHaveText([
+		'Castle-days closest to those set for each guild',
+		'Dorm-days closest to those set for each guild',
+		'Town-days closest to those set for each guild',
+	]);
+	await page.getByRole('button', {name: 'Find a fair plan'}).click();
+	await expect(page.getByText('Every guild gets the holdings set for it.')).toBeVisible({timeout: 60_000});
+	await expect(page.getByText('Best', {exact: true})).toBeVisible({timeout: 60_000});
+
+	// Kept after a refresh, with the options open to show it.
+	await page.reload();
+	await page.getByRole('button', {name: 'Edit setup'}).click();
+	await expect(byHand).toBeChecked();
+	await expect(castle).toHaveValue('1');
+});
+
 test('sets starting towns from lists, remembered on this device but not in links', async ({page}) => {
 	await page.goto('/');
 	await page.getByText('Advanced options').click();

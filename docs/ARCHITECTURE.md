@@ -60,7 +60,9 @@ Ragnapax does it automatically:
    optionally ask to use every kingdom. Under "Advanced options", they can
    mark guilds the game put in the group that do not play: those are left
    alone and left out of the share. They can also ask for declares on as
-   few days as possible, rather than as few declares as possible.
+   few days as possible, rather than as few declares as possible, or set
+   by hand how many days each guild holds towns, dorms and the castle,
+   instead of the goal.
 3. A mixed-integer optimiser finds the declarations for every guild on every
    day, and proves whether the result is the fairest possible.
 4. The plan is shown as a day-by-day map replay with per-guild lists of declares,
@@ -223,8 +225,8 @@ helpers keep it to the setup and its plan:
   when Safari refuses too many changes in a few seconds.
 
 - **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
-  castleLast, the guilds sitting out (`inactive`), fewestDays, and the days
-  recorded as played (`played`).
+  castleLast, the guilds sitting out (`inactive`), fewestDays, the holdings
+  set by hand (`targets`), and the days recorded as played (`played`).
 - **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away,
   and `townLists`, whether starting towns are set from lists rather than on
   the map: the player's own preference, saved on the device for every map
@@ -241,11 +243,13 @@ helpers keep it to the setup and its plan:
   timeline and scores, `disturbance` (the first declare, after the days
   played, that does not leave a guild sitting out alone), `stale` (inputs
   changed since the plan was made), `isBest` (up to date and proven best),
+  `excessTargets` (kinds whose holdings set by hand add up to more days
+  than the map has),
   `isReceived` and `openedFromLink`, and the
   serialised forms: `ownFragment` and `address`.
 - **Actions:** `restore`, `switchMap`, `toggleTown`, `assignTown`, `clearTowns`, `setGuildName`,
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
-  `setSittingOut`, `setFewestDays`, `setTownLists`, `recordDay`,
+  `setSittingOut`, `setFewestDays`, `setTargets`, `setTarget`, `setTownLists`, `recordDay`,
   `recordAsPlanned`, `forgetDay`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.

@@ -19,7 +19,9 @@ import {
 	disturbances,
 	startingOwnership,
 } from '../src/domain/plan.ts';
-import {GOALS, type PlanSettings} from '../src/domain/settings.ts';
+import {DEFAULT_SETTINGS, GOALS, type PlanSettings} from '../src/domain/settings.ts';
+import {GUILDS} from '../src/domain/types.ts';
+import type {GameMap} from '../src/domain/map.ts';
 import {MAPS} from '../src/maps/index.ts';
 import {solvePlanningProblem, type SolveProgress} from '../src/solver/solve.ts';
 import {randomStart} from '../src/test/random.ts';
@@ -51,13 +53,33 @@ const SETTINGS: PlanSettings[] = GOALS.flatMap(goal => [
 	},
 ]);
 
+/**
+Holdings set by hand: the map's fair ones, and uneven ones where the first
+guild gets the last one's castle-day and dorm-days.
+*/
+const byHand = (map: GameMap): PlanSettings[] => {
+	const fair = map.fairHoldings;
+	return [
+		{...DEFAULT_SETTINGS, targets: GUILDS.map(() => fair)},
+		{
+			...DEFAULT_SETTINGS,
+			targets: [
+				{...fair, castle: fair.castle + 1, dormitory: fair.dormitory + 2},
+				fair,
+				fair,
+				{...fair, castle: fair.castle - 1, dormitory: fair.dormitory - 2},
+			],
+		},
+	];
+};
+
 it('solves every map quickly and fairly', async () => {
 	const highs = await loadHighs();
 	const rows: Array<Record<string, string | number>> = [];
 	for (const map of MAPS) {
 		for (let seed = 1; seed <= STARTS; seed++) {
 			const start = startingOwnership(map, randomStart(map, seed));
-			for (const settings of SETTINGS) {
+			for (const settings of [...SETTINGS, ...byHand(map)]) {
 				let firstPlan = NaN;
 				let proven = NaN;
 				// The proof often comes after the last better plan, so progress
@@ -121,7 +143,8 @@ it('solves every map quickly and fairly', async () => {
 					map: map.id,
 					seed,
 					goal: settings.goal + (settings.fillMap ? '+fill' : '') + (settings.castleLast ? '+castle' : '')
-						+ settings.inactive.map(g => `-g${g + 1}`).join('') + (settings.fewestDays ? '+days' : ''),
+						+ settings.inactive.map(g => `-g${g + 1}`).join('') + (settings.fewestDays ? '+days' : '')
+						+ (settings.targets ? `+hand(${settings.targets.map(h => h.castle).join('')})` : ''),
 					quality: outcome.quality,
 					'first plan s': firstPlan.toFixed(1),
 					'proven s': proven.toFixed(1),

@@ -38,6 +38,7 @@ export const galaxyTerminal: MapDefinition = {
 		dorm('Obscuary', 78, 96),
 		castle(71, 72),
 	],
+	fairHoldings: {town: 25, dormitory: 9, castle: 1},
 	roads: [
 		['A', 'B'],
 		['A', 'F'],

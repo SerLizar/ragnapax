@@ -9,7 +9,7 @@ import {
 	type Timeline,
 } from '../domain/plan.ts';
 import type {Goal} from '../domain/settings.ts';
-import {VACANT, type GuildIndex} from '../domain/types.ts';
+import {VACANT, type GuildIndex, type Holdings} from '../domain/types.ts';
 import {goalLabel, mapName, kingdomName} from '../i18n/describe.ts';
 import {t, weekday} from '../i18n/i18n.svelte.ts';
 
@@ -21,6 +21,7 @@ export type PlanTextOptions = {
 	readonly castleLast: boolean;
 	readonly inactive: readonly GuildIndex[];
 	readonly fewestDays: boolean;
+	readonly targets?: readonly Holdings[];
 	readonly timeline: Timeline;
 	/**
 	Only list this guild's declarations.
@@ -53,15 +54,22 @@ export function planToText({
 	castleLast,
 	inactive,
 	fewestDays,
+	targets: byHand,
 	timeline,
 	guild,
 }: PlanTextOptions): string {
 	const guildNames = names.map(name => forChat(name));
+	// Holdings set by hand replace the goal and filling the map.
+	const aim = byHand
+		? [t('advanced.targets')]
+		: [
+			goalLabel(goal),
+			...(fillMap ? [t('goal.fillMap')] : []),
+			...(fillMap && castleLast ? [t('goal.castleLast')] : []),
+		];
 	const title = [
 		mapName(map),
-		goalLabel(goal),
-		...(fillMap ? [t('goal.fillMap')] : []),
-		...(fillMap && castleLast ? [t('goal.castleLast')] : []),
+		...aim,
 		...(fewestDays ? [t('advanced.fewestDays')] : []),
 	];
 	const lines = [

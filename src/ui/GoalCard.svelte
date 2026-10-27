@@ -11,7 +11,13 @@
 		refinements,
 		type Goal,
 	} from '../domain/settings.ts';
-	import {MAX_DECLARATIONS_PER_DAY, POINTS} from '../domain/types.ts';
+	import {
+		KINGDOM_KINDS,
+		MAX_DECLARATIONS_PER_DAY,
+		POINTS,
+		type GuildIndex,
+		type KingdomKind,
+	} from '../domain/types.ts';
 	import {
 		describeCriterion,
 		describeEffort,
@@ -43,9 +49,31 @@
 	const isUpToDate = $derived(planner.result !== undefined && !planner.stale);
 	// The guild order runs over the guilds that play.
 	const playing = $derived(activeGuilds(planner.settings).map(g => planner.displayNames[g]!));
+	// Holdings set by hand replace the goal and filling the map.
+	const isByHand = $derived(planner.targets !== undefined);
 	// Opens with the card when an advanced option is in use, so the choice
 	// is in view, but never closes by itself while the player changes it.
-	let isAdvancedOpen = $state(untrack(() => planner.fewestDays || planner.inactive.length > 0));
+	let isAdvancedOpen = $state(
+		untrack(() => planner.targets !== undefined || planner.fewestDays || planner.inactive.length > 0),
+	);
+
+	// The score table's column names, which the holdings table shares.
+	const COLUMN: Record<KingdomKind, 'town' | 'dorm' | 'castle'> = {
+		town: 'town',
+		dormitory: 'dorm',
+		castle: 'castle',
+	};
+	const isExcess = (kind: KingdomKind) => planner.excessTargets.some(excess => excess.kind === kind);
+
+	// Kept as typed, then shown as kept once the field is left: a whole
+	// number the map allows.
+	function setDays(event: Event & {currentTarget: HTMLInputElement}, g: GuildIndex, kind: KingdomKind) {
+		const input = event.currentTarget;
+		planner.setTarget(g, kind, input.valueAsNumber);
+		if (event.type === 'change') {
+			input.value = String(planner.targets?.[g]?.[kind] ?? '');
+		}
+	}
 </script>
 
 <section class="card" aria-labelledby="goal-title">
@@ -58,7 +86,7 @@
 
 	<!-- Named by the title alone, and described by the rest: a name that read
 	out the whole description would be long to hear on every visit. -->
-	<fieldset class="goals" aria-labelledby="goal-title">
+	<fieldset class="goals" aria-labelledby="goal-title" disabled={isByHand}>
 		{#each GOALS as goal (goal)}
 			<label class="goal" class:checked={planner.goal === goal}>
 				<input
@@ -81,6 +109,7 @@
 			type="checkbox"
 			role="switch"
 			checked={planner.fillMap}
+			disabled={isByHand}
 			aria-labelledby="{id}-fill"
 			aria-describedby="{id}-fill-desc"
 			onchange={event => planner.setFillMap(event.currentTarget.checked)}
@@ -101,6 +130,7 @@
 				type="checkbox"
 				role="switch"
 				checked={planner.castleLast}
+				disabled={isByHand}
 				aria-labelledby="{id}-castle"
 				aria-describedby="{id}-castle-desc"
 				onchange={event => planner.setCastleLast(event.currentTarget.checked)}
@@ -117,6 +147,87 @@
 
 	<details class="advanced" bind:open={isAdvancedOpen}>
 		<summary>{t('advanced.title')}</summary>
+		<label class="option advanced-option">
+			<input
+				type="checkbox"
+				role="switch"
+				checked={isByHand}
+				aria-labelledby="{id}-targets"
+				aria-describedby="{id}-targets-desc"
+				onchange={event => planner.setTargets(event.currentTarget.checked)}
+			/>
+			<span class="title" id="{id}-targets">{t('advanced.targets')}</span>
+			<span class="desc" id="{id}-targets-desc">{t('advanced.targets.description')}</span>
+		</label>
+		{#if planner.targets}
+			{@const {targets} = planner}
+			<table class="targets" aria-labelledby="{id}-targets">
+				<thead>
+					<tr>
+						<th scope="col" class="name">{t('score.guild')}</th>
+						{#each KINGDOM_KINDS as kind (kind)}
+							<th scope="col">
+								<abbr title={t(`score.${COLUMN[kind]}Long`)} aria-hidden="true">
+									{t(`score.${COLUMN[kind]}Short`)}
+								</abbr><span class="visually-hidden">{t(`score.${COLUMN[kind]}Long`)}</span>
+							</th>
+						{/each}
+					</tr>
+				</thead>
+				<tbody>
+					{#each planner.displayNames as name, g (g)}
+						{@const isOut = planner.inactive.includes(g)}
+						<tr>
+							<th scope="row" class="name">
+								<span class="who">
+									<GuildMark guild={g} size={16} />
+									<span class="text">
+										{name}
+										{#if isOut}
+											<span class="out">{t('score.inactive')}</span>
+										{/if}
+									</span>
+								</span>
+							</th>
+							{#each KINGDOM_KINDS as kind (kind)}
+								<td>
+									<input
+										type="number"
+										inputmode="numeric"
+										min="0"
+										max={planner.map.mostHeld[kind]}
+										step="1"
+										value={targets[g]?.[kind]}
+										disabled={isOut}
+										aria-label={t('advanced.targets.field', {
+											kind: t(`score.${COLUMN[kind]}Long`),
+											guild: name,
+										})}
+										aria-invalid={isExcess(kind) && !isOut}
+										aria-describedby={isExcess(kind) ? `${id}-excess-${kind}` : undefined}
+										oninput={event => setDays(event, g, kind)}
+										onchange={event => setDays(event, g, kind)}
+									/>
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+			{#each planner.excessTargets as excess (excess.kind)}
+				<p class="error excess" id="{id}-excess-{excess.kind}" role="alert">
+					<Icon name="alert" />
+					{t('advanced.targets.tooMany', {
+						kind: t(`score.${COLUMN[excess.kind]}Long`),
+						count: excess.count,
+						most: excess.most,
+					})}
+				</p>
+			{/each}
+			<button class="btn small reset" onclick={() => planner.setTargets(true)}>
+				{t('advanced.targets.reset')}
+			</button>
+		{/if}
 		<label class="option advanced-option">
 			<input
 				type="checkbox"
@@ -186,7 +297,11 @@
 		{#if planner.isBest}
 			<p class="warning" id="{id}-best">
 				<Icon name="alert" />
-				{t(planner.fillMap ? 'solve.alreadyBest.fillMap' : 'solve.alreadyBest')}
+				{t(
+					isByHand
+						? 'solve.alreadyBest.targets'
+						: (planner.fillMap ? 'solve.alreadyBest.fillMap' : 'solve.alreadyBest'),
+				)}
 			</p>
 		{/if}
 		<button
@@ -232,6 +347,11 @@
 		transition:
 			border-color 0.15s,
 			background 0.15s;
+	}
+
+	.goals:disabled .goal {
+		cursor: not-allowed;
+		opacity: 0.5;
 	}
 
 	.goal.checked {
@@ -300,6 +420,10 @@
 	.option input:disabled {
 		cursor: not-allowed;
 		opacity: 0.5;
+	}
+
+	.option:has(input:disabled) {
+		cursor: not-allowed;
 	}
 
 	.option input:checked {
@@ -384,6 +508,101 @@
 
 	.advanced-option.last {
 		margin: 16px 0 0;
+	}
+
+	.targets {
+		width: 100%;
+		margin: -8px 0 8px;
+		border-collapse: collapse;
+		color: var(--text);
+		font-size: 1rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.targets th,
+	.targets td {
+		padding-block: 4px;
+		padding-inline: 4px 0;
+		text-align: end;
+		white-space: nowrap;
+	}
+
+	.targets thead th {
+		color: var(--muted);
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		text-transform: uppercase;
+	}
+
+	.targets abbr {
+		text-decoration: none;
+	}
+
+	/* The name column takes the room the fields leave, down to nothing. */
+	.targets .name {
+		width: 100%;
+		max-width: 0;
+		padding-inline-start: 0;
+		text-align: start;
+	}
+
+	.who {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		font-weight: 600;
+	}
+
+	.who .text {
+		min-width: 0;
+		overflow-wrap: anywhere;
+		white-space: normal;
+	}
+
+	.out {
+		display: block;
+		color: var(--muted);
+		font-size: 0.8rem;
+		font-weight: 400;
+	}
+
+	.targets input {
+		width: 48px;
+		min-height: 40px;
+		padding-inline: 4px;
+		border: 2px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		text-align: end;
+		appearance: textfield;
+		-moz-appearance: textfield;
+	}
+
+	/* No spinners: they leave no room for the digits. */
+	.targets input::-webkit-inner-spin-button,
+	.targets input::-webkit-outer-spin-button {
+		margin: 0;
+		appearance: none;
+		-webkit-appearance: none;
+	}
+
+	.targets input:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.targets input[aria-invalid='true'] {
+		border-color: var(--danger);
+	}
+
+	.error.excess {
+		margin: 0 0 8px;
+		font-size: 0.9rem;
+	}
+
+	.reset {
+		margin: 0 0 8px;
 	}
 
 	.sitting-out {

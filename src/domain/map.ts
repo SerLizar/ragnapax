@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {
+	DAYS,
 	GUILD_COUNT,
 	KINGDOM_KINDS,
 	TOWNS_PER_GUILD,
+	type Holdings,
 	type MapDefinition,
 	type KingdomIndex,
 	type KingdomKind,
@@ -45,6 +47,15 @@ export type GameMap = {
 	keep the map file's order, which the solver's speed depends on.
 	*/
 	readonly linkOrder: readonly KingdomIndex[];
+	/**
+	See `MapDefinition.fairHoldings`.
+	*/
+	readonly fairHoldings: Holdings;
+	/**
+	Most kingdom-days of each kind one guild could hold: every kingdom of
+	the kind, every day.
+	*/
+	readonly mostHeld: Holdings;
 	indexOf(id: string): KingdomIndex | undefined;
 };
 
@@ -119,6 +130,13 @@ export function findMapProblems(def: MapDefinition): string[] {
 		problems.push('A map has exactly one castle.');
 	}
 
+	for (const kind of KINGDOM_KINDS) {
+		const days = def.fairHoldings[kind];
+		if (!Number.isSafeInteger(days) || days < 0 || GUILD_COUNT * days > DAYS * count(kind)) {
+			problems.push(`Fair holdings of ${days} ${kind}-days per guild cannot be.`);
+		}
+	}
+
 	return problems;
 }
 
@@ -163,6 +181,10 @@ export function compileMap(def: MapDefinition): GameMap {
 		towns,
 		roads,
 		linkOrder,
+		fairHoldings: def.fairHoldings,
+		mostHeld: Object.fromEntries(
+			KINGDOM_KINDS.map(kind => [kind, DAYS * kingdoms.filter(t => t.kind === kind).length]),
+		) as Record<KingdomKind, number>,
 		indexOf: id => indexById.get(id),
 	};
 }

@@ -4,6 +4,7 @@
 import {describe, expect, it} from 'vitest';
 import {
 	activeGuilds,
+	DEFAULT_SETTINGS,
 	efforts,
 	guildOrders,
 	priorities,
@@ -14,6 +15,7 @@ import {
 
 const gap = (measure: Measure): Criterion => ({kind: 'gap', measure});
 const TOTAL: Criterion = {kind: 'total'};
+const targets = Array.from({length: 4}, () => ({town: 25, dormitory: 10, castle: 1}));
 
 // These orders are in "Settings and priorities" in docs/SOLVER.md; keep both in step.
 describe('priorities', () => {
@@ -44,6 +46,23 @@ describe('priorities', () => {
 			expect(priorities({
 				goal, fillMap: true, castleLast: false, inactive: [], fewestDays: false,
 			})[0]).toEqual(TOTAL);
+		}
+	});
+
+	it('comes as close as it can to holdings set by hand, whatever the goal', () => {
+		for (const goal of ['points', 'resources'] as const) {
+			for (const isFillMap of [false, true]) {
+				expect(priorities({
+					...DEFAULT_SETTINGS, goal, fillMap: isFillMap, targets,
+				})).toEqual([
+					{kind: 'miss', measure: 'castle'},
+					{kind: 'miss', measure: 'dormitory'},
+					{kind: 'miss', measure: 'town'},
+				]);
+				expect(refinements({
+					...DEFAULT_SETTINGS, goal, fillMap: isFillMap, targets,
+				})).toEqual([]);
+			}
 		}
 	});
 });
@@ -93,6 +112,12 @@ describe('guildOrders', () => {
 				goal, fillMap: true, castleLast: false, inactive: [], fewestDays: false,
 			})).toEqual([points]);
 		}
+	});
+
+	it('never orders guilds with holdings set by hand', () => {
+		expect(guildOrders({
+			...DEFAULT_SETTINGS, fillMap: true, castleLast: true, targets,
+		})).toEqual([]);
 	});
 
 	it('can hand extra castle-days to the last guilds, keeping points in order', () => {

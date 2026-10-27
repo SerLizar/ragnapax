@@ -365,6 +365,50 @@ describe('PlannerState', () => {
 		expect(planner.disturbance).toBeUndefined();
 	});
 
+	it('sets holdings by hand from the map\'s fair ones, in place of the goal and filling the map', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + link);
+		planner.setFillMap(true);
+		planner.setCastleLast(true);
+		planner.setTargets(true);
+		expect(planner.targets).toEqual([0, 1, 2, 3].map(() => map.fairHoldings));
+		expect(planner.settings).toMatchObject({fillMap: false, castleLast: false, targets: planner.targets});
+		// Kept for when holdings are no longer set, after a refresh too.
+		const again = new PlannerState();
+		again.restore('#' + planner.address);
+		expect(again).toMatchObject({fillMap: true, castleLast: true, targets: planner.targets});
+		planner.setTargets(false);
+		expect(planner.settings).toMatchObject({fillMap: true, castleLast: true, targets: undefined});
+	});
+
+	it('keeps each number set by hand whole and within what the map allows', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + link);
+		expect(planner.setTarget(0, 'castle', 2)).toBeUndefined();
+		planner.setTargets(true);
+		expect(planner.setTarget(0, 'castle', 2.4)).toBe(2);
+		expect(planner.setTarget(1, 'castle', 40)).toBe(6);
+		expect(planner.setTarget(2, 'town', -3)).toBe(0);
+		expect(planner.setTarget(3, 'town', NaN)).toBeUndefined();
+		expect(planner.targets?.map(held => held.castle)).toEqual([2, 6, 1, 1]);
+		expect(planner.targets?.[2]?.town).toBe(0);
+		expect(planner.stale).toBe(true);
+		// Back to the map's fair holdings.
+		planner.setTargets(true);
+		expect(planner.targets).toEqual([0, 1, 2, 3].map(() => map.fairHoldings));
+	});
+
+	it('says which kinds add up to more days than the map has, among the guilds that play', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + link);
+		planner.setTargets(true);
+		expect(planner.excessTargets).toEqual([]);
+		planner.setTarget(0, 'castle', 4);
+		expect(planner.excessTargets).toEqual([{kind: 'castle', count: 7, most: 6}]);
+		planner.setSittingOut(3, true);
+		expect(planner.excessTargets).toEqual([]);
+	});
+
 	it('lets guilds sit out, in guild order, but never every guild', () => {
 		const planner = new PlannerState();
 		planner.restore('#' + link);

@@ -11,8 +11,10 @@ setting or the model. Part of the architecture docs;
 
 A map is declared as data (`MapDefinition` in `src/domain/types.ts`):
 kingdoms with an id, kind (`town`, `dormitory` or `castle`), display
-name, short label and schematic `x`/`y` coordinates, and undirected roads
-between kingdom ids. Map files build kingdoms with `town`, `dorm` and
+name, short label and schematic `x`/`y` coordinates, undirected roads
+between kingdom ids, and `fairHoldings`: what each guild holds in a plan
+for equal resources without using every kingdom, which holdings set by hand
+start from (see [Settings and priorities](#settings-and-priorities)). Map files build kingdoms with `town`, `dorm` and
 `castle` from `src/maps/kingdoms.ts`, which hold what is the same on every
 map: towns are "Town A" labelled "A", each dormitory has one name and short
 name (Dionysia is always "Dio"), and the castle is always Darkwick Castle. Every
@@ -111,7 +113,7 @@ they break.
 ### Settings and priorities
 
 `src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap`,
-`castleLast`, `inactive` and `fewestDays`), their
+`castleLast`, `inactive`, `fewestDays` and `targets`), their
 labels, and `priorities(settings)`: what the planner optimises, most important
 first, each proven optimal; `refinements(settings)`: tie-breakers the
 solver improves while polishing but does not prove; and `efforts(settings)`:
@@ -128,6 +130,12 @@ the interface.
 | 4        | Smallest gap in dormitory-days | Most points for everyone       |                                   |
 | Polished |                                |                                | Equal resources: gap in points    |
 | Last     | Fewest declarations            | Fewest declarations            | Fewest declarations               |
+
+With **Set holdings by hand** (`targets`), the goal and Use every kingdom
+make way for three priorities: town-, dorm- and castle-days as close as
+possible to those set, castle first, then dorms, then towns, each counted
+in days over or under, summed over the guilds that play. Nothing is
+polished, and the last row stays.
 
 With **Declare on fewer days** (`fewestDays`), the last row becomes two:
 fewest days with declarations, summed over the guilds, then fewest
@@ -174,6 +182,21 @@ did). The solver never makes them, so one in its plans is a bug, reported
 as an error; one in a link, such as a link edited by hand, opens with a
 warning on the plan (`PlannerState.disturbance`).
 
+**Set holdings by hand** (`targets`, under "Advanced options"): each
+guild's town-, dorm- and castle-days over the week, typed in, for groups
+that have agreed on shares of their own. Turning it on starts every guild
+from the map's `fairHoldings`, which the solver gives from almost every
+opening for equal resources (`solve.test.ts` checks one opening per map):
+on the benchmark, every Floating City and Sea of Poseidon opening, and all
+but one Galaxy Terminal opening, which had a dorm-day less. The holdings
+are soft rather than hard constraints, so holdings no plan can reach, such
+as more castle-days in all than the week has, still get the closest plan;
+the interface warns when a kind's total over the guilds that play passes
+every kingdom of the kind on every day. They replace the goal, so the
+guild orders of Use every kingdom are dropped too, and guilds sitting out
+keep what they hold, whatever is set for them. Days already played count
+towards them, as towards every total.
+
 **Declare on fewer days** (`fewestDays`, under "Advanced options") keeps
 down the days on which each guild declares, so players log in to declare
 less often, before the declaration count. Like every tie-breaker it never
@@ -208,6 +231,8 @@ Variables, for guild _g_, scored day _d_ and kingdom _t_:
   the day's total rather than one per gain, polishing left a fifth more days.
 - `most_m`, `least_m`, free: bounds on every guild's total of measure _m_, one
   pair per gap objective.
+- `off[g,k]` ≥ 0, continuous, only with holdings set by hand: how many
+  days guild _g_'s total of kind _k_ is from the one set for it, _set_.
 
 Constraints:
 
@@ -224,6 +249,8 @@ gain[g,d,t] ≤ declares[g,d]                 a day with declarations, with fewe
 least_m ≤ total_m(g) ≤ most_m               for every gap objective, g playing
 total_m(g) ≥ total_m(g′)                    guild order, when filling the map
 castle(g) ≤ castle(g′)                      castle order, with castleLast too
+off[g,k] ≥ total_k(g) − set[g,k]             over, with holdings set by hand
+off[g,k] ≥ set[g,k] − total_k(g)             under, likewise
 ```
 
 In the orders, _g′_ is the next guild down the list that plays.
@@ -287,8 +314,8 @@ Result quality, shown to users:
 | `saved`    | Brought back from this device; checked against the rules      | "Saved plan" text  |
 | `shared`   | Came from a link; checked against the rules, quality unknown  | "Shared plan" text |
 
-\* "Best" instead with Use every kingdom, which does not aim for
-fairness alone.
+\* "Best" instead with Use every kingdom or holdings set by hand, which
+do not aim for fairness alone.
 
 Only plans the solver makes during a visit have a known quality. It is
 never saved: a refresh or the next visit shows the plan as `saved`.
@@ -345,7 +372,9 @@ sequenceDiagram
 
 1. Create `src/maps/<map-id>.ts` exporting a `MapDefinition`, following
    `floating-city.ts`: towns, dorms and the castle (from `kingdoms.ts`)
-   with positions that follow the in-game layout (any scale), and roads. A map needs at least 16 towns (4 guilds
+   with positions that follow the in-game layout (any scale), roads, and
+   `fairHoldings`, what each guild holds in an equal resources plan (solve
+   a few openings, as `npm run bench` does, and take the usual result). A map needs at least 16 towns (4 guilds
    × 4 towns each) and exactly one castle.
 2. Add it to `MAP_DEFINITIONS` in `src/maps/index.ts`; the map picker in the
    header lists it. Put it in its place in `ROTATION` too, and check that the

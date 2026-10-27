@@ -23,6 +23,7 @@ import {
 	VACANT,
 	type GuildIndex,
 	type KingdomIndex,
+	type KingdomKind,
 } from '../domain/types.ts';
 import {MilpBuilder, type Operand, type Term} from './milp.ts';
 
@@ -109,7 +110,8 @@ someone holds never fall back to vacant.
 
 Objectives follow `priorities(settings)` in strict order, then
 `refinements(settings)` and `efforts(settings)`, so nobody does needless
-work. Days already played are constants: they count towards every total,
+work. Holdings set by hand are soft: the plan comes as close as it can,
+so holdings no plan could reach still get one. Days already played are constants: they count towards every total,
 so the days left make up for what happened. Guilds sitting out keep what
 they hold, untouched, and are left out of every gap and order, so the
 others share the rest of the map. See "Formulation" in
@@ -272,6 +274,25 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 		};
 	};
 
+	// How far each guild that plays is from the holdings set for it, in
+	// kingdom-days of a kind, over or under, summed over the guilds.
+	const miss = (kind: KingdomKind): Objective => {
+		const all = totals(amountOf(kind));
+		const terms: Term[] = [];
+		let span = bound(amountOf(kind));
+		for (const g of active) {
+			const target = settings.targets?.[g]?.[kind] ?? 0;
+			const total = all[g]!;
+			const off = milp.continuous(`miss_${kind}_g${g}`, 0, Infinity);
+			milp.atLeast([[1, off], ...total.map(([k, v]): Term => [-k, v])], -target);
+			milp.atLeast([[1, off], ...total], target);
+			terms.push([1, off]);
+			span += target;
+		}
+
+		return {terms, span};
+	};
+
 	// Everyone's points together, negated so that minimising maximises it.
 	const total = (): Objective => ({
 		terms: totals(amountOf('points')).flatMap(terms => terms.map(([k, v]): Term => [-k, v])),
@@ -292,7 +313,21 @@ export function buildModel({map, start, played = [], ...settings}: PlanningProbl
 		}
 	}
 
-	const objective = (c: Criterion) => (c.kind === 'gap' ? gap(c.measure) : total());
+	const objective = (c: Criterion) => {
+		switch (c.kind) {
+			case 'gap': {
+				return gap(c.measure);
+			}
+
+			case 'miss': {
+				return miss(c.measure);
+			}
+
+			case 'total': {
+				return total();
+			}
+		}
+	};
 
 	const addCosts = (objectives: readonly Objective[], weights: readonly number[]) => {
 		for (const [i, {terms}] of objectives.entries()) {

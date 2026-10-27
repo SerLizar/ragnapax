@@ -81,8 +81,21 @@ export const goalLabel = (goal: Goal): string => t(`goal.${goal}`);
 /**
 What a priority means, e.g. "Smallest gap in castle-days between guilds".
 */
-export const describeCriterion = (criterion: Criterion): string =>
-	t(criterion.kind === 'total' ? 'ranking.total' : `ranking.gap.${criterion.measure}`);
+export function describeCriterion(criterion: Criterion): string {
+	switch (criterion.kind) {
+		case 'total': {
+			return t('ranking.total');
+		}
+
+		case 'gap': {
+			return t(`ranking.gap.${criterion.measure}`);
+		}
+
+		case 'miss': {
+			return t(`ranking.miss.${criterion.measure}`);
+		}
+	}
+}
 
 /**
 A tie-breaker on the work a plan asks for, e.g. "Fewest declares".
@@ -95,17 +108,17 @@ for the settings it was made with.
 */
 export function describeQuality(
 	quality: ResultQuality,
-	{fillMap, fewestDays}: Pick<PlanSettings, 'fillMap' | 'fewestDays'>,
+	{fillMap, fewestDays, targets}: Pick<PlanSettings, 'fillMap' | 'fewestDays' | 'targets'>,
 ): string {
+	// Holdings set by hand replace both the goal and filling the map.
+	const aim = targets ? '.targets' : (fillMap ? '.fillMap' : '');
 	switch (quality) {
 		case 'optimal': {
-			return fewestDays
-				? t(fillMap ? 'result.optimal.fillMap.fewestDays' : 'result.optimal.fewestDays')
-				: t(fillMap ? 'result.optimal.fillMap' : 'result.optimal');
+			return t(`result.optimal${aim}${fewestDays ? '.fewestDays' : ''}`);
 		}
 
 		case 'proven': {
-			return t(fillMap ? 'result.proven.fillMap' : 'result.proven');
+			return t(`result.proven${aim}`);
 		}
 
 		case 'unproven': {

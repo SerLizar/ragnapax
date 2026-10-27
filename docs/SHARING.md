@@ -18,6 +18,7 @@ servers. The format is defined in `src/share/link.ts`:
 | `f`       | `1` when using every kingdom; absent otherwise.                                                      |
 | `c`       | `1` when extra castle-days go to the last guilds (`castleLast`); absent otherwise, the old behaviour. |
 | `d`       | `1` when guilds declare on the fewest days (`fewestDays`); absent otherwise, the old behaviour.     |
+| `k`       | Holdings set by hand (`targets`): each guild's town-, dorm- and castle-days separated by `.`, guilds by `-`, e.g. `k=25.10.1-25.10.1-25.10.1-25.10.1`; absent when sharing by the goal, the old behaviour. Four guilds of three whole numbers, none past what one guild could hold, or the link is damaged. `f` and `c` keep their values, for when holdings are no longer set. |
 | `i`       | Guilds sitting out (`inactive`), one digit `1`–`4` each, e.g. `i=24`; absent when every guild plays, the old behaviour. All four is a damaged link. |
 | `g`       | Guild name, repeated once per guild, in order. Trimmed, without hidden characters, cut to 9 characters as players see them; blank is "Guild N". |
 | `t`       | One digit per town in link order: `0` Vacant, `1`–`4` guild.                                         |

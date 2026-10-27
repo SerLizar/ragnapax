@@ -18,12 +18,19 @@ import {
 	type Ownership,
 	type Plan,
 } from '../domain/plan.ts';
-import {DEFAULT_SETTINGS, type Goal, type PlanSettings} from '../domain/settings.ts';
+import {
+	DEFAULT_SETTINGS,
+	excessTargets,
+	type Goal,
+	type PlanSettings,
+} from '../domain/settings.ts';
 import {
 	DAYS,
 	GUILD_COUNT,
 	GUILDS,
 	type GuildIndex,
+	type Holdings,
+	type KingdomKind,
 } from '../domain/types.ts';
 import {DEFAULT_MAP, mapOfWeek} from '../maps/index.ts';
 import {
@@ -126,6 +133,11 @@ export class PlannerState {
 	inactive = $state.raw<readonly GuildIndex[]>(DEFAULT_SETTINGS.inactive);
 	fewestDays = $state(DEFAULT_SETTINGS.fewestDays);
 	/**
+	Holdings set by hand for each guild, if they are; see
+	`PlanSettings.targets`. Raw, like `inactive`, and replaced whole.
+	*/
+	targets = $state.raw<readonly Holdings[] | undefined>();
+	/**
 	Days already played, as they happened; see `recordDay`.
 	*/
 	played = $state.raw<readonly DayDeclarations[]>([]);
@@ -156,13 +168,24 @@ export class PlannerState {
 
 	readonly status = $derived(setupStatus(this.map, this.startingTowns));
 	readonly start = $derived(startingOwnership(this.map, this.startingTowns));
+	/**
+	What plans are made with. Holdings set by hand turn the map filling
+	switches off, without forgetting them: `setup` keeps them, so they come
+	back when holdings are no longer set.
+	*/
 	readonly settings: PlanSettings = $derived({
 		goal: this.goal,
-		fillMap: this.fillMap,
-		castleLast: this.castleLast,
+		fillMap: this.fillMap && !this.targets,
+		castleLast: this.castleLast && !this.targets,
 		inactive: this.inactive,
 		fewestDays: this.fewestDays,
+		targets: this.targets,
 	});
+
+	/**
+	Kinds whose holdings set by hand add up to more days than the map has.
+	*/
+	readonly excessTargets = $derived(excessTargets(this.map, this.settings));
 
 	/**
 	Position at the start and at the end of each day played.
@@ -245,6 +268,8 @@ export class PlannerState {
 		guildNames: this.guildNames,
 		startingTowns: this.startingTowns,
 		...this.settings,
+		fillMap: this.fillMap,
+		castleLast: this.castleLast,
 		played: this.played,
 		plan: this.result && !this.stale ? this.result.plan : undefined,
 		received: this.isReceived,
@@ -274,6 +299,7 @@ export class PlannerState {
 		this.castleLast = setup.castleLast;
 		this.inactive = setup.inactive;
 		this.fewestDays = setup.fewestDays;
+		this.targets = setup.targets;
 		this.played = setup.played;
 		this.result = setup.plan && {
 			plan: setup.plan,
@@ -585,6 +611,31 @@ export class PlannerState {
 
 	setFewestDays(isOn: boolean): void {
 		this.fewestDays = isOn;
+	}
+
+	/**
+	Sets holdings by hand, starting every guild from what equal resources
+	usually gives on the map, even if they were set already; or shares by
+	the goal again.
+	*/
+	setTargets(isOn: boolean): void {
+		this.targets = isOn ? GUILDS.map(() => this.map.fairHoldings) : undefined;
+	}
+
+	/**
+	Sets the days a guild is to hold a kind of kingdom, as a whole number
+	from none to every kingdom of the kind every day. Returns the number
+	kept, or undefined when holdings are not set by hand or `days` is not a
+	number.
+	*/
+	setTarget(guild: GuildIndex, kind: KingdomKind, days: number): number | undefined {
+		if (!this.targets || Number.isNaN(days)) {
+			return undefined;
+		}
+
+		const kept = Math.min(this.map.mostHeld[kind], Math.max(0, Math.round(days)));
+		this.targets = this.targets.map((held, g) => (g === guild ? {...held, [kind]: kept} : held));
+		return kept;
 	}
 
 	setTownLists(isOn: boolean): void {

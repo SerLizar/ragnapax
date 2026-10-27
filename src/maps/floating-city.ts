@@ -37,6 +37,7 @@ export const floatingCity: MapDefinition = {
 		dorm('Jabberwock', 93, 73),
 		castle(58, 42),
 	],
+	fairHoldings: {town: 25, dormitory: 10, castle: 1},
 	roads: [
 		['A', 'B'],
 		['A', 'E'],

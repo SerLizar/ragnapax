@@ -93,6 +93,23 @@ describe('share links', () => {
 		expect(new URLSearchParams(encodeShareLink(shared)).has('d')).toBe(false);
 	});
 
+	it('round-trip holdings set by hand, keeping the switches they replace', () => {
+		const setup = {
+			...shared,
+			targets: [
+				{town: 25, dormitory: 10, castle: 1},
+				{town: 30, dormitory: 0, castle: 6},
+				{town: 0, dormitory: 42, castle: 0},
+				{town: 102, dormitory: 9, castle: 2},
+			],
+		};
+		expect(new URLSearchParams(encodeShareLink(setup)).get('k')).toBe('25.10.1-30.0.6-0.42.0-102.9.2');
+		expect(decodeShareLink(encodeShareLink(setup))).toEqual(setup);
+		// Links from before holdings could be set share by the goal.
+		expect(new URLSearchParams(encodeShareLink(shared)).has('k')).toBe(false);
+		expect(decodeShareLink(encodeShareLink(shared))?.targets).toBeUndefined();
+	});
+
 	it('round-trip the guilds sitting out', () => {
 		const setup = {...shared, inactive: [1, 3], plan: undefined};
 		expect(new URLSearchParams(encodeShareLink(setup)).get('i')).toBe('24');
@@ -167,6 +184,12 @@ describe('share links', () => {
 		['v=1&m=floating-city&o=p&i=5&t=11112222333344440', 'damaged'],
 		['v=1&m=floating-city&o=p&i=x&t=11112222333344440', 'damaged'],
 		['v=1&m=floating-city&o=p&i=4321&t=11112222333344440', 'damaged'],
+		// Holdings set by hand: three guilds, a missing kind, a fraction, and
+		// more castle-days than a week has.
+		['v=1&m=floating-city&o=p&k=25.10.1-25.10.1-25.10.1&t=11112222333344440', 'damaged'],
+		['v=1&m=floating-city&o=p&k=25.10.1-25.10.1-25.10.1-25.10&t=11112222333344440', 'damaged'],
+		['v=1&m=floating-city&o=p&k=25.10.1-25.10.1-25.10.1-25.10.1.5&t=11112222333344440', 'damaged'],
+		['v=1&m=floating-city&o=p&k=25.10.1-25.10.1-25.10.1-25.10.7&t=11112222333344440', 'damaged'],
 	])('reject %s', (fragment, expected) => {
 		expect(problem(fragment)).toBe(expected);
 	});
@@ -355,6 +378,21 @@ describe('planToText', () => {
 			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: true, timeline,
 		});
 		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal points · Declare on fewer days');
+	});
+
+	it('mentions holdings set by hand instead of the goal and filling the map', () => {
+		const text = planToText({
+			map,
+			guildNames,
+			goal: 'points',
+			fillMap: true,
+			castleLast: true,
+			inactive: [],
+			fewestDays: true,
+			targets: [0, 1, 2, 3].map(() => map.fairHoldings),
+			timeline,
+		});
+		expect(text.split('\n', 1)[0]).toBe('The Floating City · Set holdings by hand · Declare on fewer days');
 	});
 });
 

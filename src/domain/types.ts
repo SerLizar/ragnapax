@@ -8,6 +8,12 @@ export const KINGDOM_KINDS = ['town', 'dormitory', 'castle'] as const;
 export type KingdomKind = (typeof KINGDOM_KINDS)[number];
 
 /**
+Kingdom-days of each kind, such as a guild's over a Ragnarok: one for each
+kingdom of the kind held at the end of each day.
+*/
+export type Holdings = Readonly<Record<KingdomKind, number>>;
+
+/**
 Points a guild earns for holding a kingdom of each kind for one day. The
 same on every map: this is a fact of the game, not map data.
 */
@@ -84,6 +90,13 @@ export type MapDefinition = {
 	Undirected adjacency between kingdoms, by id.
 	*/
 	readonly roads: ReadonlyArray<readonly [string, string]>;
+	/**
+	What each guild holds in a plan for equal resources that does not use
+	every kingdom, as the solver makes it from almost every opening: the
+	holdings each guild starts with when they are set by hand
+	(`PlanSettings.targets`). `solve.test.ts` checks it.
+	*/
+	readonly fairHoldings: Holdings;
 };
 
 /**

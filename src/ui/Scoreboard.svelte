@@ -4,6 +4,7 @@
 <script lang="ts">
 	import type {GuildScore} from '../domain/plan.ts';
 	import {activeGuilds, type PlanSettings} from '../domain/settings.ts';
+	import {KINGDOM_KINDS, type KingdomKind} from '../domain/types.ts';
 	import {rich, t} from '../i18n/i18n.svelte.ts';
 	import GuildMark from './GuildMark.svelte';
 	import Rich from './Rich.svelte';
@@ -14,7 +15,8 @@
 		settings: PlanSettings;
 	}
 	let {scores, guildNames, settings}: Props = $props();
-	const goal = $derived(settings.goal);
+	// Holdings set by hand are about holdings, as equal resources is.
+	const goal = $derived(settings.targets ? 'resources' : settings.goal);
 
 	/**
 	The number columns: messages `score.<name>Short` and `score.<name>Long`, and
@@ -40,6 +42,22 @@
 			.map(({g, s}) => ({name: guildNames[g]!, extra: s.points - least}))
 			.filter(entry => entry.extra > 0),
 	);
+	// With holdings set by hand: what was set for a guild, where it differs
+	// from what it gets, and the days off in all.
+	const setFor = (g: number, kind: KingdomKind) => {
+		const target = settings.targets?.[g]?.[kind];
+		return target === undefined || settings.inactive.includes(g) || target === scores[g]!.held[kind]
+			? undefined
+			: target;
+	};
+
+	const missed = $derived(
+		playing.reduce(
+			(sum, {g, s}) =>
+				sum + KINGDOM_KINDS.reduce((days, kind) => days + Math.abs(s.held[kind] - (settings.targets?.[g]?.[kind] ?? 0)), 0),
+			0,
+		),
+	);
 	const isEven = $derived(
 		(goal === 'points'
 			? spread(s => s.points)
@@ -52,7 +70,15 @@
 <!-- Headings are abbreviated on screen; screen readers get them in full,
 since few read an abbreviation's title. -->
 <div class="scoreboard">
-	{#if isEven}
+	{#if settings.targets}
+		<p class="headline" class:uneven={missed > 0}>
+			{#if missed === 0}
+				<Rich parts={rich('score.targets')} />
+			{:else}
+				<Rich parts={rich('score.targetsMissed', {count: missed})} />
+			{/if}
+		</p>
+	{:else if isEven}
 		<p class="headline">
 			{#if goal === 'points'}
 				<Rich parts={rich('score.points', {count: best})} />
@@ -118,9 +144,15 @@ since few read an abbreviation's title. -->
 						</span>
 					</th>
 					<td class:key={goal === 'points'}>{s.points}</td>
-					<td class:key={goal === 'resources'}>{s.held.town}</td>
-					<td class:key={goal === 'resources'}>{s.held.dormitory}</td>
-					<td class:key={goal === 'resources'}>{s.held.castle}</td>
+					{#each KINGDOM_KINDS as kind (kind)}
+						{@const target = setFor(g, kind)}
+						<td class:key={goal === 'resources'}>
+							{s.held[kind]}
+							{#if target !== undefined}
+								<span class="set">{t('score.target', {count: target})}</span>
+							{/if}
+						</td>
+					{/each}
 					<td>{s.declarations}</td>
 				</tr>
 			{/each}
@@ -213,6 +245,14 @@ since few read an abbreviation's title. -->
 		display: block;
 		color: var(--muted);
 		font-size: 0.8rem;
+		font-weight: 400;
+	}
+
+	/* What was set for a guild, under what it gets instead. */
+	.set {
+		display: block;
+		color: var(--muted);
+		font-size: 0.75rem;
 		font-weight: 400;
 	}
 

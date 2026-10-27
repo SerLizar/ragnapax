@@ -46,7 +46,7 @@ docs true" below describes, and update them in the same commit.
 | ------------------------------- | ------------------------------------------------------------------ |
 | Game rules, scoring, validation | `src/domain/` (pure TS, no browser APIs)                           |
 | Goals, options, priority order  | `src/domain/settings.ts`                                           |
-| A map's kingdoms and roads      | `src/maps/<id>.ts`, listed in `src/maps/index.ts`                  |
+| A map's kingdoms and roads, and fair holdings | `src/maps/<id>.ts`, listed in `src/maps/index.ts` |
 | The weekly map rotation         | `ROTATION` in `src/maps/index.ts`                                  |
 | How maps are drawn              | `src/ui/map-layout.ts` (geometry), `src/ui/MapCanvas.svelte`       |
 | Optimisation model              | `src/solver/model.ts` (constraints) and `settings.ts` (priorities) |

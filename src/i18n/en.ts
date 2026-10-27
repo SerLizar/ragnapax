@@ -218,6 +218,25 @@ export default {
 
 	// A disclosure under the goal's options, for choices few groups need.
 	'advanced.title': 'Advanced options',
+	// A switch, also in the title of a plan copied as text. While it is on,
+	// the goals, "goal.fillMap" and "goal.castleLast" are disabled, and a
+	// table follows: a row per guild, with its name, and a number field per
+	// column, headed by "score.townShort", "score.dormShort" and
+	// "score.castleShort".
+	'advanced.targets': 'Set holdings by hand',
+	'advanced.targets.description':
+		'Choose how many days each guild holds towns, dorms and the castle, and plans come as close as they can, instead of following the goal. It starts from what equal resources usually gives.',
+	// Read out for each number field. {kind} is "score.townLong",
+	// "score.dormLong" or "score.castleLong"; {guild} is a guild's name.
+	'advanced.targets.field': '{kind} for {guild}',
+	// Under the table when the guilds' numbers for a kind add up to more days
+	// than the map has. {kind} is "score.townLong", "score.dormLong" or
+	// "score.castleLong"; {count} is their total, {most} the most possible:
+	// every kingdom of the kind, every day.
+	'advanced.targets.tooMany':
+		'{kind} add up to {count}, but the map only has {most} in a week. Lower them, or plans will fall short.',
+	// Puts every field back to what equal resources usually gives on the map.
+	'advanced.targets.reset': 'Reset',
 	// A switch per guild follows, named by the guild's name.
 	'advanced.inactive': 'Guilds sitting out',
 	'advanced.inactive.description':
@@ -242,6 +261,10 @@ export default {
 	'ranking.gap.castle': 'Smallest gap in castle-days between guilds',
 	'ranking.gap.dormitory': 'Smallest gap in dorm-days between guilds',
 	'ranking.gap.town': 'Smallest gap in town-days between guilds',
+	// Instead of the others above with "advanced.targets" on.
+	'ranking.miss.castle': 'Castle-days closest to those set for each guild',
+	'ranking.miss.dormitory': 'Dorm-days closest to those set for each guild',
+	'ranking.miss.town': 'Town-days closest to those set for each guild',
 	// Before "ranking.declarations" with "advanced.fewestDays" on.
 	'ranking.days': 'Fewest days with declares, per guild',
 	'ranking.declarations': 'Fewest declares',
@@ -255,6 +278,8 @@ export default {
 	// so nobody plans again for nothing or forgets to change the setup first.
 	'solve.alreadyBest':
 		'This is already the fairest plan possible for this setup. Planning again cannot make it fairer: change the setup first if something changed.',
+	'solve.alreadyBest.targets':
+		'This already comes as close as possible to the holdings set. Planning again cannot improve it: change the setup first if something changed.',
 	'solve.alreadyBest.fillMap':
 		'This already uses as much of the map as possible, as evenly as it allows. Planning again cannot improve it: change the setup first if something changed.',
 	'solve.loading': 'Loading the solver…',
@@ -292,6 +317,12 @@ export default {
 	'result.optimal.fewestDays': 'The fairest plan possible, with declares on the fewest days.',
 	'result.optimal.fillMap.fewestDays':
 		'Uses as much of the map as possible, shared as evenly as it allows, with declares on the fewest days.',
+	// Instead of "result.optimal" and "result.proven" with "advanced.targets" on.
+	'result.optimal.targets':
+		'As close as possible to the holdings set for each guild, with the fewest declares.',
+	'result.optimal.targets.fewestDays':
+		'As close as possible to the holdings set for each guild, with declares on the fewest days.',
+	'result.proven.targets': 'As close as possible to the holdings set for each guild.',
 	'result.unproven': 'The best plan found in the time given. A better one may exist.',
 	// Under the title of a plan brought back from this device, such as after
 	// a refresh or on the next visit.
@@ -369,6 +400,17 @@ export default {
 	// day played off-plan or a plan stopped early: the table has the details.
 	'score.pointsUneven': 'Guilds score between **{least}** and **{most}** points.',
 	'score.holdingsUneven': 'Holdings differ between guilds; the table shows each guild\'s.',
+	// With "advanced.targets" on, when every guild that plays holds exactly
+	// what was set for it, and otherwise, where {count} is the days by which
+	// holdings differ from those set, over or under, in all.
+	'score.targets': 'Every guild gets **the holdings set for it**.',
+	'score.targetsMissed': {
+		one: 'Holdings are **{count} day** off those set; the table shows what was set under each number that differs.',
+		other: 'Holdings are **{count} days** off those set; the table shows what was set under each number that differs.',
+	},
+	// Under a number in the table that differs from the one set, with
+	// "advanced.targets" on: {count} is the number set.
+	'score.target': 'set {count}',
 	'score.fillResources':
 		'The map is fully used and holdings are as even as it allows. Extra days are shared out so points stay as close as possible.',
 	// Table headings: a short word, and its meaning when tapped or hovered.

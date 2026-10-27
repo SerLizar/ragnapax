@@ -66,6 +66,12 @@ it('describes the priorities in words', () => {
 		'Smallest gap in points between guilds',
 	]);
 	expect(efforts(settings).map(effort => describeEffort(effort))).toEqual(['Fewest declares']);
+	const byHand = {...settings, targets: [0, 1, 2, 3].map(() => DEFAULT_MAP.fairHoldings)};
+	expect(priorities(byHand).map(c => describeCriterion(c))).toEqual([
+		'Castle-days closest to those set for each guild',
+		'Dorm-days closest to those set for each guild',
+		'Town-days closest to those set for each guild',
+	]);
 	expect(efforts({fewestDays: true}).map(effort => describeEffort(effort))).toEqual([
 		'Fewest days with declares, per guild',
 		'Fewest declares',
@@ -78,6 +84,20 @@ it('says what an optimal plan keeps down', () => {
 	expect(optimal(false, false)).toBe('The fairest plan possible, with the fewest declares.');
 	expect(optimal(false, true)).toBe('The fairest plan possible, with declares on the fewest days.');
 	expect(optimal(true, true)).toMatch(/^Uses as much of the map as possible.*, with declares on the fewest days\.$/u);
+	// Holdings set by hand, whether or not the map filling switch was on.
+	const targets = [0, 1, 2, 3].map(() => DEFAULT_MAP.fairHoldings);
+	for (const isFillMap of [false, true]) {
+		expect(describeQuality('optimal', {fillMap: isFillMap, fewestDays: false, targets})).toBe(
+			'As close as possible to the holdings set for each guild, with the fewest declares.',
+		);
+		expect(describeQuality('optimal', {fillMap: isFillMap, fewestDays: true, targets})).toBe(
+			'As close as possible to the holdings set for each guild, with declares on the fewest days.',
+		);
+		expect(describeQuality('proven', {fillMap: isFillMap, fewestDays: true, targets})).toBe(
+			'As close as possible to the holdings set for each guild.',
+		);
+	}
+
 	// Only an optimal plan is proven to make the fewest of either.
 	expect(describeQuality('proven', {fillMap: false, fewestDays: true})).toBe(
 		describeQuality('proven', {fillMap: false, fewestDays: false}),

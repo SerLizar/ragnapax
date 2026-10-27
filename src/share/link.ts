@@ -14,7 +14,13 @@ import {
 	type Violation,
 } from '../domain/plan.ts';
 import {GOALS, type Goal} from '../domain/settings.ts';
-import {DAYS, GUILD_COUNT, type GuildIndex} from '../domain/types.ts';
+import {
+	DAYS,
+	GUILD_COUNT,
+	KINGDOM_KINDS,
+	type GuildIndex,
+	type Holdings,
+} from '../domain/types.ts';
 import {findMap} from '../maps/index.ts';
 
 /**
@@ -32,6 +38,11 @@ export type SharedPlan = {
 	*/
 	readonly inactive: readonly GuildIndex[];
 	readonly fewestDays: boolean;
+	/**
+	Holdings set by hand; see `PlanSettings.targets`. The goal and the
+	switches it replaces are kept as they were, for when it is turned off.
+	*/
+	readonly targets?: readonly Holdings[];
 	/**
 	Days already played, as they happened, from Wednesday on; the plan
 	starts with them. Empty until someone records a day.
@@ -61,6 +72,9 @@ Encodes a setup and plan into a URL fragment, e.g.
 - `i`: the guilds sitting out, one digit `1`–`4` each, in guild order; see
   `PlanSettings.inactive`. Absent when every guild plays.
 - `d=1`: declare on the fewest days, see `PlanSettings.fewestDays`.
+- `k`: holdings set by hand, see `PlanSettings.targets`: town-, dorm- and
+  castle-days separated by `.`, guilds by `-`, e.g. `25.10.1-25.10.1-…`.
+  Absent when sharing by the goal.
 - `t`: one digit per town in link order (see `GameMap.linkOrder`): `0`
   vacant, `1`–`4` the guild.
 - `h`: days already played, see `SharedPlan.played`, written like `p`.
@@ -98,6 +112,13 @@ export function encodeShareLink(shared: SharedPlan): string {
 
 	if (shared.fewestDays) {
 		parameters.set('d', '1');
+	}
+
+	if (shared.targets) {
+		parameters.set(
+			'k',
+			shared.targets.map(held => KINGDOM_KINDS.map(kind => held[kind]).join('.')).join('-'),
+		);
 	}
 
 	for (const name of shared.guildNames) {
@@ -182,6 +203,37 @@ function decodeInactive(text: string): GuildIndex[] {
 }
 
 /**
+Holdings set by hand, from `k`: whole numbers of days, each no more than
+one guild could hold on the map. Links from before they could be set share
+by the goal.
+*/
+function decodeTargets(map: GameMap, parameters: URLSearchParams): Holdings[] | undefined {
+	const text = parameters.get('k');
+	if (text === null) {
+		return undefined;
+	}
+
+	const guilds = text.split('-');
+	if (guilds.length !== GUILD_COUNT) {
+		throw new ShareLinkError('damaged');
+	}
+
+	return guilds.map(guild => {
+		const days = guild.split('.');
+		if (days.length !== KINGDOM_KINDS.length || days.some(d => !/^\d{1,3}$/u.test(d))) {
+			throw new ShareLinkError('damaged');
+		}
+
+		const held = Object.fromEntries(KINGDOM_KINDS.map((kind, i) => [kind, Number(days[i])])) as Holdings;
+		if (KINGDOM_KINDS.some(kind => held[kind] > map.mostHeld[kind])) {
+			throw new ShareLinkError('damaged');
+		}
+
+		return held;
+	});
+}
+
+/**
 Decodes a URL fragment; returns undefined when it is not a share link at all.
 */
 export function decodeShareLink(fragment: string): SharedPlan | undefined {
@@ -221,6 +273,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 	const guildNames = Array.from({length: GUILD_COUNT}, (_, g) => cleanGuildName(names[g] ?? ''));
 
 	const inactive = decodeInactive(parameters.get('i') ?? '');
+	const byHand = decodeTargets(map, parameters);
 	const towns = parameters.get('t') ?? '';
 	if (towns.length !== map.towns.length || !/^[0-4]+$/u.test(towns)) {
 		throw new ShareLinkError('towns');
@@ -293,6 +346,7 @@ export function decodeShareLink(fragment: string): SharedPlan | undefined {
 		castleLast: parameters.get('c') === '1',
 		inactive,
 		fewestDays: parameters.get('d') === '1',
+		targets: byHand,
 		played,
 		plan,
 		received: parameters.get('s') === '1',

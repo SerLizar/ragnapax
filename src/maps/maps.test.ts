@@ -128,6 +128,15 @@ describe('findMapProblems', () => {
 		);
 	});
 
+	it('reports fair holdings no four guilds could share', () => {
+		expect(findMapProblems({...base, fairHoldings: {town: 25, dormitory: 11, castle: 1}})).toContain(
+			'Fair holdings of 11 dormitory-days per guild cannot be.',
+		);
+		expect(findMapProblems({...base, fairHoldings: {town: 25, dormitory: 10, castle: 1.5}})).toContain(
+			'Fair holdings of 1.5 castle-days per guild cannot be.',
+		);
+	});
+
 	it('reports maps too large for share links', () => {
 		const many = Array.from({length: 63}, (_, i) => town(`T${i}`, 0, 0));
 		expect(findMapProblems({...base, kingdoms: many})).toContain(

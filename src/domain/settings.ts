@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 SerLizar
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import {GUILDS, type GuildIndex, type KingdomKind} from './types.ts';
+import type {GameMap} from './map.ts';
+import {
+	GUILDS,
+	KINGDOM_KINDS,
+	type GuildIndex,
+	type Holdings,
+	type KingdomKind,
+} from './types.ts';
 
 /**
 What "fair" means for a plan.
@@ -39,6 +46,14 @@ export type PlanSettings = {
 	fewest declarations.
 	*/
 	readonly fewestDays: boolean;
+	/**
+	Each guild's holdings over the Ragnarok, set by hand, in guild order:
+	the plan comes as close to them as it can, instead of sharing by the
+	goal, and never fills the map or orders the guilds. Guilds sitting out
+	keep what they hold, whatever is set for them. Undefined to share by the
+	goal.
+	*/
+	readonly targets?: readonly Holdings[];
 };
 
 export const DEFAULT_SETTINGS: PlanSettings = {
@@ -56,6 +71,28 @@ export const activeGuilds = ({inactive}: Pick<PlanSettings, 'inactive'>): GuildI
 	GUILDS.filter(g => !inactive.includes(g));
 
 /**
+Kinds of kingdom whose holdings set by hand add up, over the guilds that
+play, to more days than the map has: every kingdom of the kind, every day.
+No plan can then reach them, so the interface warns.
+*/
+export function excessTargets(
+	map: Pick<GameMap, 'mostHeld'>,
+	settings: Pick<PlanSettings, 'inactive' | 'targets'>,
+): Array<{readonly kind: KingdomKind; readonly count: number; readonly most: number}> {
+	const {targets} = settings;
+	if (!targets) {
+		return [];
+	}
+
+	const playing = activeGuilds(settings);
+	return KINGDOM_KINDS.map(kind => ({
+		kind,
+		count: playing.reduce((sum, g) => sum + (targets[g]?.[kind] ?? 0), 0),
+		most: map.mostHeld[kind],
+	})).filter(({count, most}) => count > most);
+}
+
+/**
 A per-guild quantity summed over the Ragnarok: points, or days holding a kind.
 */
 export type Measure = 'points' | KingdomKind;
@@ -71,10 +108,16 @@ export type Criterion =
 	/**
 	Most points for all guilds together, i.e. the most of the map held.
 	*/
-	| {readonly kind: 'total'};
+	| {readonly kind: 'total'}
+	/**
+	Fewest kingdom-days of a kind between the holdings set by hand and the
+	plan's, summed over the guilds that play.
+	*/
+	| {readonly kind: 'miss'; readonly measure: KingdomKind};
 
 const gap = (measure: Measure): Criterion => ({kind: 'gap', measure});
 const TOTAL: Criterion = {kind: 'total'};
+const miss = (measure: KingdomKind): Criterion => ({kind: 'miss', measure});
 
 /**
 The planner's priorities for some settings, most important first. Each one
@@ -82,9 +125,15 @@ strictly outranks everything after it, and the solver proves each optimal.
 `refinements` and then `efforts` break remaining ties.
 
 Equal points also narrows the castle and dormitory gaps: otherwise one guild
-could hold the castle all week and make the points up elsewhere.
+could hold the castle all week and make the points up elsewhere. Holdings
+set by hand replace the goal, the most valuable kind first, as equal
+resources ranks them.
 */
-export function priorities({goal, fillMap}: PlanSettings): Criterion[] {
+export function priorities({goal, fillMap, targets}: PlanSettings): Criterion[] {
+	if (targets) {
+		return [miss('castle'), miss('dormitory'), miss('town')];
+	}
+
 	const fairness =
 		goal === 'points'
 			? [gap('points'), gap('castle'), gap('dormitory')]
@@ -105,8 +154,8 @@ Equal resources while filling the map narrows the points gap, so leftover
 days of different kinds go to different guilds: two extra castle-days and
 two extra town-days go to four guilds, not to the same two.
 */
-export function refinements({goal, fillMap}: PlanSettings): Criterion[] {
-	return goal === 'resources' && fillMap ? [gap('points')] : [];
+export function refinements({goal, fillMap, targets}: PlanSettings): Criterion[] {
+	return goal === 'resources' && fillMap && !targets ? [gap('points')] : [];
 }
 
 /**
@@ -131,14 +180,15 @@ export type GuildOrder = {readonly measure: Measure; readonly ascending: boolean
 How guild totals are ordered down the list of guilds that play, so any
 uneven share goes to the first guilds, or for castle-days with `castleLast`,
 to the last. Only used
-when filling the map, as otherwise the main measure is perfectly even anyway.
+when filling the map, as otherwise the main measure is perfectly even anyway,
+and never with holdings set by hand, which say who gets what.
 
 Ordering each kind of holding separately would hand every kind's extra to the
 first guild, so equal resources orders by points too: the guilds with the
 most valuable extras come first.
 */
-export function guildOrders({fillMap, castleLast}: PlanSettings): GuildOrder[] {
-	if (!fillMap) {
+export function guildOrders({fillMap, castleLast, targets}: PlanSettings): GuildOrder[] {
+	if (!fillMap || targets) {
 		return [];
 	}
 

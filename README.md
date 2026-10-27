@@ -45,6 +45,10 @@ nothing is uploaded.
   declares on its kingdoms, and the others share the points between
   themselves. Another advanced switch has each guild declare on as few days
   as possible, so players log in less often, even if that takes more declares.
+- **Holdings set by hand.** Also under "Advanced options": type in how many
+  days each guild holds towns, dorms and the castle, starting from what
+  equal resources usually gives on the map, and plans come as close as they
+  can.
 - **Provably fair plans in seconds.** An exact optimiser
   ([HiGHS](https://highs.dev/)) runs in the browser, shows better plans as it
   finds them, and says whether the result is proven fairest. "How plans are
