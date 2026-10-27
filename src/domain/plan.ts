@@ -302,6 +302,15 @@ export function capturesOn(timeline: Timeline, day: number): Capture[] {
 }
 
 /**
+The guilds a day's declarations are listed for, in order: those that play,
+and those sitting out only on a day they declared, which can be one played
+before they sat out. Otherwise they would read "no declares" every day.
+*/
+export function guildsListed(captures: readonly Capture[], inactive: readonly GuildIndex[]): GuildIndex[] {
+	return GUILDS.filter(g => !inactive.includes(g) || captures.some(c => c.guild === g));
+}
+
+/**
 Declarations of a legal timeline that disturb the guilds sitting out, from
 `firstDay` on: they make none, and nobody declares on what they hold. Days
 before `firstDay` were played already, and happened however they did.

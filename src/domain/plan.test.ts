@@ -9,6 +9,7 @@ import {
 	continuePlan,
 	dayBetween,
 	followPlan,
+	guildsListed,
 	planFromTimeline,
 	replay,
 	score,
@@ -62,6 +63,15 @@ describe('simulate', () => {
 			{kingdom: idx('Vagastrom'), guild: 0, from: VACANT},
 			{kingdom: idx('Dionysia'), guild: 0, from: VACANT},
 		]);
+	});
+
+	it('lists guilds sitting out only on days they declare', () => {
+		const day1 = idle();
+		day1[1] = [idx('Vagastrom')];
+		const timeline = simulate(map, start, planWith(day1));
+		expect(guildsListed(capturesOn(timeline, 1), [1, 2])).toEqual([0, 1, 3]);
+		expect(guildsListed(capturesOn(timeline, 2), [1, 2])).toEqual([0, 3]);
+		expect(guildsListed(capturesOn(timeline, 2), [])).toEqual([0, 1, 2, 3]);
 	});
 
 	it('rejects declarations that break the rules', () => {

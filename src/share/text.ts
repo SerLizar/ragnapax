@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import type {GameMap} from '../domain/map.ts';
-import {capturesOn, score, type Timeline} from '../domain/plan.ts';
+import {
+	capturesOn,
+	guildsListed,
+	score,
+	type Timeline,
+} from '../domain/plan.ts';
 import type {Goal} from '../domain/settings.ts';
 import {VACANT, type GuildIndex} from '../domain/types.ts';
 import {goalLabel, mapName, kingdomName} from '../i18n/describe.ts';
@@ -74,9 +79,7 @@ export function planToText({
 	for (let day = 1; day < timeline.owners.length; day++) {
 		const captures = capturesOn(timeline, day);
 		lines.push('', weekday(day, 'long'));
-		// Days played before a guild sat out may have its declares.
-		const declaring = guild === undefined ? inactive.filter(g => captures.some(c => c.guild === g)) : [];
-		for (const g of [...guilds, ...declaring].toSorted((a, b) => a - b)) {
+		for (const g of guild === undefined ? guildsListed(captures, inactive) : [guild]) {
 			const targets = captures
 				.filter(c => c.guild === g)
 				.map(c => {
