@@ -28,7 +28,8 @@ nothing is uploaded.
 
 - **Tap-to-assign map editor.** Pick a guild, tap its towns; the selection
   moves to the next guild once one is complete, and any leftover town is
-  Vacant automatically.
+  Vacant automatically. Used to spreadsheets? An advanced option lists the
+  towns instead, each with its guild to pick.
 - **Two goals.** _Equal resources_, the default (the same number of town-,
   dorm- and castle-days for every guild), or _equal points_ (towns, dorms
   and the castle are worth 1, 2 and 3 points a day, on every map, with the

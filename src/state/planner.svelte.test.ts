@@ -12,7 +12,7 @@ import {
 	vi,
 } from 'vitest';
 import {continuePlan, type Ownership, type Plan} from '../domain/plan.ts';
-import {DEFAULT_MAP as map} from '../maps/index.ts';
+import {DEFAULT_MAP as map, MAPS} from '../maps/index.ts';
 import {encodeShareLink} from '../share/link.ts';
 import {SolveCancelled, type SolverClient} from '../solver/client.ts';
 import type {SolveRequest} from '../solver/protocol.ts';
@@ -526,6 +526,43 @@ describe('PlannerState', () => {
 		expect(savedLink()).toBeNull();
 		expect(replace).toHaveBeenCalled();
 		replace.mockRestore();
+	});
+
+	it('gives a town to a guild, or leaves it Vacant, but not while the towns are locked', () => {
+		const planner = new PlannerState();
+		planner.restore('');
+		planner.assignTown('A', 2);
+		planner.assignTown('B', 1);
+		planner.assignTown('A', 3);
+		planner.assignTown('B', undefined);
+		expect(planner.startingTowns).toEqual({A: 3});
+
+		planner.restore('#' + link);
+		planner.recordAsPlanned(1);
+		expect(planner.townLock).toBe('played');
+		planner.assignTown('A', undefined);
+		expect(planner.startingTowns).toEqual(FLOATING_CITY_START);
+	});
+
+	it('remembers setting towns from lists on this device for every map, but never in links', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + link);
+		expect(planner.townLists).toBe(false);
+		const stop = planner.sync();
+		flushSync();
+		planner.setTownLists(true);
+		flushSync();
+		stop();
+		expect(location.hash).toBe('#' + link);
+		expect(savedLink()).toBe(JSON.stringify({maps: {[map.id]: link}}));
+
+		const again = new PlannerState();
+		again.restore('');
+		again.switchMap(MAPS.find(m => m !== map)!);
+		expect(again.townLists).toBe(true);
+
+		again.setTownLists(false);
+		expect(new PlannerState().townLists).toBe(false);
 	});
 
 	it('keeps a setup that is still being filled in', () => {

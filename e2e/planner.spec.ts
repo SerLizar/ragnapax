@@ -336,6 +336,45 @@ test('can rank plans by the days with declares, and remembers it', async ({page}
 	await expect(fewerDays).toBeChecked();
 });
 
+test('sets starting towns from lists, remembered on this device but not in links', async ({page}) => {
+	await page.goto('/');
+	await page.getByText('Advanced options').click();
+	const lists = page.getByRole('switch', {name: 'Set starting towns from lists', exact: true});
+	await expect(lists).toHaveAccessibleDescription(/^Choose each town's guild from a list/u);
+	const before = page.url();
+	await lists.check();
+	await expect(page).toHaveURL(before);
+
+	// Only towns are listed, each with its guild to choose, instead of the map.
+	await expect(town(page, 'A')).toHaveCount(0);
+	const towns = page.getByRole('list', {name: 'Towns of The Floating City'});
+	await expect(towns.getByRole('combobox')).toHaveCount(17);
+	await expect(towns.getByRole('combobox', {name: 'Vagastrom'})).toHaveCount(0);
+	await page.getByRole('textbox', {name: 'Name of guild 1'}).fill('Nightowls');
+	await expect(towns.getByRole('combobox', {name: 'Town A'})).toHaveValue('');
+	for (const [i, id] of OPENING.entries()) {
+		// eslint-disable-next-line no-await-in-loop -- one list at a time
+		await towns.getByRole('combobox', {name: `Town ${id}`}).selectOption({index: 1 + Math.floor(i / 4)});
+	}
+
+	await expect(page.getByText('All set. Town Q starts Vacant.')).toBeVisible();
+	await expect(towns.getByRole('combobox', {name: 'Town A'})).toHaveValue('0');
+
+	// Kept after a refresh, without opening the options by itself.
+	await page.reload();
+	await expect(lists).toBeHidden();
+	await expect(towns.getByRole('combobox', {name: 'Town R'})).toHaveValue('2');
+	await towns.getByRole('combobox', {name: 'Town R'}).selectOption('Vacant');
+	await expect(page.getByText('16 of 16 towns assigned.')).toHaveCount(0);
+	await expect(page.getByText('15 of 16 towns assigned.')).toBeVisible();
+
+	// Off again, the map is back.
+	await page.getByText('Advanced options').click();
+	await lists.uncheck();
+	await expect(town(page, 'A')).toBeVisible();
+	await expect(towns).toHaveCount(0);
+});
+
 test('deletes everything saved from the privacy notice', async ({page}) => {
 	await page.goto('/');
 	await page.getByRole('textbox', {name: 'Name of guild 1'}).fill('Wolves');

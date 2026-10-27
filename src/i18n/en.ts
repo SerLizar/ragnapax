@@ -43,8 +43,8 @@ export default {
 	// "privacy.contactLink", linking to the project's issues.
 	'privacy.contact': 'For questions or requests about your data, {link}.',
 	'privacy.contactLink': 'open an issue on GitHub',
-	'privacy.device':
-		'**On your device**, this browser keeps your setup for each map, your theme and language, and a copy of the planner so it works offline.',
+	'privacy.onDevice':
+		'**On your device**, this browser keeps your setup for each map, choices such as your theme and language, and a copy of the planner so it works offline.',
 	'privacy.deviceMore':
 		'They are only there for features you use, never leave your device, and you can delete them below.',
 	'privacy.links':
@@ -146,18 +146,29 @@ export default {
 		one: 'Pick a guild, then tap the town it starts with this week.',
 		other: 'Pick a guild, then tap the {count} towns it starts with this week.',
 	},
+	// Instead of "setup.help" with "advanced.townLists" on.
+	'setup.help.lists': {
+		one: 'Choose the guild each town starts with this week, {count} town per guild.',
+		other: 'Choose the guild each town starts with this week, {count} towns per guild.',
+	},
 	'setup.clear': 'Clear',
 	'setup.guilds': 'Guild to assign towns to',
+	// Instead of "setup.guilds" with "advanced.townLists" on, where the guild
+	// rows only name the guilds and count their towns.
+	'setup.guilds.lists': 'Guilds',
 	'setup.assign': 'Assign towns to {guild}',
 	'setup.guildName': 'Name of guild {number}',
 	// Read out for the "3/4" next to each guild.
 	'setup.townCount': '{count} of {total} towns',
 	'setup.map': 'Map of {map}. Tap a town to assign it.',
+	// With "advanced.townLists" on, instead of the map: a list of towns, each
+	// named by "town.name" and followed by a list of guilds and "kingdom.vacant".
+	'setup.towns': 'Towns of {map}',
 	'setup.done': 'All set.',
 	// {kingdoms}: a list of towns, e.g. "Town Q" or "Town Q and Town R".
 	'setup.vacant': {one: '{kingdoms} starts Vacant.', other: '{kingdoms} start Vacant.'},
 	'setup.progress': '{count} of {total} towns assigned.',
-	// Shown under the map once days are recorded as played (see "record.").
+	// Shown under the map (or the towns) once days are recorded as played (see "record.").
 	'setup.locked':
 		'Starting towns are locked while days are recorded as played. Remove those days to change them.',
 	// Instead, while a plan is being found for these towns ("solve." messages)
@@ -170,6 +181,11 @@ export default {
 	'setup.tooMany': {
 		one: '{guild} has {count} town too many; tap one of its towns to remove it.',
 		other: '{guild} has {count} towns too many; tap some of its towns to remove them.',
+	},
+	// Instead of "setup.tooMany" with "advanced.townLists" on.
+	'setup.tooMany.lists': {
+		one: '{guild} has {count} town too many; give one of its towns to another guild or make it Vacant.',
+		other: '{guild} has {count} towns too many; give some of its towns to other guilds or make them Vacant.',
 	},
 
 	// Choosing a goal.
@@ -213,6 +229,11 @@ export default {
 	'advanced.fewestDays': 'Declare on fewer days',
 	'advanced.fewestDays.description':
 		'Each guild declares on as few days as possible, so players log in to declare less often. Plans may then need more declares in all.',
+	// A switch for how starting towns are set ("setup."): a list of towns,
+	// each with a list of guilds to choose from, instead of tapping the map.
+	'advanced.townLists': 'Set starting towns from lists',
+	'advanced.townLists.description':
+		'Choose each town\'s guild from a list, as in a spreadsheet, instead of tapping the map. Only for you, on this device: links don\'t include it.',
 
 	// "How plans are ranked", most important first.
 	'ranking.title': 'How plans are ranked',

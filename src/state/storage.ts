@@ -47,6 +47,33 @@ export function saveMap(mapId: string, link: string): void {
 	}
 }
 
+const TOWN_LISTS_KEY = 'ragnapax/town-lists';
+
+/**
+Whether the player sets starting towns from lists rather than on the map.
+A preference of the player's own, for every map, kept on the device and
+out of links: guilds in the same group may set up differently.
+*/
+export function areTownListsChosen(): boolean {
+	try {
+		return localStorage.getItem(TOWN_LISTS_KEY) === 'on';
+	} catch {
+		return false; // Storage blocked: the map, as by default
+	}
+}
+
+export function saveTownLists(isOn: boolean): void {
+	try {
+		if (isOn) {
+			localStorage.setItem(TOWN_LISTS_KEY, 'on');
+		} else {
+			localStorage.removeItem(TOWN_LISTS_KEY);
+		}
+	} catch {
+		// Not remembered, but still used for this visit.
+	}
+}
+
 /**
 Saves a map's setup a moment after the last change rather than on every
 one: a name being typed, or a stream of plans from the solver, would
@@ -100,8 +127,9 @@ export class DelayedSave {
 }
 
 /**
-Every key the app has ever written starts with this, the theme's and
-language's included, so deleting everything needs no list to keep up to date.
+Every key the app has ever written starts with this, the theme's, the
+language's and other choices' included, so deleting everything needs no
+list to keep up to date.
 */
 const PREFIX = 'ragnapax/';
 
@@ -111,8 +139,8 @@ The service worker's cache, as named in `src/service-worker.js`.
 const OFFLINE_CACHE = 'ragnapax';
 
 /**
-Deletes everything the app saved on this device: setups, plans, the theme
-and language choices, and the offline copy of the planner. The privacy
+Deletes everything the app saved on this device: setups, plans, choices
+such as the theme and language, and the offline copy of the planner. The privacy
 notice offers it.
 */
 export async function forgetAll(): Promise<void> {

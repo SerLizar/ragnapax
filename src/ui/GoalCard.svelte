@@ -149,6 +149,20 @@
 				<p class="desc">{t('advanced.inactive.last')}</p>
 			{/if}
 		</fieldset>
+		<!-- The player's own preference rather than the group's, so it never
+		opens the options by itself. -->
+		<label class="option advanced-option last">
+			<input
+				type="checkbox"
+				role="switch"
+				checked={planner.townLists}
+				aria-labelledby="{id}-lists"
+				aria-describedby="{id}-lists-desc"
+				onchange={event => planner.setTownLists(event.currentTarget.checked)}
+			/>
+			<span class="title" id="{id}-lists">{t('advanced.townLists')}</span>
+			<span class="desc" id="{id}-lists-desc">{t('advanced.townLists.description')}</span>
+		</label>
 	</details>
 
 	<details class="ranking">
@@ -366,6 +380,10 @@
 		margin: 8px 0 16px;
 		color: var(--text);
 		font-size: 1rem;
+	}
+
+	.advanced-option.last {
+		margin: 16px 0 0;
 	}
 
 	.sitting-out {

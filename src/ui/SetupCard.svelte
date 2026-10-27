@@ -14,6 +14,7 @@
 	import MapCanvas from './MapCanvas.svelte';
 
 	let {planner}: {planner: PlannerState} = $props();
+	const id = $props.id();
 
 	let brush = $state(0);
 	const map = $derived(planner.map);
@@ -22,6 +23,12 @@
 	const needed = GUILD_COUNT * TOWNS_PER_GUILD;
 	// Days were played from these towns, or a plan is being found for them.
 	const lock = $derived(planner.townLock);
+	// Set from lists rather than on the map: see `PlannerState.townLists`.
+	const hasLists = $derived(planner.townLists);
+	// Guilds only start with towns; by letter, as players list them.
+	const towns = $derived(
+		map.towns.map(i => map.kingdoms[i]!).toSorted((a, b) => a.id.localeCompare(b.id)),
+	);
 
 	function select(town: Kingdom) {
 		planner.warmUpSolver();
@@ -59,6 +66,11 @@
 		input.setSelectionRange(caret, caret);
 	}
 
+	function assign(town: Kingdom, value: string) {
+		planner.warmUpSolver();
+		planner.assignTown(town.id, value === '' ? undefined : (Number(value) as GuildIndex));
+	}
+
 	const vacantNames = $derived(status.vacant.map(i => kingdomName(map.kingdoms[i]!)));
 </script>
 
@@ -66,7 +78,7 @@
 	<header class="card-head">
 		<div>
 			<h2 id={SETUP_TITLE} tabindex="-1">{t('setup.title')}</h2>
-			<p class="sub">{t('setup.help', {count: TOWNS_PER_GUILD})}</p>
+			<p class="sub">{t(hasLists ? 'setup.help.lists' : 'setup.help', {count: TOWNS_PER_GUILD})}</p>
 		</div>
 		<button
 			class="btn ghost small"
@@ -81,23 +93,31 @@
 		</button>
 	</header>
 
-	<div class="guilds" role="group" aria-label={t('setup.guilds')}>
+	<div class="guilds" role="group" aria-label={t(hasLists ? 'setup.guilds.lists' : 'setup.guilds')}>
 		{#each planner.guildNames as _, g (g)}
 			{@const color = guildStyle(g)}
 			{@const count = status.counts[g] ?? 0}
 			{@const isFull = count === TOWNS_PER_GUILD}
-			<div class="guild" class:active={brush === g} style:--guild={color.fill}>
-				<button
-					class="pick"
-					{@attach focusFallback()}
-					aria-pressed={brush === g}
-					aria-label={t('setup.assign', {guild: planner.displayNames[g]!})}
-					onclick={() => (brush = g)}
-				>
+			<div class="guild" class:active={!hasLists && brush === g} style:--guild={color.fill}>
+				{#snippet mark()}
 					<GuildMark guild={g} size={36}>
 						{#if isFull}<Icon name="check" />{:else}{g + 1}{/if}
 					</GuildMark>
-				</button>
+				{/snippet}
+				<!-- No guild to pick when each town has its own list. -->
+				{#if hasLists}
+					<span class="pick">{@render mark()}</span>
+				{:else}
+					<button
+						class="pick"
+						{@attach focusFallback()}
+						aria-pressed={brush === g}
+						aria-label={t('setup.assign', {guild: planner.displayNames[g]!})}
+						onclick={() => (brush = g)}
+					>
+						{@render mark()}
+					</button>
+				{/if}
 				<input
 					aria-label={t('setup.guildName', {number: g + 1})}
 					value={planner.guildNames[g]}
@@ -120,14 +140,45 @@
 		{/each}
 	</div>
 
-	<MapCanvas
-		{map}
-		owners={planner.start}
-		guildNames={planner.displayNames}
-		label={t('setup.map', {map: mapName(map)})}
-		isInteractive={kingdom => kingdom.kind === 'town' && lock === undefined}
-		onSelect={select}
-	/>
+	{#if hasLists}
+		<ul class="towns" aria-label={t('setup.towns', {map: mapName(map)})}>
+			{#each towns as town (town.id)}
+				{@const owner = planner.startingTowns[town.id]}
+				<li>
+					<!-- Named by the town alone: a wrapping label would add the guild chosen. -->
+					<label class="town" for="{id}-{town.id}">{kingdomName(town)}</label>
+					<span
+						class="choice"
+						class:owned={owner !== undefined}
+						style:--guild={owner === undefined ? undefined : guildStyle(owner).fill}
+					>
+						<!-- Shows the outline as well as the colour; the list names the guild. -->
+						{#if owner !== undefined}<GuildMark guild={owner} size={24} />{/if}
+						<select
+							id="{id}-{town.id}"
+							value={owner ?? ''}
+							disabled={lock !== undefined}
+							onchange={event => assign(town, event.currentTarget.value)}
+						>
+							<option value="">{t('kingdom.vacant')}</option>
+							{#each planner.displayNames as name, g (g)}
+								<option value={g}>{name}</option>
+							{/each}
+						</select>
+					</span>
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		<MapCanvas
+			{map}
+			owners={planner.start}
+			guildNames={planner.displayNames}
+			label={t('setup.map', {map: mapName(map)})}
+			isInteractive={kingdom => kingdom.kind === 'town' && lock === undefined}
+			onSelect={select}
+		/>
+	{/if}
 
 	{#if lock}
 		<p class="locked">
@@ -150,7 +201,7 @@
 			{#each status.counts as count, g (g)}
 				{#if count > TOWNS_PER_GUILD}
 					<strong class="over">
-						{t('setup.tooMany', {
+						{t(hasLists ? 'setup.tooMany.lists' : 'setup.tooMany', {
 							guild: planner.displayNames[g]!,
 							count: count - TOWNS_PER_GUILD,
 						})}
@@ -260,6 +311,64 @@
 	.count.over {
 		color: var(--danger);
 		font-weight: 700;
+	}
+
+	.towns {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+		gap: 8px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.towns li {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+	}
+
+	.town {
+		flex: none;
+		min-width: 4.5em;
+		font-weight: 600;
+	}
+
+	.choice {
+		position: relative;
+		flex: 1;
+		display: flex;
+		align-items: center;
+		min-width: 0;
+	}
+
+	/* Inside the list's box, where the guild's colour edges it. */
+	.choice :global(.mark) {
+		position: absolute;
+		inset-inline-start: 8px;
+		pointer-events: none;
+	}
+
+	select {
+		flex: 1;
+		min-width: 0;
+		min-height: 40px;
+		padding-inline: 8px;
+		border: 2px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		text-overflow: ellipsis;
+	}
+
+	.owned select {
+		padding-inline-start: 40px;
+		border-color: var(--guild);
+		font-weight: 600;
+	}
+
+	select:disabled {
+		opacity: 0.6;
 	}
 
 	.locked {

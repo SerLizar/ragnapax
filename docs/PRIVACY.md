@@ -11,7 +11,7 @@ almost nothing to declare.
 
 - **No cookies, consent banner or tracking.** Nothing is read or stored on the
   device except what features the player uses need: setups (`ragnapax/v1`),
-  theme and language choices, and the service worker's copy of the app for
+  interface choices such as theme and language, and the service worker's copy of the app for
   offline use, made only once the player first taps or presses a key, not on
   a visit alone. Storage that is strictly necessary for a service the user
   asked for is exempt from consent (ePrivacy Directive, Art. 5(3)), so a

@@ -48,7 +48,7 @@ The privacy notice the GDPR asks for, folded away in the footer. See
 				{contact[0]}<a href="{__SOURCE_URL__}/issues">{t('privacy.contactLink')}</a>{contact[1]}
 			{/if}
 		</p>
-		<p><Rich parts={rich('privacy.device')} /> {t('privacy.deviceMore')}</p>
+		<p><Rich parts={rich('privacy.onDevice')} /> {t('privacy.deviceMore')}</p>
 		<p><Rich parts={rich('privacy.links')} /> {t('privacy.linksMore')}</p>
 		<p>
 			<Rich parts={rich('privacy.host')} />

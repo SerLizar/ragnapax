@@ -24,6 +24,7 @@ it('forgets setups and preferences, and nothing else', async () => {
 	saveMap('floating-city', 'v=1&m=floating-city');
 	localStorage.setItem('ragnapax/theme', 'dark');
 	localStorage.setItem('ragnapax/language', 'fr');
+	localStorage.setItem('ragnapax/town-lists', 'on');
 	localStorage.setItem('another-app', 'kept');
 
 	await forgetAll();

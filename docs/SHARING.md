@@ -96,8 +96,13 @@ in between, the address bar still holds the change.
 Corrupt or incompatible data is dropped silently and the map starts blank.
 Blocked storage (private browsing) just means nothing is remembered.
 
-Two small preferences have keys of their own: `ragnapax/theme` (see
-[Themes](UI.md#themes)) and `ragnapax/language` (see [Languages](UI.md#languages)).
+Small preferences have keys of their own: `ragnapax/theme` (see
+[Themes](UI.md#themes)), `ragnapax/language` (see [Languages](UI.md#languages))
+and `ragnapax/town-lists`, `on` while starting towns are set from lists
+rather than on the map (see "Application state" in
+[ARCHITECTURE.md](ARCHITECTURE.md#application-state)). Unlike the setup's
+options, it is never in links: it is how one player likes to set up, for
+every map, and guilds in the same group may differ.
 
 Every key starts with `ragnapax/`, so "Delete saved data" in the privacy
 notice (`forgetAll`) removes them all without a list to maintain; keep new

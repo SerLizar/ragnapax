@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.5.0 - 2026-10-27
+
+### Added
+
+- A "Set starting towns from lists" switch under "Advanced options", for
+  those used to planning in spreadsheets: instead of the map, the setup
+  lists the towns, each with its guild to pick. It is your own choice, kept
+  on this device for every map, and links don't include it.
+
 ## 1.4.0 - 2026-10-27
 
 ### Added

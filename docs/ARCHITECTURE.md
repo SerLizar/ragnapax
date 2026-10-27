@@ -54,7 +54,8 @@ How Ragnarok runs, which the app takes as given:
 Ragnapax does it automatically:
 
 1. During Wednesday's opening phase, the user names the four guilds and taps
-   each guild's starting towns on the map.
+   each guild's starting towns on the map, or, if they prefer, picks each
+   town's guild from a list, as in a spreadsheet.
 2. They pick a goal (equal resources, the default, or equal points) and
    optionally ask to use every kingdom. Under "Advanced options", they can
    mark guilds the game put in the group that do not play: those are left
@@ -224,7 +225,10 @@ helpers keep it to the setup and its plan:
 - **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
   castleLast, the guilds sitting out (`inactive`), fewestDays, and the days
   recorded as played (`played`).
-- **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away.
+- **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away,
+  and `townLists`, whether starting towns are set from lists rather than on
+  the map: the player's own preference, saved on the device for every map
+  and never in links, since guilds in the same group may set up differently.
 - **Result** (`$state.raw`): the plan plus the start, settings and input key it
   was made for, and its quality, known only for plans the solver made in
   this visit. Raw state avoids deep proxies on large immutable data, which
@@ -239,9 +243,9 @@ helpers keep it to the setup and its plan:
   changed since the plan was made), `isBest` (up to date and proven best),
   `isReceived` and `openedFromLink`, and the
   serialised forms: `ownFragment` and `address`.
-- **Actions:** `restore`, `switchMap`, `toggleTown`, `clearTowns`, `setGuildName`,
+- **Actions:** `restore`, `switchMap`, `toggleTown`, `assignTown`, `clearTowns`, `setGuildName`,
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
-  `setSittingOut`, `setFewestDays`, `recordDay`,
+  `setSittingOut`, `setFewestDays`, `setTownLists`, `recordDay`,
   `recordAsPlanned`, `forgetDay`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.
@@ -261,8 +265,8 @@ disabled while a plan is out of date: the text has no starting towns, so
 readers could not tell it no longer fits the map.
 
 The starting towns cannot be changed while a solve runs and has not yet
-proven its plan fairest (`townLock`, which `toggleTown` and `clearTowns`
-obey and the setup card shows): a tap would put the plans still to come
+proven its plan fairest (`townLock`, which `toggleTown`, `assignTown` and
+`clearTowns` obey and the setup card shows): a tap would put the plans still to come
 out of date. "Cancel" or "Use this plan" unlocks them. Once the plan is
 proven, only declares are left to trim, which can take a while on an old
 phone, so the towns unlock: a change stops the solve and keeps the proven

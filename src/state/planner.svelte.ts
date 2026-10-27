@@ -41,6 +41,8 @@ import {
 	DelayedSave,
 	forgetAll,
 	loadSaved,
+	areTownListsChosen,
+	saveTownLists,
 	type ResultQuality,
 } from './storage.ts';
 
@@ -138,6 +140,12 @@ export class PlannerState {
 	asks to edit it.
 	*/
 	isSetupOpen = $state(true);
+	/**
+	Whether starting towns are set from a list of towns, each with a guild
+	to choose, as in a spreadsheet, rather than on the map. The player's own
+	preference for every map, kept on this device and never in links.
+	*/
+	townLists = $state(areTownListsChosen());
 
 	/**
 	Guild names for display, with blanks filled in.
@@ -453,8 +461,20 @@ export class PlannerState {
 			return;
 		}
 
+		this.assignTown(id, this.startingTowns[id] === guild ? undefined : guild);
+	}
+
+	/**
+	Gives a town to a guild, or to none, leaving it Vacant. Ignored while the
+	towns are locked, like `toggleTown`.
+	*/
+	assignTown(id: string, guild: GuildIndex | undefined): void {
+		if (this.townLock !== undefined) {
+			return;
+		}
+
 		this.keepBestPlan();
-		if (this.startingTowns[id] === guild) {
+		if (guild === undefined) {
 			const {[id]: _removed, ...rest} = this.startingTowns;
 			this.startingTowns = rest;
 		} else {
@@ -565,6 +585,11 @@ export class PlannerState {
 
 	setFewestDays(isOn: boolean): void {
 		this.fewestDays = isOn;
+	}
+
+	setTownLists(isOn: boolean): void {
+		this.townLists = isOn;
+		saveTownLists(isOn);
 	}
 
 	/**
