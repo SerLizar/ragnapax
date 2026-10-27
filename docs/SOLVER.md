@@ -281,11 +281,14 @@ Result quality, shown to users:
 
 | Quality    | Meaning                                                       | Interface          |
 | ---------- | ------------------------------------------------------------- | ------------------ |
-| `optimal`  | Proven best, down to the last tie-breaker                     | "Fairest" badge    |
-| `proven`   | Every priority proven best; tie-breakers polished, not proven | "Fairest" badge    |
+| `optimal`  | Proven best, down to the last tie-breaker                     | "Fairest" badge\* |
+| `proven`   | Every priority proven best; tie-breakers polished, not proven | "Fairest" badge\* |
 | `unproven` | Best found before the time limit or before the user stopped   | "Best found" badge |
 | `saved`    | Brought back from this device; checked against the rules      | "Saved plan" text  |
 | `shared`   | Came from a link; checked against the rules, quality unknown  | "Shared plan" text |
+
+\* "Best" instead with Use every kingdom, which does not aim for
+fairness alone.
 
 Only plans the solver makes during a visit have a known quality. It is
 never saved: a refresh or the next visit shows the plan as `saved`.
