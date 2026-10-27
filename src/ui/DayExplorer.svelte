@@ -5,25 +5,26 @@
 	import {currentDay, dayOfRagnarok} from '../domain/calendar.ts';
 	import type {GameMap} from '../domain/map.ts';
 	import {capturesOn, type GuildScore, type Timeline} from '../domain/plan.ts';
-	import {VACANT, type GuildIndex} from '../domain/types.ts';
-	import {mapName, kingdomName} from '../i18n/describe.ts';
-	import {
-		aroundSlot,
-		SLOT,
-		t,
-		weekday,
-	} from '../i18n/i18n.svelte.ts';
+	import type {GuildIndex} from '../domain/types.ts';
+	import {mapName} from '../i18n/describe.ts';
+	import {t, weekday} from '../i18n/i18n.svelte.ts';
+	import Declares from './Declares.svelte';
 	import {focusFallback} from './focus.ts';
 	import {guildStyle} from './guilds.ts';
 	import GuildMark from './GuildMark.svelte';
 	import Icon from './Icon.svelte';
 	import MapCanvas from './MapCanvas.svelte';
+	import WeekOverview from './WeekOverview.svelte';
 
 	interface Props {
 		map: GameMap;
 		timeline: Timeline;
 		scores: readonly GuildScore[];
 		guildNames: readonly string[];
+		/**
+		Guilds sitting out, left out of the whole week's list.
+		*/
+		inactive?: readonly GuildIndex[];
 		/**
 		How many days, from Wednesday, are what happened rather than a plan.
 		*/
@@ -33,8 +34,15 @@
 		*/
 		focus: GuildIndex | undefined;
 	}
-	let {map, timeline, scores, guildNames, played = 0, focus = $bindable()}: Props = $props();
+	let {
+		map, timeline, scores, guildNames, inactive = [], played = 0, focus = $bindable(),
+	}: Props = $props();
 	const id = $props.id();
+
+	/**
+	A day at a time on the map, or every day's declares in one list.
+	*/
+	let view = $state<'day' | 'week'>('day');
 
 	// Players mostly look during the week for that day's declares.
 	const opened = new Date();
@@ -69,10 +77,6 @@
 	const shown = $derived(focus === undefined ? guildNames.map((_, g) => g) : [focus]);
 	const runningTotal = (g: GuildIndex) =>
 		scores[g]!.pointsByDay.slice(0, day).reduce((a, b) => a + b, 0);
-	/**
-	Text either side of the rival guild in "from {guild}", in any word order.
-	*/
-	const from = $derived(aroundSlot(t('days.from', {guild: SLOT})));
 
 	function keydown(event: KeyboardEvent) {
 		switch (event.key) {
@@ -109,6 +113,11 @@
 </script>
 
 <div class="explorer">
+	<div class="view" role="group" aria-label={t('days.view')}>
+		<button aria-pressed={view === 'day'} onclick={() => (view = 'day')}>{t('days.byDay')}</button>
+		<button aria-pressed={view === 'week'} onclick={() => (view = 'week')}>{t('days.week')}</button>
+	</div>
+
 	<!-- Toggle buttons: pressing the guild shown again shows every guild. -->
 	<div class="focus" role="group" aria-label={t('days.focus')}>
 		<button
@@ -129,99 +138,87 @@
 		{/each}
 	</div>
 
-	<div class="days">
-		<button
-			class="step"
-			aria-label={t('days.previous')}
-			disabled={day === 0}
-			onclick={() => (day -= 1)}
-		>
-			<Icon name="left" />
-		</button>
-		<div class="tabs" role="tablist" aria-label={t('days.tabs')} tabindex="-1" onkeydown={keydown}>
-			{#each {length: days + 1} as _, d (d)}
-				<button
-					class="day"
-					role="tab"
-					data-day={d}
-					aria-controls="{id}-day"
-					aria-selected={day === d}
-					aria-current={d === today ? 'date' : undefined}
-					{@attach focusFallback(day === d)}
-					tabindex={day === d ? 0 : -1}
-					aria-label={d === 0
-						? t('days.start')
-						: t('label.shortened', {short: weekday(d, 'short'), full: weekday(d, 'long')})}
-					onclick={() => (day = d)}
-				>
-					{d === 0 ? t('days.start') : weekday(d, 'short')}
-				</button>
-			{/each}
-		</div>
-		<button
-			class="step"
-			aria-label={t('days.next')}
-			disabled={day === days}
-			onclick={() => (day += 1)}
-		>
-			<Icon name="right" />
-		</button>
-	</div>
-
-	<div role="tabpanel" id="{id}-day" aria-label={day === 0 ? t('days.startTitle') : weekday(day, 'long')}>
-		<MapCanvas
-			{map}
-			owners={timeline.owners[day]!}
-			{guildNames}
-			{changed}
-			{focus}
-			label={day === 0
-				? t('days.mapStart', {map: mapName(map)})
-				: t('days.mapEnd', {map: mapName(map), day: weekday(day, 'long')})}
-		/>
-
-		{#if day === 0}
-			<p class="empty">{t('days.startNote')}</p>
-		{:else}
-			{#if day <= played}
-				<p class="empty">{t('days.played')}</p>
-			{/if}
-			<ul class="moves">
-				{#each shown as g (g)}
-					{@const mine = captures.filter(c => c.guild === g)}
-					<li style:--guild={guildStyle(g).fill}>
-						<div class="who">
-							<GuildMark guild={g} size={16} />
-							<strong>{guildNames[g]}</strong>
-							<span class="pts" title={t('days.pointsTitle')}>
-								{t('days.points', {
-									today: scores[g]!.pointsByDay[day - 1]!,
-									total: runningTotal(g),
-								})}
-							</span>
-						</div>
-						{#if mine.length}
-							<ul class="targets">
-								{#each mine as c (c.kingdom)}
-									{@const kingdom = map.kingdoms[c.kingdom]!}
-									<li>
-										<span class="target {kingdom.kind}">{kingdomName(kingdom)}</span>
-										{#if c.from !== VACANT}
-											<span class="from">
-												{from[0]}<GuildMark guild={c.from} size={12} />{guildNames[c.from]}{from[1]}
-											</span>
-										{/if}
-									</li>
-								{/each}
-							</ul>
-						{:else}
-							<p class="none">{t('days.none')}</p>
-						{/if}
-					</li>
+	{#if view === 'week'}
+		<WeekOverview {map} {timeline} {guildNames} {inactive} {played} {today} {focus} />
+	{:else}
+		<div class="days">
+			<button
+				class="step"
+				aria-label={t('days.previous')}
+				disabled={day === 0}
+				onclick={() => (day -= 1)}
+			>
+				<Icon name="left" />
+			</button>
+			<div class="tabs" role="tablist" aria-label={t('days.tabs')} tabindex="-1" onkeydown={keydown}>
+				{#each {length: days + 1} as _, d (d)}
+					<button
+						class="day"
+						role="tab"
+						data-day={d}
+						aria-controls="{id}-day"
+						aria-selected={day === d}
+						aria-current={d === today ? 'date' : undefined}
+						{@attach focusFallback(day === d)}
+						tabindex={day === d ? 0 : -1}
+						aria-label={d === 0
+							? t('days.start')
+							: t('label.shortened', {short: weekday(d, 'short'), full: weekday(d, 'long')})}
+						onclick={() => (day = d)}
+					>
+						{d === 0 ? t('days.start') : weekday(d, 'short')}
+					</button>
 				{/each}
-			</ul>
-		{/if}
-	</div>
+			</div>
+			<button
+				class="step"
+				aria-label={t('days.next')}
+				disabled={day === days}
+				onclick={() => (day += 1)}
+			>
+				<Icon name="right" />
+			</button>
+		</div>
+
+		<div role="tabpanel" id="{id}-day" aria-label={day === 0 ? t('days.startTitle') : weekday(day, 'long')}>
+			<MapCanvas
+				{map}
+				owners={timeline.owners[day]!}
+				{guildNames}
+				{changed}
+				{focus}
+				label={day === 0
+					? t('days.mapStart', {map: mapName(map)})
+					: t('days.mapEnd', {map: mapName(map), day: weekday(day, 'long')})}
+			/>
+
+			{#if day === 0}
+				<p class="empty">{t('days.startNote')}</p>
+			{:else}
+				{#if day <= played}
+					<p class="empty">{t('days.played')}</p>
+				{/if}
+				<ul class="moves">
+					{#each shown as g (g)}
+						{@const mine = captures.filter(c => c.guild === g)}
+						<li style:--guild={guildStyle(g).fill}>
+							<div class="who">
+								<GuildMark guild={g} size={16} />
+								<strong>{guildNames[g]}</strong>
+								<span class="pts" title={t('days.pointsTitle')}>
+									{t('days.points', {
+										today: scores[g]!.pointsByDay[day - 1]!,
+										total: runningTotal(g),
+									})}
+								</span>
+							</div>
+							<Declares {map} captures={mine} {guildNames} />
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -287,6 +284,7 @@
 		}
 	}
 
+	.view,
 	.days {
 		display: flex;
 		gap: 4px;
@@ -302,6 +300,7 @@
 		min-width: 0;
 	}
 
+	.view button,
 	.days button {
 		flex: 1;
 		min-width: 0;
@@ -316,6 +315,7 @@
 		white-space: nowrap;
 	}
 
+	.view [aria-pressed='true'],
 	.days .day[aria-selected='true'] {
 		background: var(--surface);
 		color: var(--text);
@@ -323,6 +323,7 @@
 	}
 
 	@media (forced-colors: active) {
+		.view [aria-pressed='true'],
 		.days .day[aria-selected='true'] {
 			forced-color-adjust: none;
 			background: Highlight;
@@ -331,6 +332,12 @@
 	}
 
 	/* Today's tab, by the device's calendar. */
+	/* Longer translations may need two lines. */
+	.view button {
+		padding: 4px 8px;
+		white-space: normal;
+	}
+
 	.days .day[aria-current='date'] {
 		text-decoration: underline 2px var(--accent);
 		text-underline-offset: 4px;
@@ -414,51 +421,5 @@
 		color: var(--muted);
 		font-size: 0.85rem;
 		font-variant-numeric: tabular-nums;
-	}
-
-	.targets {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-		margin: 8px 0 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.targets li {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		padding: 4px 8px;
-		border-radius: 999px;
-		background: var(--surface);
-		border: 1px solid var(--border);
-		font-size: 0.9rem;
-	}
-
-	.target {
-		font-weight: 700;
-	}
-
-	/* Decoration only: the alternative text after the slash keeps screen
-	readers from announcing a chess rook. Browsers without it skip the second. */
-	.target.castle::before {
-		content: '♜ ';
-		content: '♜ ' / '';
-	}
-
-	.from {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		color: var(--muted);
-		font-size: 0.8rem;
-	}
-
-	.none {
-		margin-block: 4px 0;
-		margin-inline: 24px 0;
-		color: var(--muted);
-		font-size: 0.9rem;
 	}
 </style>

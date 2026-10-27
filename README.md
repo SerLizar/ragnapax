@@ -50,7 +50,8 @@ nothing is uploaded.
   ranked" shows exactly what it optimises.
 - **Day-by-day replay.** The map at the end of every day, Wednesday to Monday,
   with captures highlighted, each guild's declares and running point totals. Focus on
-  one guild to see only its declares.
+  one guild to see only its declares, or switch to "Whole week" for every
+  day's declares in one list.
 - **Replan mid-week.** If a day doesn't go to plan, record what happened and
   plan the rest of the week from there, still fair over the whole week, then
   share the new plan with the group.

@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.4.0 - 2026-10-27
+
+### Added
+
+- A "Whole week" view in the plan, next to "Day by day": every day's
+  declares, Wednesday to Monday, in one list, as in the plan copied as text.
+  Today and days already played are marked, and picking a guild shows only
+  its declares.
+
 ## 1.3.0 - 2026-10-26
 
 ### Added

@@ -366,7 +366,12 @@ export default {
 	// numbers are left out of the headline.
 	'score.inactive': 'Sitting out',
 
-	// Day-by-day replay. Weekday names need no translation: see `weekday`.
+	// Day-by-day replay and the whole week's list. Weekday names need no
+	// translation: see `weekday`.
+	// Switch between the map a day at a time and every day's declares in a list.
+	'days.view': 'View',
+	'days.byDay': 'Day by day',
+	'days.week': 'Whole week',
 	'days.focus': 'Show declares for',
 	'days.all': 'All guilds',
 	'days.tabs': 'Day',
@@ -386,6 +391,10 @@ export default {
 	'days.none': 'No declares',
 	// On a day recorded as played (see "record.").
 	'days.played': 'Played: this is what happened.',
+	// Tags by a weekday in the whole week's list: today by the device's
+	// calendar, and days recorded as played.
+	'days.today': 'Today',
+	'days.playedTag': 'Played',
 
 	// Read out for each kingdom on the map; {owner} is a guild or "Vacant".
 	'marker.owner': '{kingdom}, {owner}',

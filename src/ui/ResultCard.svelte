@@ -158,6 +158,7 @@
 					timeline={planner.timeline}
 					scores={planner.scores}
 					guildNames={planner.displayNames}
+					inactive={planner.result.settings.inactive}
 					{played}
 					bind:focus
 				/>

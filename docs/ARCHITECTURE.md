@@ -62,7 +62,8 @@ Ragnapax does it automatically:
    few days as possible, rather than as few declares as possible.
 3. A mixed-integer optimiser finds the declarations for every guild on every
    day, and proves whether the result is the fairest possible.
-4. The plan is shown as a day-by-day map replay and per-guild lists of declares, and
+4. The plan is shown as a day-by-day map replay with per-guild lists of declares,
+   or as one list of the whole week's declares, and
    shared as a link or as text for game or Discord chat. One person plans for
    the whole group and the others only open the link, so they never download
    the solver. The interface asks them to follow the shared plan rather than

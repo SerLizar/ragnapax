@@ -393,6 +393,27 @@ test('says how far apart the scores are in an uneven plan', async ({page}) => {
 	await expect(page.getByText('Guilds score between 24 and 36 points.')).toBeVisible();
 });
 
+test('lists the whole week\'s declares, as the plan copied as text does', async ({page}) => {
+	// Dogs sit out.
+	await page.goto('/#v=1&m=floating-city&o=r&i=4&g=Owls&g=Bears&g=Cats&g=Dogs&t=11221124244334303&p=nh.ij.fm.-..l.-.c.k.-..o.-6.ko..-io...&s=1');
+	const card = page.getByRole('region', {name: 'Plan'});
+	await card.getByRole('button', {name: 'Whole week'}).click();
+	await expect(card.getByRole('tablist', {name: 'Day'})).toBeHidden();
+	const days = card.getByRole('heading', {level: 3});
+	await expect(days).toHaveText(['Wednesday Today', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday']);
+	const wednesday = card.getByRole('listitem').filter({has: page.getByRole('heading', {name: 'Wednesday'})});
+	await expect(wednesday.getByRole('listitem').filter({hasText: 'Owls'})).toHaveText(/^\s*Owls\s+Vagastrom\s+Dionysia\s*$/u);
+	await expect(wednesday).not.toContainText('Dogs');
+
+	// The guild picked applies here too.
+	await card.getByRole('group', {name: 'Show declares for'}).getByRole('button', {name: 'Cats'}).click();
+	await expect(wednesday.getByRole('listitem').filter({hasText: 'Owls'})).toHaveCount(0);
+	await expect(wednesday).toContainText('Town Q');
+
+	await card.getByRole('button', {name: 'Day by day'}).click();
+	await expect(card.getByRole('tablist', {name: 'Day'})).toBeVisible();
+});
+
 test('keeps every guild button inside the plan card on narrow screens', async ({page}) => {
 	// The longest names allowed, in wide characters, and the default ones.
 	const names = ['龍龍龍龍龍龍龍龍龍', 'WWWWWWWWW', '🦊🦊🦊🦊🦊🦊🦊🦊🦊', '']
