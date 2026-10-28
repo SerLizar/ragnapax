@@ -158,9 +158,9 @@ describe('the weekly rotation', () => {
 		);
 	});
 
-	it('goes Galaxy, Sea, Sky, from The Sea of Poseidon in the week of 21 October 2026', () => {
-		// Wednesdays, a week apart, from 14 October 2026.
-		const weeks = [14, 21, 28, 35, 42].map(date => mapOfWeek(new Date(2026, 9, date, 12)).id);
+	it('goes Galaxy, Sea, Sky, from The Sea of Poseidon in the week of 28 October 2026', () => {
+		// Wednesdays, a week apart, from 21 October 2026.
+		const weeks = [21, 28, 35, 42, 49].map(date => mapOfWeek(new Date(2026, 9, date, 12)).id);
 		expect(weeks).toEqual([
 			'galaxy-terminal',
 			'sea-of-poseidon',
@@ -171,12 +171,12 @@ describe('the weekly rotation', () => {
 	});
 
 	it('moves on to the next map on Tuesday', () => {
-		expect(mapOfWeek(new Date(2026, 9, 26, 23)).id).toBe('sea-of-poseidon');
-		expect(mapOfWeek(new Date(2026, 9, 27, 0)).id).toBe('floating-city');
+		expect(mapOfWeek(new Date(2026, 10, 2, 23)).id).toBe('sea-of-poseidon');
+		expect(mapOfWeek(new Date(2026, 10, 3, 0)).id).toBe('floating-city');
 	});
 
 	it('works back to weeks before the one it knows', () => {
-		// 41 weeks before week 0: 41 places back from the Sea is the Sky.
-		expect(mapOfWeek(new Date(2026, 0, 7, 12)).id).toBe('floating-city');
+		// 42 weeks before 28 October: 42 places back from the Sea is the Sea.
+		expect(mapOfWeek(new Date(2026, 0, 7, 12)).id).toBe('sea-of-poseidon');
 	});
 });

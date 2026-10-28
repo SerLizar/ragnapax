@@ -6,6 +6,14 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.6.2 - 2026-10-28
+
+### Fixed
+
+- Without a link, the planner opens on The Sea of Poseidon this week rather
+  than The Floating City: this week's cluster change repeats last week's map,
+  and the weekly map now follows on from that.
+
 ## 1.6.1 - 2026-10-28
 
 ### Fixed

@@ -25,7 +25,11 @@ not map data (see [Rules](#rules)).
 fixed rotation: The Galaxy Terminal, The Sea of Poseidon, then The Floating
 City (which players call "Sky"). `ROTATION` in `src/maps/index.ts` holds the
 order, and `mapOfWeek` counts weeks from one known to be the Sea's, the week
-from Tuesday 20 October 2026 (`ragnarokWeek` in `src/domain/calendar.ts`).
+from Tuesday 27 October 2026 (`ragnarokWeek` in `src/domain/calendar.ts`).
+A cluster change, when the game regroups which servers play Ragnarok
+together, plays the previous week's map again before the rotation carries
+on; one came that week, so the Sea ran the week before too. After each
+cluster change, move the anchor (`ANCHOR_WEEK`) to the repeated week.
 Weeks turn on Tuesday by the device's calendar, when the last Ragnarok only
 shows its results. A visit without a link opens on that week's map, as it
 was last set up on the device; a link opens on its own map, and the picker

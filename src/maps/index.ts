@@ -41,15 +41,21 @@ export const ROTATION: readonly GameMap[] = [galaxyTerminal, seaOfPoseidon, floa
 );
 
 /**
-Where week 0 of `ragnarokWeek` (from Tuesday 20 October 2026) comes in the
-rotation: The Sea of Poseidon's week.
+The week of `ragnarokWeek` the rotation counts from, and the map played in
+it: The Sea of Poseidon, in week 1, from Tuesday 27 October 2026.
+A cluster change (the game regrouping which servers play Ragnarok together)
+repeats the last week's map, and one came that week, so the Sea ran in
+week 0 too. After the next one, move the anchor to the week it repeats;
+weeks before the anchor may come out wrong.
 */
-const WEEK_ZERO_PLACE = ROTATION.findIndex(map => map.id === seaOfPoseidon.id);
+const ANCHOR_WEEK = 1;
+const ANCHOR_PLACE = ROTATION.findIndex(map => map.id === seaOfPoseidon.id);
 
 /**
 The map every group plays in the week of `date`, by default this week.
 */
 export function mapOfWeek(date = new Date()): GameMap {
 	const n = ROTATION.length;
-	return ROTATION[(((ragnarokWeek(date) + WEEK_ZERO_PLACE) % n) + n) % n]!;
+	const place = ragnarokWeek(date) - ANCHOR_WEEK + ANCHOR_PLACE;
+	return ROTATION[((place % n) + n) % n]!;
 }

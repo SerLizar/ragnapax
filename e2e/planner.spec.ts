@@ -20,7 +20,7 @@ A Wednesday in a week of The Floating City, the map these tests plan on:
 without a link, the planner opens on the map of the week. Only the date is
 fixed; timers run.
 */
-const FLOATING_CITY_WEEK = new Date(2026, 9, 28, 12);
+const FLOATING_CITY_WEEK = new Date(2026, 10, 4, 12);
 
 test.beforeEach(async ({page}) => {
 	await page.clock.setFixedTime(FLOATING_CITY_WEEK);
@@ -93,7 +93,7 @@ test('plans a fair share from a fresh setup', async ({page}) => {
 });
 
 test('opens on the map every group plays this week', async ({page}) => {
-	await page.clock.setFixedTime(new Date(2026, 9, 21, 12));
+	await page.clock.setFixedTime(new Date(2026, 9, 28, 12));
 	await page.goto('/');
 	await expect(page.getByRole('combobox', {name: 'Map'})).toHaveValue('sea-of-poseidon');
 });
@@ -210,7 +210,7 @@ test('plans the rest of the week from a day as it was played', async ({page}) =>
 
 test('records the days that went to plan in one go', async ({page}) => {
 	// On a Saturday, Friday is the last day over.
-	await page.clock.setFixedTime(new Date(2026, 9, 31, 12));
+	await page.clock.setFixedTime(new Date(2026, 10, 7, 12));
 	await setUpAndPlan(page);
 	await expect(page.getByRole('combobox', {name: 'Went to plan up to'})).toHaveValue('3');
 	await page.getByRole('button', {name: 'Save up to Friday as planned'}).click();
