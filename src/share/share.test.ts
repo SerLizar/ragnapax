@@ -150,6 +150,19 @@ describe('share links', () => {
 		expect(encodeShareLink(same)).toBe(encodeShareLink(shared));
 	});
 
+	it('write spaces in guild names as %20, which chat apps leave alone', () => {
+		const spaced = {...shared, guildNames: ['Gato Zanh', 'C++ Club', 'Blue Moon', '']};
+		const link = encodeShareLink(spaced);
+		expect(link).toContain('g=Gato%20Zanh&g=C%2B%2B%20Club&');
+		expect(link).not.toContain('+');
+		expect(decodeShareLink(link)?.guildNames).toEqual(spaced.guildNames);
+	});
+
+	it('still read links written with + for spaces', () => {
+		const link = encodeShareLink({...shared, guildNames: ['Gato Zanh', '', '', '']});
+		expect(decodeShareLink(link.replace('%20', '+'))?.guildNames[0]).toBe('Gato Zanh');
+	});
+
 	it('stay short enough to paste in chat', () => {
 		expect(encodeShareLink({...shared, guildNames: ['A', 'B', 'C', 'D']}).length).toBeLessThan(120);
 	});

@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.6.1 - 2026-10-28
+
+### Fixed
+
+- Share links with spaces in guild names no longer get cut short in some
+  chat apps.
+
 ## 1.6.0 - 2026-10-27
 
 ### Added

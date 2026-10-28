@@ -20,7 +20,7 @@ servers. The format is defined in `src/share/link.ts`:
 | `d`       | `1` when guilds declare on the fewest days (`fewestDays`); absent otherwise, the old behaviour.     |
 | `k`       | Holdings set by hand (`targets`): each guild's town-, dorm- and castle-days separated by `.`, guilds by `-`, e.g. `k=25.10.1-25.10.1-25.10.1-25.10.1`; absent when sharing by the goal, the old behaviour. Four guilds of three whole numbers, none past what one guild could hold, or the link is damaged. `f` and `c` keep their values, for when holdings are no longer set. |
 | `i`       | Guilds sitting out (`inactive`), one digit `1`–`4` each, e.g. `i=24`; absent when every guild plays, the old behaviour. All four is a damaged link. |
-| `g`       | Guild name, repeated once per guild, in order. Trimmed, without hidden characters, cut to 9 characters as players see them; blank is "Guild N". |
+| `g`       | Guild name, repeated once per guild, in order. Trimmed, without hidden characters, cut to 9 characters as players see them; blank is "Guild N". Spaces are written `%20`, not `+`, which chat apps that tidy links turn into real spaces; `+` is still read. |
 | `t`       | One digit per town in link order: `0` Vacant, `1`–`4` guild.                                         |
 | `h`       | Optional days already played, written like `p`. Absent until someone records a day.                  |
 | `p`       | Optional plan: days separated by `-`, guilds by `.`, one character per kingdom (`0-9a-zA-Z`).        |

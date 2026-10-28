@@ -146,7 +146,10 @@ export function encodeShareLink(shared: SharedPlan): string {
 		parameters.set('s', '1');
 	}
 
-	return parameters.toString();
+	// `URLSearchParams` writes spaces as `+`, which chat apps that tidy links
+	// for display turn into real spaces, ending the link there. `%20` is read
+	// the same way, and a `+` in a name is already `%2B`.
+	return parameters.toString().replaceAll('+', '%20');
 }
 
 /**
