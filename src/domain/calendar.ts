@@ -24,19 +24,28 @@ the week is over.
 export const currentDay = (date: Date): number => Math.min(dayOfRagnarok(date), DAYS);
 
 /**
-The Tuesday that began week 0 of `ragnarokWeek`, 20 October 2026.
+The Wednesday that began week 0 of `ragnarokWeek`, 21 October 2026.
 */
-const WEEK_ZERO = Date.UTC(2026, 9, 20);
+const WEEK_ZERO = Date.UTC(2026, 9, 21);
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
 Which Ragnarok week `date` falls in, by the device's calendar like
-`dayOfRagnarok`: 0 for the week from Tuesday 20 October 2026, counting up
-after it and down before it. Weeks turn on Tuesday, when the last Ragnarok
-only shows its results and players look ahead to the next.
+`dayOfRagnarok`: 0 for the week from Wednesday 21 October 2026, counting up
+after it and down before it. Weeks turn on Wednesday, when a Ragnarok
+begins; the Tuesday before still shows the last one's results.
 */
 export function ragnarokWeek(date: Date): number {
 	// The local date as UTC, so a clock change cannot shift a day.
 	const day = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
 	return Math.floor((day - WEEK_ZERO) / WEEK_MS);
+}
+
+/**
+The start of the Wednesday that begins week `week` of `ragnarokWeek`, on
+the device's calendar.
+*/
+export function startOfWeek(week: number): Date {
+	// `Date` carries days past the end of the month into the next.
+	return new Date(2026, 9, 21 + (7 * week));
 }

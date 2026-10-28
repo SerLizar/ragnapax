@@ -4,8 +4,12 @@
 import {describe, expect, it} from 'vitest';
 import {compileMap, findMapProblems, type GameMap} from '../domain/map.ts';
 import type {MapDefinition} from '../domain/types.ts';
+import {startOfWeek} from '../domain/calendar.ts';
 import {castle, town} from './kingdoms.ts';
 import {
+	ANCHOR_MAP_ID,
+	ANCHOR_WEEK,
+	findMap,
 	MAP_DEFINITIONS,
 	MAPS,
 	mapOfWeek,
@@ -158,25 +162,41 @@ describe('the weekly rotation', () => {
 		);
 	});
 
-	it('goes Galaxy, Sea, Sky, from The Sea of Poseidon in the week of 28 October 2026', () => {
-		// Wednesdays, a week apart, from 21 October 2026.
-		const weeks = [21, 28, 35, 42, 49].map(date => mapOfWeek(new Date(2026, 9, date, 12)).id);
-		expect(weeks).toEqual([
+	it('goes Galaxy, Sea, then Sky', () => {
+		expect(ROTATION.map(map => map.id)).toEqual([
 			'galaxy-terminal',
 			'sea-of-poseidon',
 			'floating-city',
-			'galaxy-terminal',
-			'sea-of-poseidon',
 		]);
 	});
 
-	it('moves on to the next map on Tuesday', () => {
-		expect(mapOfWeek(new Date(2026, 10, 2, 23)).id).toBe('sea-of-poseidon');
-		expect(mapOfWeek(new Date(2026, 10, 3, 0)).id).toBe('floating-city');
+	it('is anchored on a real map', () => {
+		expect(findMap(ANCHOR_MAP_ID)).toBeDefined();
 	});
 
-	it('works back to weeks before the one it knows', () => {
-		// 42 weeks before 28 October: 42 places back from the Sea is the Sea.
-		expect(mapOfWeek(new Date(2026, 0, 7, 12)).id).toBe('sea-of-poseidon');
+	// Noon on the Wednesday of each week, counted from the anchor's.
+	const wednesday = (week: number) => {
+		const start = startOfWeek(ANCHOR_WEEK + week);
+		return new Date(start.getFullYear(), start.getMonth(), start.getDate(), 12);
+	};
+
+	const place = ROTATION.findIndex(map => map.id === ANCHOR_MAP_ID);
+	const nthAfterAnchor = (n: number) => ROTATION.at((place + n) % ROTATION.length)!.id;
+
+	it('plays the anchor\'s map in its week, then follows the rotation round', () => {
+		const weeks = [0, 1, 2, 3, 4].map(week => mapOfWeek(wednesday(week)).id);
+		expect(weeks).toEqual([0, 1, 2, 3, 4].map(n => nthAfterAnchor(n)));
+	});
+
+	it('moves on to the next map on Wednesday, not while Tuesday shows the results', () => {
+		const next = startOfWeek(ANCHOR_WEEK + 1);
+		const lastMoment = new Date(next.getTime() - 1);
+		expect(mapOfWeek(lastMoment).id).toBe(ANCHOR_MAP_ID);
+		expect(mapOfWeek(next).id).toBe(nthAfterAnchor(1));
+	});
+
+	it('works back to weeks before the anchor', () => {
+		// 40 weeks back is 13 turns of the rotation and one place more.
+		expect(mapOfWeek(wednesday(-40)).id).toBe(nthAfterAnchor(ROTATION.length - 1));
 	});
 });

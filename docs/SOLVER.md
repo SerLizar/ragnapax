@@ -24,14 +24,21 @@ not map data (see [Rules](#rules)).
 **One map a week.** Every group plays the same map in a given week, in a
 fixed rotation: The Galaxy Terminal, The Sea of Poseidon, then The Floating
 City (which players call "Sky"). `ROTATION` in `src/maps/index.ts` holds the
-order, and `mapOfWeek` counts weeks from one known to be the Sea's, the week
-from Tuesday 27 October 2026 (`ragnarokWeek` in `src/domain/calendar.ts`).
-A cluster change, when the game regroups which servers play Ragnarok
-together, plays the previous week's map again before the rotation carries
-on; one came that week, so the Sea ran the week before too. After each
-cluster change, move the anchor (`ANCHOR_WEEK`) to the repeated week.
-Weeks turn on Tuesday by the device's calendar, when the last Ragnarok only
-shows its results. A visit without a link opens on that week's map, as it
+order, and `mapOfWeek` counts weeks (`ragnarokWeek` in
+`src/domain/calendar.ts`) from an anchor: a week and the map played in it,
+`ANCHOR_WEEK` and `ANCHOR_MAP_ID` beside `ROTATION`. A cluster change, when
+the game regroups which servers play Ragnarok together, plays the previous
+week's map again before the rotation carries on, so after each one run
+`npm run rotation:anchor` on the Tuesday or Wednesday it begins. It anchors
+the rotation on the Ragnarok under way (on a Tuesday, the one starting the
+next day), repeating the last one's map; `--week <any
+date in the week, YYYY-MM-DD>` and `--map <id>` set any other anchor, and
+`--dry-run` shows the weeks ahead without changing anything. Since players
+see the map change, release it as a patch. The tests find their weeks from
+the rotation, so they need no change.
+Weeks run Wednesday to Tuesday by the device's calendar: on Tuesday the
+game still shows the last Ragnarok's results, so the planner stays on its
+map until Wednesday. A visit without a link opens on that week's map, as it
 was last set up on the device; a link opens on its own map, and the picker
 switches to any other.
 

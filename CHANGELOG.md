@@ -13,6 +13,8 @@ API.
 - Without a link, the planner opens on The Sea of Poseidon this week rather
   than The Floating City: this week's cluster change repeats last week's map,
   and the weekly map now follows on from that.
+- On Tuesdays, while the game still shows the last Ragnarok's results, the
+  planner stays on that week's map instead of moving on to the next one.
 
 ## 1.6.1 - 2026-10-28
 

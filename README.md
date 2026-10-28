@@ -100,6 +100,7 @@ npm run lint:reuse  # every file's copyright and licence (REUSE; needs uv)
 npm run test:e2e    # end-to-end tests (run `npx playwright install chromium webkit` once)
 npm run bench       # solver timings and fairness
 npm run i18n:status # how far each translation has got
+npm run rotation:anchor # restart the weekly map rotation after a cluster change
 npm run build       # production build in dist/
 npm run size        # first-visit and solver sizes of that build, gzipped
 ```

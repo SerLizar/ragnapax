@@ -21,7 +21,8 @@
 		"test:e2e": "playwright test",
 		"bench": "vitest run --config vitest.bench.config.ts",
 		"size": "node scripts/size.ts",
-		"i18n:status": "node scripts/i18n-status.ts"
+		"i18n:status": "node scripts/i18n-status.ts",
+		"rotation:anchor": "node scripts/rotation-anchor.ts"
 	},
 	"dependencies": {
 		"highs": "^1.15.4"

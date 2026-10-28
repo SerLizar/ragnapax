@@ -30,6 +30,7 @@ npm run test:e2e       # Playwright on the production build (needs `npx playwrig
 npm run bench          # solver timings and fairness; BENCH_STARTS=n for more openings
 npm run size           # first-visit and solver sizes of the build in dist/, gzipped
 npm run i18n:status    # translation progress; `-- <code>` lists missing messages
+npm run rotation:anchor # after a cluster change; `-- --week <date> --map <id>` for any
 npm run build          # static site in dist/; needs SOURCE_URL outside GitHub Actions
 ```
 

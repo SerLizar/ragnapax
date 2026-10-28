@@ -128,6 +128,7 @@ LICENSES/                  The same, where the REUSE specification looks for it
 public/                    Copied into the build: icon, web app manifest, robots.txt, llms.txt
 scripts/i18n-status.ts     Translation progress (npm run i18n:status)
 scripts/icons.ts           Draws the PNG icons from public/icon.svg at build time
+scripts/rotation-anchor.ts Moves the map rotation's anchor (npm run rotation:anchor)
 scripts/size.ts            First-visit and solver sizes of the build (npm run size)
 src/
   main.ts                  Mounts the app, registers the service worker

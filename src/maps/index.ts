@@ -41,15 +41,16 @@ export const ROTATION: readonly GameMap[] = [galaxyTerminal, seaOfPoseidon, floa
 );
 
 /**
-The week of `ragnarokWeek` the rotation counts from, and the map played in
-it: The Sea of Poseidon, in week 1, from Tuesday 27 October 2026.
-A cluster change (the game regrouping which servers play Ragnarok together)
-repeats the last week's map, and one came that week, so the Sea ran in
-week 0 too. After the next one, move the anchor to the week it repeats;
-weeks before the anchor may come out wrong.
+The anchor the rotation counts from: a week of `ragnarokWeek` and the map
+played in it. A cluster change (the game regrouping which servers play
+Ragnarok together) plays the last week's map again, so after each one the
+anchor moves to that week, by `npm run rotation:anchor`, which rewrites
+these two lines. Weeks before the anchor may come out wrong.
 */
-const ANCHOR_WEEK = 1;
-const ANCHOR_PLACE = ROTATION.findIndex(map => map.id === seaOfPoseidon.id);
+export const ANCHOR_WEEK = 1;
+export const ANCHOR_MAP_ID = 'sea-of-poseidon';
+
+const ANCHOR_PLACE = ROTATION.findIndex(map => map.id === ANCHOR_MAP_ID);
 
 /**
 The map every group plays in the week of `date`, by default this week.

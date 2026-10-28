@@ -17,7 +17,7 @@ import {encodeShareLink} from '../share/link.ts';
 import {SolveCancelled, type SolverClient} from '../solver/client.ts';
 import type {SolveRequest} from '../solver/protocol.ts';
 import type {SolveOutcome} from '../solver/solve.ts';
-import {FLOATING_CITY_START} from '../test/fixtures.ts';
+import {dayInWeekOf, FLOATING_CITY_START} from '../test/fixtures.ts';
 import {PlannerState} from './planner.svelte.ts';
 import {saveMap} from './storage.ts';
 
@@ -61,7 +61,7 @@ beforeEach(() => {
 	// A week of The Floating City, the map these tests set up: visits without
 	// a link open on the week's map. Only the date is faked; timers run.
 	vi.useFakeTimers({toFake: ['Date']});
-	vi.setSystemTime(new Date(2026, 10, 4, 12));
+	vi.setSystemTime(dayInWeekOf('floating-city'));
 });
 
 afterEach(() => {
@@ -226,13 +226,13 @@ describe('PlannerState', () => {
 		first.persist();
 
 		// The Sea of Poseidon's week: every group plays it.
-		vi.setSystemTime(new Date(2026, 9, 28, 12));
+		vi.setSystemTime(dayInWeekOf('sea-of-poseidon'));
 		const sea = new PlannerState();
 		sea.restore('');
 		expect(sea.map.id).toBe('sea-of-poseidon');
 		expect(sea.result).toBeUndefined();
 
-		vi.setSystemTime(new Date(2026, 10, 4, 12));
+		vi.setSystemTime(dayInWeekOf('floating-city'));
 		const sky = new PlannerState();
 		sky.restore('');
 		expect(sky.map.id).toBe('floating-city');
@@ -529,7 +529,7 @@ describe('PlannerState', () => {
 
 	it('saves a moment after the last change, or as soon as the page is hidden', () => {
 		vi.useFakeTimers({toFake: ['Date', 'setTimeout', 'clearTimeout']});
-		vi.setSystemTime(new Date(2026, 10, 4, 12));
+		vi.setSystemTime(dayInWeekOf('floating-city'));
 		const planner = new PlannerState();
 		planner.restore('#' + link);
 		const stop = planner.sync();
@@ -558,7 +558,7 @@ describe('PlannerState', () => {
 
 	it('never saves a change still waiting once everything is deleted', async () => {
 		vi.useFakeTimers({toFake: ['Date', 'setTimeout', 'clearTimeout']});
-		vi.setSystemTime(new Date(2026, 10, 4, 12));
+		vi.setSystemTime(dayInWeekOf('floating-city'));
 		const replace = vi.spyOn(location, 'replace').mockImplementation(() => undefined);
 		const planner = new PlannerState();
 		planner.restore('#' + link);
