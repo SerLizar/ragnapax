@@ -353,6 +353,41 @@ describe('PlannerState', () => {
 		expect(again.fewestDays).toBe(true);
 	});
 
+	it('plans for another group on the same map, keeping the goal and options', () => {
+		const planner = new PlannerState();
+		planner.restore('#' + sent);
+		planner.editSetup();
+		planner.setCastleLast(true);
+		planner.setFewestDays(true);
+		planner.setTargets(true);
+		planner.setSittingOut(2, true);
+		planner.recordDay(planner.history[0]!);
+		expect(planner.played).toHaveLength(1);
+		const stop = planner.sync();
+		flushSync();
+
+		planner.planAnotherGroup();
+		flushSync();
+		stop();
+		expect(planner.map).toBe(map);
+		expect(planner.guildNames).toEqual(['', '', '', '']);
+		expect(planner.startingTowns).toEqual({});
+		expect(planner.played).toEqual([]);
+		expect(planner.result).toBeUndefined();
+		expect(planner.isSetupOpen).toBe(true);
+		expect(planner.isReceived).toBe(false);
+		// Guilds sitting out belong to the group, like its names and towns.
+		expect(planner.inactive).toEqual([]);
+		expect(planner.goal).toBe('points');
+		expect(planner.castleLast).toBe(true);
+		expect(planner.fewestDays).toBe(true);
+		expect(planner.targets).toEqual(planner.guildNames.map(() => map.fairHoldings));
+
+		const again = new PlannerState();
+		again.restore('');
+		expect(again.setup).toEqual(planner.setup);
+	});
+
 	it('warns about a plan that does not leave a guild sitting out alone, after the days played', () => {
 		const planner = new PlannerState();
 		// Guild 1, sitting out, takes Vagastrom on Wednesday.

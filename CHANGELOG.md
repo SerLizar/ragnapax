@@ -6,6 +6,16 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.7.0 - 2026-10-28
+
+### Added
+
+- A "Plan for another group" button beside "Edit setup", for players who plan
+  for more than one group, such as one for each of their guilds. It clears the
+  guild names, starting towns, days recorded and the plan, and keeps your goal
+  and options. Guilds sitting out are cleared too, as they differ from group
+  to group.
+
 ## 1.6.2 - 2026-10-28
 
 ### Fixed

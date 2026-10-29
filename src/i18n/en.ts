@@ -88,6 +88,12 @@ export default {
 	'planned.intro':
 		'Your plan is ready. Share it with your group: the others follow your link rather than planning again. The setup is put away so a stray tap can\'t change it.',
 	'shared.edit': 'Edit setup',
+	// Beside "shared.edit": starts a blank setup on the same map, for players
+	// who plan for more than one group, such as for each of their guilds.
+	'shared.another': 'Plan for another group',
+	// Asked before "shared.another" clears the setup.
+	'shared.another.confirm':
+		'Start a new plan for another group? The guild names, starting towns, days recorded and this plan are cleared; your goal and options stay. Share this plan first if your group still needs it.',
 
 	// Banner when a new version of the planner has replaced the one the page
 	// was loaded from; the page cannot fetch the solver until it reloads.

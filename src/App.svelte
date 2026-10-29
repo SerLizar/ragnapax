@@ -89,6 +89,13 @@
 		}
 	});
 
+	function planAnotherGroup() {
+		// eslint-disable-next-line no-alert -- a plain, accessible question before clearing a week's plan
+		if (confirm(t('shared.another.confirm'))) {
+			planner.planAnotherGroup();
+		}
+	}
+
 	const source = $derived(aroundSlot(t('footer.source', {link: SLOT})));
 	const licences = $derived(aroundSlot(t('footer.licences', {link: SLOT})));
 
@@ -184,7 +191,10 @@
 				<section class="card shared-intro">
 					<h2>{mapName(planner.map)}</h2>
 					<p class="sub">{t(planner.isReceived ? 'shared.intro' : 'planned.intro')}</p>
-					<button class="btn" onclick={() => planner.editSetup()}>{t('shared.edit')}</button>
+					<div class="actions">
+						<button class="btn" onclick={() => planner.editSetup()}>{t('shared.edit')}</button>
+						<button class="btn ghost" onclick={planAnotherGroup}>{t('shared.another')}</button>
+					</div>
 				</section>
 			{/if}
 		</div>
@@ -386,6 +396,12 @@
 		display: grid;
 		gap: 8px;
 		justify-items: start;
+	}
+
+	.shared-intro .actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
 	}
 
 	.placeholder ol {

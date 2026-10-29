@@ -251,7 +251,7 @@ helpers keep it to the setup and its plan:
 - **Actions:** `restore`, `switchMap`, `toggleTown`, `assignTown`, `clearTowns`, `setGuildName`,
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
   `setSittingOut`, `setFewestDays`, `setTargets`, `setTarget`, `setTownLists`, `recordDay`,
-  `recordAsPlanned`, `forgetDay`,
+  `recordAsPlanned`, `forgetDay`, `planAnotherGroup`,
   `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
   `forgetEverything`, `sync`.
 
@@ -287,6 +287,14 @@ most find an equally fair plan, replacing the proven one with interim plans
 while it searched. The button still works, for anyone who wants another
 equally fair plan; the warning mostly reminds players to change the setup
 first.
+
+Beside "Edit setup", "Plan for another group" (`planAnotherGroup`) is for
+players who plan for more than one group, such as one for each guild they
+are in. After asking, it clears the guild names, starting towns, days
+recorded and plan, and keeps the map, goal and options. Guilds sitting out
+are cleared too: they belong to the group, and kept on they would quietly
+leave a guild out of the next group's share. The cleared setup replaces the
+one saved for the map, as any change would.
 
 `sync()` installs an effect that reads the derived `address` and
 `ownFragment` values and writes them to the address bar and storage (see

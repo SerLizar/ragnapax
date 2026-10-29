@@ -66,7 +66,8 @@ The Share button sends the same fragment with `s=1`. A link with it is
 with the setup collapsed and quality `shared`, keeps `s=1` in the address bar
 so a refresh still shows it as shared, and never saves it, so the reader's
 own setup for that map is left alone. As soon as the reader changes anything
-(a town, a name, an option, the map) or plans, it becomes their own: `s=1`
+(a town, a name, an option, the map), plans, or plans for another group, it
+becomes their own: `s=1`
 goes, and it is saved like any other setup, for good even if the change is
 undone.
 

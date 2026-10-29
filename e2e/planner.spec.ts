@@ -283,6 +283,26 @@ test('a shared plan becomes yours once you change it', async ({page}) => {
 	await expect(page.getByRole('textbox', {name: 'Name of guild 1'})).toHaveValue('Wolves');
 });
 
+test('plans for another group with the same goal and options', async ({page}) => {
+	// Equal points and every kingdom used, Dogs sitting out.
+	await page.goto('/#v=1&m=floating-city&o=p&f=1&i=4&g=Owls&g=Bears&g=Cats&g=Dogs&t=11221124244334303&p=h...-...-...-...-...-...&s=1');
+	page.once('dialog', async dialog => dialog.dismiss());
+	await page.getByRole('button', {name: 'Plan for another group'}).click();
+	await expect(page.getByText('Someone shared this plan with you')).toBeVisible();
+
+	// From the keyboard, as WebKit does not focus a button tapped.
+	page.once('dialog', async dialog => dialog.accept());
+	await page.getByRole('button', {name: 'Plan for another group'}).focus();
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('heading', {name: 'Starting towns'})).toBeFocused();
+	await expect(page.getByRole('textbox', {name: 'Name of guild 1'})).toHaveValue('');
+	await expect(page.getByText('0 of 16 towns assigned.')).toBeVisible();
+	await expect(page.getByText('Guilds score between')).toBeHidden();
+	await expect(page.getByRole('radio', {name: 'Equal points', exact: true})).toBeChecked();
+	await expect(page.getByRole('switch', {name: 'Use every kingdom', exact: true})).toBeChecked();
+	await expect(page).not.toHaveURL(/&s=|&i=|g=Owls/u);
+});
+
 test('remembers settings, including using every kingdom', async ({page}) => {
 	await page.goto('/');
 	// Each option is named by its title and described by the rest.

@@ -580,6 +580,26 @@ export class PlannerState {
 	}
 
 	/**
+	Starts afresh on the same map for another group, such as a player's
+	other guild's: blank guild names and starting towns, no days played and
+	no plan, but the same goal and options. Guilds sitting out are forgotten,
+	as they belong to the group; left on, a guild would be left out of the
+	new group's share unnoticed.
+	*/
+	planAnotherGroup(): void {
+		this.apply({
+			...blankSetup(this.map),
+			goal: this.goal,
+			fillMap: this.fillMap,
+			castleLast: this.castleLast,
+			fewestDays: this.fewestDays,
+			targets: this.targets,
+		}, 'saved');
+		this.received = undefined;
+		this.linkError = undefined;
+	}
+
+	/**
 	Opens the setup again after a plan put it away.
 	*/
 	editSetup(): void {
