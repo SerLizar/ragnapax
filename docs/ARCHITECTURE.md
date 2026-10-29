@@ -252,7 +252,7 @@ helpers keep it to the setup and its plan:
   `finishGuildName`, `editSetup`, `setGoal`, `setFillMap`, `setCastleLast`,
   `setSittingOut`, `setFewestDays`, `setTargets`, `setTarget`, `setTownLists`, `recordDay`,
   `recordAsPlanned`, `forgetDay`, `planAnotherGroup`,
-  `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `persist`,
+  `warmUpSolver`, `findPlan`, `stop`, `cancel`, `shareUrl`, `shareText`, `persist`,
   `forgetEverything`, `sync`.
 
 Guild names are kept to the game's limit of 9 characters as players see

@@ -131,6 +131,15 @@ describe('PlannerState', () => {
 		expect(planner.isReceived).toBe(false);
 	});
 
+	it('writes the plan on screen as text, with its guilds\' names', () => {
+		const planner = new PlannerState();
+		expect(planner.shareText()).toBeUndefined();
+		planner.restore('#' + sent);
+		expect(planner.shareText()?.split('\n', 1)[0]).toBe('The Floating City · Equal points');
+		expect(planner.shareText()).toContain('Foxes: Vagastrom');
+		expect(planner.shareText(1)).not.toContain('Foxes');
+	});
+
 	it('treats a link without the mark as the player\'s own, its plan as saved', () => {
 		const planner = new PlannerState();
 		planner.restore('#' + link);

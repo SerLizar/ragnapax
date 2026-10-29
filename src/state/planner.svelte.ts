@@ -40,6 +40,7 @@ import {
 	ShareLinkError,
 	type SharedPlan,
 } from '../share/link.ts';
+import {planToText} from '../share/text.ts';
 import {defaultGuildName} from '../i18n/describe.ts';
 import type {SolverClient} from '../solver/client.ts';
 import type {PlanQuality} from '../solver/solve.ts';
@@ -415,6 +416,21 @@ export class PlannerState {
 	shareUrl(): string {
 		const fragment = encodeShareLink({...this.setup, received: true});
 		return `${location.origin}${location.pathname}#${fragment}`;
+	}
+
+	/**
+	The plan on screen as text for game or Discord chat, or only the
+	declarations of `guild`; undefined without a plan.
+	*/
+	shareText(guild?: GuildIndex): string | undefined {
+		const {result, timeline} = this;
+		return result && timeline && planToText({
+			map: this.map,
+			guildNames: this.displayNames,
+			...result.settings,
+			timeline,
+			guild,
+		});
 	}
 
 	/**

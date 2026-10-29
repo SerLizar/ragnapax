@@ -10,7 +10,6 @@
 		mapName,
 	} from '../i18n/describe.ts';
 	import {t, weekday} from '../i18n/i18n.svelte.ts';
-	import {planToText} from '../share/text.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
 	import DayExplorer from './DayExplorer.svelte';
 	import {RESULT_TITLE} from './focus.ts';
@@ -76,17 +75,11 @@
 	}
 
 	function copyText() {
-		if (!planner.timeline) {
+		const text = planner.shareText(focus);
+		if (text === undefined) {
 			return;
 		}
 
-		const text = planToText({
-			map: planner.map,
-			guildNames: planner.displayNames,
-			...planner.result!.settings,
-			timeline: planner.timeline,
-			guild: focus,
-		});
 		copy(
 			text,
 			focus === undefined
