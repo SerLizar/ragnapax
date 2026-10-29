@@ -6,6 +6,14 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.7.1 - 2026-10-29
+
+### Changed
+
+- A tidy-up behind the scenes of the goal and its options, so new options are
+  easier to add without mistakes. Nothing changes in how the planner looks,
+  plans or shares.
+
 ## 1.7.0 - 2026-10-28
 
 ### Added
