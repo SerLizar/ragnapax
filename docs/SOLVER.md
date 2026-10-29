@@ -125,7 +125,9 @@ they break.
 
 `src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap`,
 `castleLast`, `inactive`, `fewestDays` and `targets`), their
-labels, and `priorities(settings)`: what the planner optimises, most important
+labels, `effectiveSettings`, which turns the player's choices into the
+settings a plan is made with (holdings set by hand turn off Use every
+kingdom, which castle-days last needs), and `priorities(settings)`: what the planner optimises, most important
 first, each proven optimal; `refinements(settings)`: tie-breakers the
 solver improves while polishing but does not prove; and `efforts(settings)`:
 the work a plan asks of the guilds, kept down last, also polished rather
@@ -407,10 +409,13 @@ order (see [Maps](#maps)).
 1. Add the field to `PlanSettings` and `DEFAULT_SETTINGS` in
    `src/domain/settings.ts`, and express its effect through `priorities`,
    `refinements`, `efforts` or `guildOrders` if possible, so the model and the "How plans are
-   ranked" list stay in step.
+   ranked" list stay in step. If another setting can override it, say so
+   in `effectiveSettings`.
 2. Add an optional share link parameter whose absence means the old
-   behaviour; decode it in `decodeShareLink`.
-3. Add state, a setter and the control (`GoalCard`), and mention it in
+   behaviour; encode it in `encodeShareLink` and decode it in
+   `decodeShareLink`.
+3. In `PlannerState`, add the state, its place in `chosen` and `apply`, and
+   a setter; add the control (`GoalCard`), and mention it in
    `planToText` if it changes what a plan means.
 4. Add tests at each layer, update the priority table above, and run the
    benchmark.

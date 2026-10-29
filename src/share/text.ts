@@ -8,20 +8,17 @@ import {
 	score,
 	type Timeline,
 } from '../domain/plan.ts';
-import type {Goal} from '../domain/settings.ts';
-import {VACANT, type GuildIndex, type Holdings} from '../domain/types.ts';
+import type {PlanSettings} from '../domain/settings.ts';
+import {VACANT, type GuildIndex} from '../domain/types.ts';
 import {goalLabel, mapName, kingdomName} from '../i18n/describe.ts';
 import {t, weekday} from '../i18n/i18n.svelte.ts';
 
-export type PlanTextOptions = {
+/**
+A plan to write out, with the settings it was made with.
+*/
+export type PlanTextOptions = PlanSettings & {
 	readonly map: GameMap;
 	readonly guildNames: readonly string[];
-	readonly goal: Goal;
-	readonly fillMap: boolean;
-	readonly castleLast: boolean;
-	readonly inactive: readonly GuildIndex[];
-	readonly fewestDays: boolean;
-	readonly targets?: readonly Holdings[];
 	readonly timeline: Timeline;
 	/**
 	Only list this guild's declarations.

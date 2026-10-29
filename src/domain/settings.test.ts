@@ -5,6 +5,7 @@ import {describe, expect, it} from 'vitest';
 import {
 	activeGuilds,
 	DEFAULT_SETTINGS,
+	effectiveSettings,
 	efforts,
 	guildOrders,
 	priorities,
@@ -80,6 +81,29 @@ describe('refinements', () => {
 				goal: 'points', fillMap: isFillMap, castleLast: false, inactive: [], fewestDays: false,
 			})).toEqual([]);
 		}
+	});
+});
+
+describe('effectiveSettings', () => {
+	const filling = {
+		...DEFAULT_SETTINGS, goal: 'points', fillMap: true, castleLast: true,
+	} as const;
+
+	it('keeps the choices that apply', () => {
+		expect(effectiveSettings(filling)).toEqual(filling);
+		expect(effectiveSettings(DEFAULT_SETTINGS)).toEqual(DEFAULT_SETTINGS);
+	});
+
+	it('only hands castle-days to the last guilds while filling the map', () => {
+		expect(effectiveSettings({...filling, fillMap: false})).toEqual({
+			...filling, fillMap: false, castleLast: false,
+		});
+	});
+
+	it('stops filling the map with holdings set by hand, keeping the rest', () => {
+		expect(effectiveSettings({...filling, fewestDays: true, targets})).toEqual({
+			...filling, fillMap: false, castleLast: false, fewestDays: true, targets,
+		});
 	});
 });
 

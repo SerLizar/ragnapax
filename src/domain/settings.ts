@@ -65,6 +65,17 @@ export const DEFAULT_SETTINGS: PlanSettings = {
 };
 
 /**
+The settings a plan is made with, from those the player chose: holdings set
+by hand turn filling the map off, and the castle-days only go last while
+the map is filled. The player's choices are kept as they are (see
+`SharedPlan`), so they come back when what overrode them is turned off.
+*/
+export const effectiveSettings = (chosen: PlanSettings): PlanSettings => {
+	const isFillMap = chosen.fillMap && !chosen.targets;
+	return {...chosen, fillMap: isFillMap, castleLast: chosen.castleLast && isFillMap};
+};
+
+/**
 The guilds that play, in guild order: every one not sitting out.
 */
 export const activeGuilds = ({inactive}: Pick<PlanSettings, 'inactive'>): GuildIndex[] =>

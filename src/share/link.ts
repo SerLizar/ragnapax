@@ -13,7 +13,7 @@ import {
 	type StartingTowns,
 	type Violation,
 } from '../domain/plan.ts';
-import {GOALS, type Goal} from '../domain/settings.ts';
+import {GOALS, type Goal, type PlanSettings} from '../domain/settings.ts';
 import {
 	DAYS,
 	GUILD_COUNT,
@@ -24,25 +24,14 @@ import {
 import {findMap} from '../maps/index.ts';
 
 /**
-Everything a share link carries.
+Everything a share link carries. The settings are as the player chose
+them: the goal and switches that holdings set by hand replace are kept,
+for when those are turned off (see `effectiveSettings`).
 */
-export type SharedPlan = {
+export type SharedPlan = PlanSettings & {
 	readonly map: GameMap;
 	readonly guildNames: readonly string[];
 	readonly startingTowns: StartingTowns;
-	readonly goal: Goal;
-	readonly fillMap: boolean;
-	readonly castleLast: boolean;
-	/**
-	Guilds sitting out, in guild order; see `PlanSettings.inactive`.
-	*/
-	readonly inactive: readonly GuildIndex[];
-	readonly fewestDays: boolean;
-	/**
-	Holdings set by hand; see `PlanSettings.targets`. The goal and the
-	switches it replaces are kept as they were, for when it is turned off.
-	*/
-	readonly targets?: readonly Holdings[];
 	/**
 	Days already played, as they happened, from Wednesday on; the plan
 	starts with them. Empty until someone records a day.

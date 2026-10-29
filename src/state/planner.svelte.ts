@@ -20,6 +20,7 @@ import {
 } from '../domain/plan.ts';
 import {
 	DEFAULT_SETTINGS,
+	effectiveSettings,
 	excessTargets,
 	type Goal,
 	type PlanSettings,
@@ -120,6 +121,18 @@ export class PlannerState {
 		return isFollowed ? owners : undefined;
 	});
 
+	/**
+	The settings as the player chose them, which `setup` keeps.
+	*/
+	private readonly chosen: PlanSettings = $derived.by(() => ({
+		goal: this.goal,
+		fillMap: this.fillMap,
+		castleLast: this.castleLast,
+		inactive: this.inactive,
+		fewestDays: this.fewestDays,
+		targets: this.targets,
+	}));
+
 	map = $state.raw<GameMap>(DEFAULT_MAP);
 	guildNames = $state<string[]>([...blankSetup(DEFAULT_MAP).guildNames]);
 	startingTowns = $state<Record<string, GuildIndex>>({});
@@ -169,18 +182,9 @@ export class PlannerState {
 	readonly status = $derived(setupStatus(this.map, this.startingTowns));
 	readonly start = $derived(startingOwnership(this.map, this.startingTowns));
 	/**
-	What plans are made with. Holdings set by hand turn the map filling
-	switches off, without forgetting them: `setup` keeps them, so they come
-	back when holdings are no longer set.
+	What plans are made with: see `effectiveSettings`.
 	*/
-	readonly settings: PlanSettings = $derived({
-		goal: this.goal,
-		fillMap: this.fillMap && !this.targets,
-		castleLast: this.castleLast && !this.targets,
-		inactive: this.inactive,
-		fewestDays: this.fewestDays,
-		targets: this.targets,
-	});
+	readonly settings = $derived(effectiveSettings(this.chosen));
 
 	/**
 	Kinds whose holdings set by hand add up to more days than the map has.
@@ -267,9 +271,7 @@ export class PlannerState {
 		map: this.map,
 		guildNames: this.guildNames,
 		startingTowns: this.startingTowns,
-		...this.settings,
-		fillMap: this.fillMap,
-		castleLast: this.castleLast,
+		...this.chosen,
 		played: this.played,
 		plan: this.result && !this.stale ? this.result.plan : undefined,
 		received: this.isReceived,
@@ -589,11 +591,8 @@ export class PlannerState {
 	planAnotherGroup(): void {
 		this.apply({
 			...blankSetup(this.map),
-			goal: this.goal,
-			fillMap: this.fillMap,
-			castleLast: this.castleLast,
-			fewestDays: this.fewestDays,
-			targets: this.targets,
+			...this.chosen,
+			inactive: DEFAULT_SETTINGS.inactive,
 		}, 'saved');
 		this.received = undefined;
 		this.linkError = undefined;
