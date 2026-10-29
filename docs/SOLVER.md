@@ -415,7 +415,7 @@ order (see [Maps](#maps)).
    behaviour; encode it in `encodeShareLink` and decode it in
    `decodeShareLink`.
 3. In `PlannerState`, add the state, its place in `chosen` and `apply`, and
-   a setter; add the control (`GoalCard`), and mention it in
+   a setter; add the control (`GoalCard` or `AdvancedOptions`, with `Switch`), and mention it in
    `planToText` if it changes what a plan means.
 4. Add tests at each layer, update the priority table above, and run the
    benchmark.
