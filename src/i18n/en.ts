@@ -347,11 +347,20 @@ export default {
 	'result.share': 'Share plan',
 	'result.copy': 'Copy as text',
 	'result.copyDeclares': 'Copy declares for {guild}',
+	// The copy buttons while a day after Wednesday is picked in "Day by day":
+	// the text then leaves out the days before it. {day}: e.g. "Friday".
+	'result.copyFrom': 'Copy as text from {day}',
+	'result.copyDeclaresFrom': 'Copy declares for {guild} from {day}',
+	// Under those buttons, saying how to copy every day instead.
+	'result.copyFromHint':
+		'The text starts on {day}, the day picked above. Pick Wednesday, or the whole week, to copy every day.',
 	// Title of the message when sharing through the phone's share menu.
 	'result.shareTitle': 'Ragnarok plan for {map}',
 	'result.linkCopied': 'Link copied',
 	'result.planCopied': 'Plan copied',
 	'result.declaresCopied': 'Declares for {guild} copied',
+	'result.planCopiedFrom': 'Plan from {day} copied',
+	'result.declaresCopiedFrom': 'Declares for {guild} from {day} copied',
 	// Shown when copying is blocked, above a box with the text to copy.
 	'result.copyThis': 'Copy this:',
 
@@ -483,6 +492,8 @@ export default {
 
 	// A plan as text for game or Discord chat.
 	'text.declaresFor': 'Declares for {guild}',
+	// Under the title when the days before {day} are left out, e.g. "From Friday on".
+	'text.since': 'From {day} on',
 	'text.moves': '{guild}: {moves}',
 	'text.from': '{kingdom} (from {guild})',
 	'text.none': 'no declares',

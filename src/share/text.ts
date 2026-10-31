@@ -24,6 +24,11 @@ export type PlanTextOptions = PlanSettings & {
 	Only list this guild's declarations.
 	*/
 	readonly guild?: GuildIndex;
+	/**
+	The first day to list, from 1 for Wednesday: once the week is under way,
+	players have no use for the days behind them.
+	*/
+	readonly from?: number;
 };
 
 /**
@@ -54,6 +59,7 @@ export function planToText({
 	targets: byHand,
 	timeline,
 	guild,
+	from = 1,
 }: PlanTextOptions): string {
 	const guildNames = names.map(name => forChat(name));
 	// Holdings set by hand replace the goal and filling the map.
@@ -72,6 +78,7 @@ export function planToText({
 	const lines = [
 		title.join(' · '),
 		...(guild === undefined ? [] : [t('text.declaresFor', {guild: guildNames[guild]!})]),
+		...(from > 1 ? [t('text.since', {day: weekday(from, 'long')})] : []),
 		...(guild === undefined && inactive.length > 0
 			? [t('text.inactive', {guilds: inactive.map(g => guildNames[g]!).join(t('list.separator'))})]
 			: []),
@@ -81,7 +88,7 @@ export function planToText({
 	// every day, and their points are not part of the share.
 	const guilds = guild === undefined ? guildNames.map((_, g) => g).filter(g => !inactive.includes(g)) : [guild];
 
-	for (let day = 1; day < timeline.owners.length; day++) {
+	for (let day = Math.max(from, 1); day < timeline.owners.length; day++) {
 		const captures = capturesOn(timeline, day);
 		lines.push('', weekday(day, 'long'));
 		for (const g of guild === undefined ? guildsListed(captures, inactive) : [guild]) {

@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
 <script lang="ts">
-	import {currentDay, dayOfRagnarok} from '../domain/calendar.ts';
+	import {dayOfRagnarok} from '../domain/calendar.ts';
 	import type {GameMap} from '../domain/map.ts';
 	import {capturesOn, type GuildScore, type Timeline} from '../domain/plan.ts';
 	import type {GuildIndex} from '../domain/types.ts';
@@ -33,20 +33,30 @@
 		Guild to focus on, shared with the copy action; undefined for everyone.
 		*/
 		focus: GuildIndex | undefined;
+		/**
+		A day at a time on the map, or every day's declares in one list; shared
+		with the copy action, as is `day`.
+		*/
+		view: 'day' | 'week';
+		/**
+		The day shown in the day view, 0 for the start.
+		*/
+		day: number;
 	}
 	let {
-		map, timeline, scores, guildNames, inactive = [], played = 0, focus = $bindable(),
+		map,
+		timeline,
+		scores,
+		guildNames,
+		inactive = [],
+		played = 0,
+		focus = $bindable(),
+		view = $bindable(),
+		day = $bindable(),
 	}: Props = $props();
 	const id = $props.id();
 
-	/**
-	A day at a time on the map, or every day's declares in one list.
-	*/
-	let view = $state<'day' | 'week'>('day');
-
-	// Players mostly look during the week for that day's declares.
 	const opened = new Date();
-	let day = $state(currentDay(opened));
 	/**
 	Which day is today, marked as such. Players switch to the game and back,
 	and a tab can stay open for days, so it is rechecked whenever the page

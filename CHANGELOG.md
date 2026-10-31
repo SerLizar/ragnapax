@@ -6,6 +6,16 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.8.0 - 2026-10-30
+
+### Changed
+
+- Copying a plan as text now starts from the day picked in "Day by day", so
+  once the week is under way your group only gets the days still to come. The
+  button says which day it starts from, such as "Copy as text from Friday",
+  and a note under it says how to copy every day: pick Wednesday or the whole
+  week. The points at the end are still the whole week's.
+
 ## 1.7.1 - 2026-10-29
 
 ### Changed

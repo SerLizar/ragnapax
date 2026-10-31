@@ -334,6 +334,25 @@ describe('planToText', () => {
 		expect(text.split('\n').at(-1)).toMatch(/^Points: Alpha \d+ · Gamma \d+ · Delta \d+$/u);
 	});
 
+	it('can leave out the days before one', () => {
+		const text = planToText({
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false, timeline, from: 3,
+		});
+		expect(text.split('\n').slice(0, 4)).toEqual([
+			'The Floating City · Equal points',
+			'From Friday on',
+			'',
+			'Friday',
+		]);
+		expect(text).not.toContain('Wednesday');
+		expect(text).not.toContain('Thursday');
+		// The points are still the whole week's.
+		const whole = planToText({
+			map, guildNames, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false, timeline,
+		});
+		expect(text.split('\n').at(-1)).toBe(whole.split('\n').at(-1));
+	});
+
 	it('can focus on one guild', () => {
 		const text = planToText({
 			map,

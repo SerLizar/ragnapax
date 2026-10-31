@@ -2,6 +2,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
 <script lang="ts">
+	import {currentDay} from '../domain/calendar.ts';
 	import type {GuildIndex} from '../domain/types.ts';
 	import {
 		describeDisturbance,
@@ -19,6 +20,15 @@
 	let {planner}: {planner: PlannerState} = $props();
 
 	let focus = $state<GuildIndex | undefined>();
+	let view = $state<'day' | 'week'>('day');
+	// Players mostly look during the week for that day's declares.
+	let day = $state(currentDay(new Date()));
+	/**
+	The first day the copied text lists: the day picked, as the days before
+	it are history by then, or Wednesday on the start or the whole week.
+	*/
+	const from = $derived(view === 'day' ? Math.max(day, 1) : 1);
+	const fromDay = $derived(weekday(from, 'long'));
 	let toast = $state<string | undefined>();
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -74,18 +84,33 @@
 		await copy(url, t('result.linkCopied'));
 	}
 
-	function copyText() {
-		const text = planner.shareText(focus);
-		if (text === undefined) {
-			return;
+	// The copy button and its toast name the first day when it is not Wednesday.
+	const copyLabel = $derived.by(() => {
+		const guild = focus === undefined ? undefined : planner.displayNames[focus]!;
+		if (from > 1) {
+			return guild === undefined
+				? t('result.copyFrom', {day: fromDay})
+				: t('result.copyDeclaresFrom', {guild, day: fromDay});
 		}
 
-		copy(
-			text,
-			focus === undefined
-				? t('result.planCopied')
-				: t('result.declaresCopied', {guild: planner.displayNames[focus]!}),
-		);
+		return guild === undefined ? t('result.copy') : t('result.copyDeclares', {guild});
+	});
+	const copiedMessage = $derived.by(() => {
+		const guild = focus === undefined ? undefined : planner.displayNames[focus]!;
+		if (from > 1) {
+			return guild === undefined
+				? t('result.planCopiedFrom', {day: fromDay})
+				: t('result.declaresCopiedFrom', {guild, day: fromDay});
+		}
+
+		return guild === undefined ? t('result.planCopied') : t('result.declaresCopied', {guild});
+	});
+
+	function copyText() {
+		const text = planner.shareText(focus, from);
+		if (text !== undefined) {
+			copy(text, copiedMessage);
+		}
 	}
 </script>
 
@@ -157,6 +182,8 @@
 					inactive={planner.result.settings.inactive}
 					{played}
 					bind:focus
+					bind:view
+					bind:day
 				/>
 			</div>
 
@@ -167,11 +194,12 @@
 				</button>
 				<button class="btn" onclick={copyText} disabled={planner.stale || isSolving}>
 					<Icon name="copy" />
-					{focus === undefined
-						? t('result.copy')
-						: t('result.copyDeclares', {guild: planner.displayNames[focus]!})}
+					{copyLabel}
 				</button>
 			</div>
+			{#if from > 1}
+				<p class="hint">{t('result.copyFromHint', {day: fromDay})}</p>
+			{/if}
 		{/if}
 
 		<div class="toast" class:show={toast !== undefined} role="status">
@@ -251,8 +279,18 @@
 		margin-top: 16px;
 	}
 
+	/* A label naming a guild and a day can be longer than a narrow phone. */
 	.actions .btn {
 		flex: 1 1 140px;
+		padding-block: 8px;
+		white-space: normal;
+		text-align: center;
+	}
+
+	.hint {
+		margin: 8px 0 0;
+		color: var(--muted);
+		font-size: 0.85rem;
 	}
 
 	.toast {

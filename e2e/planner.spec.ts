@@ -511,6 +511,55 @@ test('lists the whole week\'s declares, as the plan copied as text does', async 
 	await expect(card.getByRole('tablist', {name: 'Day'})).toBeVisible();
 });
 
+test('copies the plan as text from the day picked', async ({page}) => {
+	// On a Friday, the days before it are history.
+	await page.clock.setFixedTime(dayInWeekOf('floating-city', 3));
+	await page.goto('/#v=1&m=floating-city&o=r&i=4&g=Owls&g=Bears&g=Cats&g=Dogs&t=11221124244334303&p=nh.ij.fm.-..l.-.c.k.-..o.-6.ko..-io...&s=1');
+	// Catch what would be copied; WebKit has no clipboard to read.
+	await page.evaluate(() => {
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				async writeText(text: string) {
+					Object.defineProperty(navigator, 'copiedText', {value: text, configurable: true});
+				},
+			},
+		});
+	});
+	const copied = async () => page.evaluate(() => (navigator as {copiedText?: string}).copiedText ?? '');
+	const card = page.getByRole('region', {name: 'Plan'});
+	await expect(card.getByRole('tab', {name: 'Friday'})).toHaveAttribute('aria-selected', 'true');
+	await expect(card.getByText('The text starts on Friday')).toBeVisible();
+	await card.getByRole('button', {name: 'Copy as text from Friday'}).click();
+	await expect(page.getByText('Plan from Friday copied')).toBeVisible();
+	const text = await copied();
+	expect(text).toContain('\nFrom Friday on\n');
+	expect(text).toContain('\nFriday\n');
+	expect(text).not.toContain('Wednesday');
+	expect(text).not.toContain('Thursday');
+
+	await card.getByRole('group', {name: 'Show declares for'}).getByRole('button', {name: 'Cats'}).click();
+	await expect(card.getByRole('button', {name: 'Copy declares for Cats from Friday'})).toBeVisible();
+	// The longest label wraps rather than widening the page.
+	await page.setViewportSize({width: 300, height: 914});
+	expect(await page.locator('html').evaluate(html => html.scrollWidth)).toBeLessThanOrEqual(300);
+
+	// The start, Wednesday and the whole week copy every day.
+	const copiesEveryDay = async () => {
+		await expect(card.getByText('The text starts on')).toBeHidden();
+		await page.evaluate(async () => navigator.clipboard.writeText(''));
+		await card.getByRole('button', {name: 'Copy declares for Cats', exact: true}).click();
+		await expect.poll(copied).toContain('\nWednesday\n');
+		expect(await copied()).not.toContain('From ');
+	};
+
+	await card.getByRole('tab', {name: 'Start'}).click();
+	await copiesEveryDay();
+	await card.getByRole('tab', {name: 'Wednesday'}).click();
+	await copiesEveryDay();
+	await card.getByRole('button', {name: 'Whole week'}).click();
+	await copiesEveryDay();
+});
+
 test('keeps every guild button inside the plan card on narrow screens', async ({page}) => {
 	// The longest names allowed, in wide characters, and the default ones.
 	const names = ['龍龍龍龍龍龍龍龍龍', 'WWWWWWWWW', '🦊🦊🦊🦊🦊🦊🦊🦊🦊', '']

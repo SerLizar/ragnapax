@@ -420,9 +420,10 @@ export class PlannerState {
 
 	/**
 	The plan on screen as text for game or Discord chat, or only the
-	declarations of `guild`; undefined without a plan.
+	declarations of `guild`, listing the days from `from` (1 for Wednesday);
+	undefined without a plan.
 	*/
-	shareText(guild?: GuildIndex): string | undefined {
+	shareText(guild?: GuildIndex, from?: number): string | undefined {
 		const {result, timeline} = this;
 		return result && timeline && planToText({
 			map: this.map,
@@ -430,6 +431,7 @@ export class PlannerState {
 			...result.settings,
 			timeline,
 			guild,
+			from,
 		});
 	}
 
