@@ -135,7 +135,7 @@
 		</header>
 
 		{#if planner.stale && !isSolving}
-			<div class="stale" role="status">
+			<div class="notice warning" role="status">
 				<Icon name="alert" />
 				<p>{t('result.stale')}</p>
 				{#if planner.status.complete}
@@ -147,7 +147,7 @@
 		{/if}
 
 		{#if planner.timeline.violations[0]}
-			<div class="stale" role="alert">
+			<div class="notice warning" role="alert">
 				<Icon name="alert" />
 				<p>
 					{t('result.broken', {
@@ -161,7 +161,7 @@
 			</div>
 		{:else}
 			{#if planner.disturbance}
-				<div class="stale" role="status">
+				<div class="notice warning" role="status">
 					<Icon name="alert" />
 					<p>{describeDisturbance(planner.map, planner.disturbance, planner.displayNames)}</p>
 				</div>
@@ -246,28 +246,16 @@
 		height: 16px;
 	}
 
-	.stale {
-		display: flex;
+	/* Centred on the icon and the "Update" button some hold. */
+	.notice {
 		align-items: center;
-		gap: 8px;
 		margin-bottom: 16px;
-		padding: 12px;
-		border-radius: var(--radius-sm);
-		background: var(--warning-soft);
-		color: var(--warning);
-		font-weight: 600;
 		font-size: 0.9rem;
 	}
 
-	.stale p {
+	.notice p {
 		flex: 1;
 		margin: 0;
-	}
-
-	.stale > :global(svg) {
-		flex: none;
-		width: 20px;
-		height: 20px;
 	}
 
 	.body {

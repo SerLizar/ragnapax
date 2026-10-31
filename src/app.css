@@ -260,3 +260,75 @@ button:disabled {
 	color: var(--muted);
 	font-size: 0.9rem;
 }
+
+/* Chips: toggle buttons for picking one of a few things, such as a
+guild, pressed while picked. Names too long for the room are cut short. */
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	max-width: 100%;
+	min-height: 36px;
+	padding: 0 12px;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--surface);
+	font-size: 0.9rem;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.chip .name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.chip .mark {
+	flex: none;
+}
+
+.chip[aria-pressed='true'] {
+	border-color: var(--text);
+	background: var(--text);
+	color: var(--surface);
+}
+
+/* Forced colours drop backgrounds: mark the pressed one in the system's
+highlight instead. */
+@media (forced-colors: active) {
+	.chip[aria-pressed='true'] {
+		forced-color-adjust: none;
+		border-color: Highlight;
+		background: Highlight;
+		color: HighlightText;
+	}
+}
+
+/* Notices: a warning or an error inside a card, with an icon first.
+Where one sits and its text size are up to the card. */
+.notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 12px;
+	border-radius: var(--radius-sm);
+	font-weight: 600;
+}
+
+.notice > svg {
+	flex: none;
+	width: 20px;
+	height: 20px;
+}
+
+.notice.warning {
+	background: var(--warning-soft);
+	color: var(--warning);
+}
+
+.notice.danger {
+	background: var(--danger-soft);
+	color: var(--danger);
+}

@@ -51,7 +51,6 @@
 	let isAdvancedOpen = $state(
 		untrack(() => planner.targets !== undefined || planner.fewestDays || planner.inactive.length > 0),
 	);
-
 </script>
 
 <section class="card" aria-labelledby="goal-title">
@@ -133,7 +132,7 @@
 		<!-- Before the button, so it is read before anyone plans again for
 		nothing, or forgets to change the setup first. -->
 		{#if planner.isBest}
-			<p class="warning" id="{id}-best">
+			<p class="notice warning" id="{id}-best">
 				<Icon name="alert" />
 				{t(
 					isByHand
@@ -156,7 +155,7 @@
 			<p class="hint">{t('solve.needsSetup')}</p>
 		{/if}
 		{#if failure}
-			<p class="error" role="alert">
+			<p class="notice danger" role="alert">
 				<Icon name="alert" />
 				{describeFailure(failure)}
 			</p>
@@ -255,29 +254,11 @@
 		font-size: 0.9rem;
 	}
 
-	.error,
-	.warning {
-		display: flex;
-		gap: 8px;
-		align-items: flex-start;
+	.notice.danger {
 		margin: 12px 0 0;
-		padding: 12px;
-		border-radius: var(--radius-sm);
-		background: var(--danger-soft);
-		color: var(--danger);
-		font-weight: 600;
 	}
 
-	.warning {
+	.notice.warning {
 		margin: 0 0 12px;
-		background: var(--warning-soft);
-		color: var(--warning);
-	}
-
-	.error :global(svg),
-	.warning :global(svg) {
-		flex: none;
-		width: 20px;
-		height: 20px;
 	}
 </style>

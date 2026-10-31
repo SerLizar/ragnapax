@@ -129,7 +129,7 @@
 			onSelect={select}
 		/>
 		{#if check?.violations[0]}
-			<p class="error" role="alert">
+			<p class="notice danger" role="alert">
 				<Icon name="alert" />
 				{t('record.broken', {
 					problem: describeViolation(planner.map, check.violations[0], planner.displayNames),
@@ -189,7 +189,7 @@
 		{/if}
 		<!-- With the setup put away, the goal card cannot show it. -->
 		{#if failure && showProgress}
-			<p class="error" role="alert">
+			<p class="notice danger" role="alert">
 				<Icon name="alert" />
 				{describeFailure(failure)}
 			</p>
@@ -212,8 +212,7 @@
 		font-weight: 600;
 	}
 
-	.played :global(svg),
-	.error :global(svg) {
+	.played :global(svg) {
 		flex: none;
 		width: 20px;
 		height: 20px;
@@ -226,55 +225,8 @@
 		margin: 12px 0;
 	}
 
-	.chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		min-width: 0;
-		max-width: 100%;
-		min-height: 36px;
-		padding: 0 12px;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		font-size: 0.9rem;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.name {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.chip[aria-pressed='true'] {
-		border-color: var(--text);
-		background: var(--text);
-		color: var(--surface);
-	}
-
-	/* Forced colours drop backgrounds: mark the pressed one in the system's
-	highlight instead. */
-	@media (forced-colors: active) {
-		.chip[aria-pressed='true'] {
-			forced-color-adjust: none;
-			border-color: Highlight;
-			background: Highlight;
-			color: HighlightText;
-		}
-	}
-
-	.error {
-		display: flex;
-		align-items: flex-start;
-		gap: 8px;
+	.notice {
 		margin: 12px 0 0;
-		padding: 12px;
-		border-radius: var(--radius-sm);
-		background: var(--danger-soft);
-		color: var(--danger);
-		font-weight: 600;
 	}
 
 	.as-planned {

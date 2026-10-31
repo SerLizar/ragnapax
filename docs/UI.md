@@ -109,6 +109,12 @@ header (`ThemeSwitch`, state in `src/state/theme.svelte.ts`); the choice is
 saved under `ragnapax/theme` and "Match device" follows the system setting
 live.
 
+`src/app.css` also holds the few classes that several components share:
+buttons (`.btn`), cards (`.card`), chips (`.chip`, toggle buttons such as
+the guilds to focus on) and notices (`.notice` with `.warning` or
+`.danger`). Components add only where these sit and their size; every
+other style is scoped to its component.
+
 A small inline script at the top of `index.html` reads the saved choice and the
 system setting and sets `data-theme` before the first paint, so the page never
 flashes the wrong theme. That means the dark tokens exist only once, and there

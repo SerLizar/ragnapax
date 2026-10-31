@@ -102,7 +102,7 @@
 		</tbody>
 	</table>
 	{#each planner.excessTargets as excess (excess.kind)}
-		<p class="error" id="{id}-excess-{excess.kind}" role="alert">
+		<p class="notice danger" id="{id}-excess-{excess.kind}" role="alert">
 			<Icon name="alert" />
 			{t('advanced.targets.tooMany', {
 				kind: t(`score.${COLUMN[excess.kind]}Long`),
@@ -239,23 +239,9 @@ opens the options by itself. -->
 		border-color: var(--danger);
 	}
 
-	.error {
-		display: flex;
-		gap: 8px;
-		align-items: flex-start;
+	.notice {
 		margin: 0 0 8px;
-		padding: 12px;
-		border-radius: var(--radius-sm);
-		background: var(--danger-soft);
-		color: var(--danger);
 		font-size: 0.9rem;
-		font-weight: 600;
-	}
-
-	.error :global(svg) {
-		flex: none;
-		width: 20px;
-		height: 20px;
 	}
 
 	.reset {

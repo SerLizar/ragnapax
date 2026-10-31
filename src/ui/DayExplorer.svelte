@@ -257,46 +257,7 @@
 	}
 
 	.chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		min-width: 0;
 		max-width: min(14em, 100%);
-		min-height: 36px;
-		padding: 0 12px;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		font-size: 0.9rem;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.chip .name {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.chip :global(.mark) {
-		flex: none;
-	}
-
-	.chip[aria-pressed='true'] {
-		border-color: var(--text);
-		background: var(--text);
-		color: var(--surface);
-	}
-
-	/* Forced colours drop backgrounds: mark the pressed one in the system's
-	highlight instead. */
-	@media (forced-colors: active) {
-		.chip[aria-pressed='true'] {
-			forced-color-adjust: none;
-			border-color: Highlight;
-			background: Highlight;
-			color: HighlightText;
-		}
 	}
 
 	.view,
@@ -346,13 +307,13 @@
 		}
 	}
 
-	/* Today's tab, by the device's calendar. */
 	/* Longer translations may need two lines. */
 	.view button {
 		padding: 4px 8px;
 		white-space: normal;
 	}
 
+	/* Today's tab, by the device's calendar. */
 	.days .day[aria-current='date'] {
 		text-decoration: underline 2px var(--accent);
 		text-underline-offset: 4px;

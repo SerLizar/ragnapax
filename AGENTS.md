@@ -53,7 +53,7 @@ docs true" below describes, and update them in the same commit.
 | Optimisation model              | `src/solver/model.ts` (constraints) and `settings.ts` (priorities) |
 | Share link format               | `src/share/link.ts`                                                |
 | App state and actions           | `src/state/planner.svelte.ts`                                      |
-| Components and styles           | `src/ui/`, tokens in `src/app.css`                                 |
+| Components and styles           | `src/ui/`; tokens and shared classes in `src/app.css`              |
 | Interface text                  | `src/i18n/en.ts`; translations in `src/i18n/translations/`         |
 | Wording of domain data          | `src/i18n/describe.ts` (names, broken rules, link problems)        |
 | Caching and CSP                 | `src/service-worker.js`, plugins in `vite.config.ts`               |
