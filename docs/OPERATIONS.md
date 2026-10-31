@@ -178,6 +178,11 @@ each Vite major release, already older than the real baseline when released.
 Unit tests run Svelte's browser build (`resolve.conditions` under Vitest in
 `vite.config.ts`) so that `$effect` runs as in the app.
 
+Vitest runs test files in parallel but the tests in a file one after
+another, so the real solves, which take most of `npm test`, are spread over
+several test files in `src/solver/`, by what they plan. Put a new slow
+solve where it keeps them about even.
+
 Run `npm run bench` after any change to the model, the rules or a map, and
 compare times and splits with the figures above.
 

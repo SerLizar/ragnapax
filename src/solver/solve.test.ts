@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: 2026 SerLizar
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// Real solves, split over files by what they plan so that they run in
+// parallel: the goals and guilds sitting out here, the advanced options in
+// solve-advanced.test.ts, and the rest of the week in
+// solve-rest-of-week.test.ts.
+
 import loadHighs from 'highs';
 import {
 	beforeAll,
@@ -9,33 +14,22 @@ import {
 	it,
 } from 'vitest';
 import {
-	continuePlan,
-	followPlan,
 	planFromTimeline,
 	score,
 	simulate,
 	disturbances,
 	startingOwnership,
 	type GuildScore,
-	type Ownership,
 } from '../domain/plan.ts';
-import {
-	DEFAULT_SETTINGS,
-	priorities,
-	type Goal,
-	type PlanSettings,
-} from '../domain/settings.ts';
+import type {Goal} from '../domain/settings.ts';
 import {
 	DAYS,
-	GUILDS,
 	POINTS,
 	KINGDOM_KINDS,
 	TOWNS_PER_GUILD,
-	type Holdings,
 } from '../domain/types.ts';
-import {DEFAULT_MAP as map, MAPS} from '../maps/index.ts';
+import {DEFAULT_MAP as map} from '../maps/index.ts';
 import {FLOATING_CITY_START} from '../test/fixtures.ts';
-import {randomStart} from '../test/random.ts';
 import {solvePlanningProblem} from './solve.ts';
 
 let highs: Awaited<ReturnType<typeof loadHighs>>;
@@ -152,49 +146,6 @@ describe.each<Goal>(['points', 'resources'])('solving for equal %s', goal => {
 	});
 });
 
-describe.each<Goal>(['points', 'resources'])('declaring on the fewest days, for equal %s', goal => {
-	const start = startingOwnership(map, FLOATING_CITY_START);
-
-	// Polishing is a search, so a plan made from scratch may come out with
-	// more days than the usual one. Started from the usual plan, it can only
-	// improve on it.
-	it('keeps every priority and never asks for more days with declares', () => {
-		const solve = (isFewestDays: boolean, hint?: Ownership[]) => {
-			const outcome = solvePlanningProblem(highs, {
-				map, start, goal, fillMap: false, castleLast: false, inactive: [], fewestDays: isFewestDays,
-			}, {hint});
-			expect(outcome.kind === 'solved' && outcome.quality).not.toBe('unproven');
-			if (outcome.kind !== 'solved') {
-				throw new Error('no plan');
-			}
-
-			const plan = planFromTimeline(map, outcome.owners);
-			const timeline = simulate(map, start, plan);
-			expect(timeline.violations).toEqual([]);
-			return {
-				owners: outcome.owners,
-				scores: score(map, timeline),
-				days: plan.declarations.flat().filter(targets => targets.length > 0).length,
-			};
-		};
-
-		const usual = solve(false);
-		const fewest = solve(true, usual.owners);
-		// What the priorities measure: each gap, and everyone's points together.
-		const ranked = (scores: readonly GuildScore[]) =>
-			priorities({...DEFAULT_SETTINGS, goal}).map(c => {
-				if (c.kind === 'total') {
-					return scores.reduce((sum, s) => sum + s.points, 0);
-				}
-
-				const values = scores.map(s => (c.measure === 'points' ? s.points : s.held[c.measure]));
-				return Math.max(...values) - Math.min(...values);
-			});
-		expect(ranked(fewest.scores)).toEqual(ranked(usual.scores));
-		expect(fewest.days).toBeLessThanOrEqual(usual.days);
-	});
-});
-
 describe.each<Goal>(['points', 'resources'])('with a guild sitting out, for equal %s', goal => {
 	const start = startingOwnership(map, FLOATING_CITY_START);
 	const spread = (scores: readonly GuildScore[], f: (s: GuildScore) => number) =>
@@ -239,192 +190,6 @@ describe.each<Goal>(['points', 'resources'])('with a guild sitting out, for equa
 		for (let g = 0; g + 1 < playing.length; g++) {
 			expect(playing[g]!.points).toBeGreaterThanOrEqual(playing[g + 1]!.points);
 			expect(playing[g]!.held.castle).toBeLessThanOrEqual(playing[g + 1]!.held.castle);
-		}
-	});
-});
-
-describe('holdings set by hand', () => {
-	const start = startingOwnership(map, FLOATING_CITY_START);
-	// Tie-breakers are not checked, so these stop polishing once proven.
-	const solve = (settings: PlanSettings) => {
-		const outcome = solvePlanningProblem(highs, {map, start, ...settings}, {polishSeconds: 0});
-		expect(outcome.kind === 'solved' && outcome.quality).not.toBe('unproven');
-		if (outcome.kind !== 'solved') {
-			throw new Error('no plan');
-		}
-
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
-		expect(timeline.violations).toEqual([]);
-		return score(map, timeline).map(s => s.held);
-	};
-
-	// The defaults when holdings are set by hand.
-	it.each(MAPS)('start from the fair holdings of $id, as equal resources makes them', other => {
-		const opening = startingOwnership(other, randomStart(other, 1));
-		const outcome = solvePlanningProblem(highs, {map: other, start: opening, ...DEFAULT_SETTINGS}, {
-			polishSeconds: 0,
-		});
-		if (outcome.kind !== 'solved') {
-			throw new Error('no plan');
-		}
-
-		const scores = score(other, simulate(other, opening, planFromTimeline(other, outcome.owners)));
-		expect(scores.map(s => s.held)).toEqual(GUILDS.map(() => other.fairHoldings));
-	});
-
-	it('gets uneven holdings exactly when a plan can', () => {
-		// Holdings a plan has, uneven since it uses every kingdom.
-		const targets = solve({...DEFAULT_SETTINGS, fillMap: true});
-		expect(new Set(targets.map(held => JSON.stringify(held))).size).toBeGreaterThan(1);
-		expect(solve({...DEFAULT_SETTINGS, targets})).toEqual(targets);
-	});
-
-	it('comes as close as it can to holdings no plan can reach', () => {
-		// The castle every day for everyone, and nothing else.
-		const targets: Holdings[] = GUILDS.map(() => ({town: 0, dormitory: 0, castle: DAYS}));
-		const held = solve({...DEFAULT_SETTINGS, targets});
-		const sum = (holdings: readonly Holdings[], kind: keyof Holdings) =>
-			holdings.reduce((total, h) => total + h[kind], 0);
-		// The castle held on more days than when shared out, though dorms on
-		// the way to it count against the plan, and no more towns than the
-		// starting ones.
-		expect(sum(held, 'castle')).toBeGreaterThan(GUILDS.length * map.fairHoldings.castle);
-		expect(held.every(h => h.town <= DAYS * TOWNS_PER_GUILD)).toBe(true);
-	});
-
-	it('leaves guilds sitting out what they hold, whatever is set for them', () => {
-		const targets: Holdings[] = GUILDS.map(() => map.fairHoldings);
-		const held = solve({...DEFAULT_SETTINGS, inactive: [2], targets});
-		expect(held[2]).toEqual({town: DAYS * TOWNS_PER_GUILD, dormitory: 0, castle: 0});
-		expect(held.filter((_, g) => g !== 2)).toEqual([0, 1, 3].map(() => map.fairHoldings));
-	});
-});
-
-describe('planning the rest of the week', () => {
-	const idx = (id: string) => map.indexOf(id)!;
-	const start = startingOwnership(map, FLOATING_CITY_START);
-	// Wednesday went one guild's way: it took two dorms, the others nothing.
-	const wednesday = followPlan(map, start, [[idx('Vagastrom'), idx('Dionysia')], [], [], []]);
-
-	it('keeps the days played and evens points out over the whole week', () => {
-		const outcome = solvePlanningProblem(highs, {
-			map,
-			start,
-			played: [wednesday],
-			goal: 'points',
-			fillMap: false,
-			castleLast: false,
-			inactive: [],
-			fewestDays: false,
-		});
-		expect(outcome.kind).toBe('solved');
-		if (outcome.kind !== 'solved') {
-			return;
-		}
-
-		expect(outcome.quality).not.toBe('unproven');
-		expect(outcome.owners.slice(0, 2)).toEqual([start, wednesday]);
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
-		expect(timeline.violations).toEqual([]);
-		const points = score(map, timeline).map(s => s.points);
-		expect(Math.max(...points) - Math.min(...points)).toBe(0);
-	});
-
-	it('leaves a guild that sits out after a day played with what it took', () => {
-		const outcome = solvePlanningProblem(highs, {
-			map,
-			start,
-			played: [wednesday],
-			goal: 'points',
-			fillMap: false,
-			castleLast: false,
-			inactive: [0],
-			fewestDays: false,
-		}, {polishSeconds: 0});
-		if (outcome.kind !== 'solved') {
-			throw new Error('no plan');
-		}
-
-		expect(outcome.owners.slice(1).every(owners => owners[idx('Vagastrom')] === 0 && owners[idx('Dionysia')] === 0)).toBe(true);
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
-		expect(disturbances(timeline, [0], 2)).toEqual([]);
-		const points = score(map, timeline).slice(1).map(s => s.points);
-		expect(Math.max(...points) - Math.min(...points)).toBe(0);
-	});
-
-	it('starts from a week it is given, if the rules allow it', () => {
-		const first = solvePlanningProblem(highs, {
-			map, start, goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false,
-		}, {polishSeconds: 0});
-		if (first.kind !== 'solved') {
-			throw new Error('no plan');
-		}
-
-		const hint = continuePlan(map, [start, wednesday], planFromTimeline(map, first.owners));
-		const found: Ownership[][] = [];
-		const outcome = solvePlanningProblem(
-			highs,
-			{
-				map, start, played: [wednesday], goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false,
-			},
-			{
-				hint,
-				polishSeconds: 0,
-				onImprovement(owners) {
-					found.push(owners);
-				},
-			},
-		);
-		expect(found[0]).toEqual(hint);
-		expect(outcome.kind === 'solved' && outcome.quality).not.toBe('unproven');
-	});
-
-	it('ignores a week it is given that breaks the rules', () => {
-		// A guild with nothing next to the castle holds it from Thursday on.
-		const castle = map.kingdoms[idx('Darkwick')]!;
-		const far = GUILDS.find(g => castle.neighbors.every(n => wednesday[n] !== g))!;
-		const hint = continuePlan(map, [start, wednesday], {declarations: []})
-			.map((owners, d) => (d < 2 ? owners : owners.map((o, t) => (t === castle.index ? far : o))));
-		expect(simulate(map, start, planFromTimeline(map, hint)).violations).not.toEqual([]);
-		const found: Ownership[][] = [];
-		const outcome = solvePlanningProblem(
-			highs,
-			{
-				map, start, played: [wednesday], goal: 'points', fillMap: false, castleLast: false, inactive: [], fewestDays: false,
-			},
-			{
-				hint,
-				polishSeconds: 0,
-				onImprovement(owners) {
-					found.push(owners);
-				},
-			},
-		);
-		expect(found).not.toContainEqual(hint);
-		if (outcome.kind !== 'solved') {
-			throw new Error('no plan');
-		}
-
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
-		expect(timeline.violations).toEqual([]);
-		const points = score(map, timeline).map(s => s.points);
-		expect(Math.max(...points) - Math.min(...points)).toBe(0);
-	});
-
-	it('can still use every kingdom, without a guild order it may no longer meet', () => {
-		const outcome = solvePlanningProblem(highs, {
-			map,
-			start,
-			played: [wednesday],
-			goal: 'resources',
-			fillMap: true,
-			castleLast: false,
-			inactive: [],
-			fewestDays: false,
-		});
-		expect(outcome.kind).toBe('solved');
-		if (outcome.kind === 'solved') {
-			expect(outcome.owners[1]).toEqual(wednesday);
 		}
 	});
 });

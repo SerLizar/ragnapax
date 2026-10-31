@@ -199,7 +199,7 @@ warning on the plan (`PlannerState.disturbance`).
 guild's town-, dorm- and castle-days over the week, typed in, for groups
 that have agreed on shares of their own. Turning it on starts every guild
 from the map's `fairHoldings`, which the solver gives from almost every
-opening for equal resources (`solve.test.ts` checks one opening per map):
+opening for equal resources (`solve-advanced.test.ts` checks one opening per map):
 on the benchmark, every Floating City and Sea of Poseidon opening, and all
 but one Galaxy Terminal opening, which had a dorm-day less. The holdings
 are soft rather than hard constraints, so holdings no plan can reach, such
