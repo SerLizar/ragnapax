@@ -52,7 +52,7 @@ describe('planning the rest of the week', () => {
 
 		expect(outcome.quality).not.toBe('unproven');
 		expect(outcome.owners.slice(0, 2)).toEqual([start, wednesday]);
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(timeline.violations).toEqual([]);
 		const points = score(map, timeline).map(s => s.points);
 		expect(Math.max(...points) - Math.min(...points)).toBe(0);
@@ -74,7 +74,7 @@ describe('planning the rest of the week', () => {
 		}
 
 		expect(outcome.owners.slice(1).every(owners => owners[idx('Vagastrom')] === 0 && owners[idx('Dionysia')] === 0)).toBe(true);
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(disturbances(timeline, [0], 2)).toEqual([]);
 		const points = score(map, timeline).slice(1).map(s => s.points);
 		expect(Math.max(...points) - Math.min(...points)).toBe(0);
@@ -88,7 +88,7 @@ describe('planning the rest of the week', () => {
 			throw new Error('no plan');
 		}
 
-		const hint = continuePlan(map, [start, wednesday], planFromTimeline(map, first.owners));
+		const hint = continuePlan(map, [start, wednesday], planFromTimeline(first.owners));
 		const found: Ownership[][] = [];
 		const outcome = solvePlanningProblem(
 			highs,
@@ -113,7 +113,7 @@ describe('planning the rest of the week', () => {
 		const far = GUILDS.find(g => castle.neighbors.every(n => wednesday[n] !== g))!;
 		const hint = continuePlan(map, [start, wednesday], {declarations: []})
 			.map((owners, d) => (d < 2 ? owners : owners.map((o, t) => (t === castle.index ? far : o))));
-		expect(simulate(map, start, planFromTimeline(map, hint)).violations).not.toEqual([]);
+		expect(simulate(map, start, planFromTimeline(hint)).violations).not.toEqual([]);
 		const found: Ownership[][] = [];
 		const outcome = solvePlanningProblem(
 			highs,
@@ -133,7 +133,7 @@ describe('planning the rest of the week', () => {
 			throw new Error('no plan');
 		}
 
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(timeline.violations).toEqual([]);
 		const points = score(map, timeline).map(s => s.points);
 		expect(Math.max(...points) - Math.min(...points)).toBe(0);

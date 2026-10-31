@@ -54,7 +54,7 @@ describe.each<Goal>(['points', 'resources'])('declaring on the fewest days, for 
 				throw new Error('no plan');
 			}
 
-			const plan = planFromTimeline(map, outcome.owners);
+			const plan = planFromTimeline(outcome.owners);
 			const timeline = simulate(map, start, plan);
 			expect(timeline.violations).toEqual([]);
 			return {
@@ -91,7 +91,7 @@ describe('holdings set by hand', () => {
 			throw new Error('no plan');
 		}
 
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(timeline.violations).toEqual([]);
 		return score(map, timeline).map(s => s.held);
 	};
@@ -106,7 +106,7 @@ describe('holdings set by hand', () => {
 			throw new Error('no plan');
 		}
 
-		const scores = score(other, simulate(other, opening, planFromTimeline(other, outcome.owners)));
+		const scores = score(other, simulate(other, opening, planFromTimeline(outcome.owners)));
 		expect(scores.map(s => s.held)).toEqual(GUILDS.map(() => other.fairHoldings));
 	});
 

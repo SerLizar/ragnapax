@@ -588,7 +588,7 @@ export class PlannerState {
 			return;
 		}
 
-		const {declarations} = planFromTimeline(this.map, plannedWeek.slice(nextDay - 1, lastDay + 1));
+		const {declarations} = planFromTimeline(plannedWeek.slice(nextDay - 1, lastDay + 1));
 		this.played = [...this.played, ...declarations];
 	}
 
@@ -705,7 +705,7 @@ export class PlannerState {
 				mapId: map.id, start, played: history.slice(1), settings, hint,
 			},
 			(owners, quality: PlanQuality) => {
-				const plan = planFromTimeline(map, owners);
+				const plan = planFromTimeline(owners);
 				const timeline = simulate(map, start, plan);
 				const [violation] = timeline.violations;
 				if (violation) {

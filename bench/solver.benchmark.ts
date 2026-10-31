@@ -106,7 +106,7 @@ it('solves every map quickly and fairly', async () => {
 				);
 				assert(outcome.kind === 'solved', `no plan: ${outcome.kind}`);
 
-				const plan = planFromTimeline(map, outcome.owners);
+				const plan = planFromTimeline(outcome.owners);
 				const timeline = simulate(map, start, plan);
 				expect(timeline.violations).toEqual([]);
 				expect(disturbances(timeline, settings.inactive)).toEqual([]);
@@ -135,7 +135,7 @@ it('solves every map quickly and fairly', async () => {
 					},
 				});
 				assert(replan.kind === 'solved', `no plan again: ${replan.kind}`);
-				expect(simulate(map, start, planFromTimeline(map, replan.owners)).violations).toEqual([]);
+				expect(simulate(map, start, planFromTimeline(replan.owners)).violations).toEqual([]);
 
 				const split = (f: (s: (typeof scores)[number]) => number) =>
 					scores.map(s => f(s)).join('/');

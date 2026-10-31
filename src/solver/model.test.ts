@@ -79,7 +79,7 @@ function isLegal(
 	played: number,
 	inactive: readonly GuildIndex[],
 ): boolean {
-	const timeline = simulate(map, owners[0]!, planFromTimeline(map, owners));
+	const timeline = simulate(map, owners[0]!, planFromTimeline(owners));
 	return timeline.violations.length === 0
 		&& disturbances(timeline, inactive, played + 1).length === 0
 		&& timeline.owners.every((day, d) => day.every((owner, t) => owner === owners[d]![t]));

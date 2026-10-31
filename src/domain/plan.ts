@@ -360,6 +360,7 @@ export function score(map: GameMap, timeline: Timeline): GuildScore[] {
 		const pointsByDay: number[] = [];
 		let declarations = 0;
 		for (let day = 1; day < timeline.owners.length; day++) {
+			const before = timeline.owners[day - 1]!;
 			let points = 0;
 			for (const [t, owner] of timeline.owners[day]!.entries()) {
 				if (owner !== g) {
@@ -369,10 +370,13 @@ export function score(map: GameMap, timeline: Timeline): GuildScore[] {
 				const {kind} = map.kingdoms[t]!;
 				held[kind]++;
 				points += POINTS[kind];
+				// Taken today, as `capturesOn` counts it.
+				if (before[t] !== g) {
+					declarations++;
+				}
 			}
 
 			pointsByDay.push(points);
-			declarations += capturesOn(timeline, day).filter(c => c.guild === g).length;
 		}
 
 		return {
@@ -440,14 +444,14 @@ export function dayBetween(
 	after: Ownership,
 	day: number,
 ): {readonly declarations: DayDeclarations; readonly violations: readonly Violation[]} {
-	const declarations = planFromTimeline(map, [before, after]).declarations[0] ?? [];
+	const declarations = planFromTimeline([before, after]).declarations[0] ?? [];
 	return {declarations, violations: replay(map, before, [declarations], day).violations};
 }
 
 /**
 Builds a plan from a timeline by diffing consecutive days.
 */
-export function planFromTimeline(map: GameMap, owners: readonly Ownership[]): Plan {
+export function planFromTimeline(owners: readonly Ownership[]): Plan {
 	const declarations: KingdomIndex[][][] = [];
 	for (let day = 1; day < owners.length; day++) {
 		const today: KingdomIndex[][] = GUILDS.map(() => []);

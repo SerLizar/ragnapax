@@ -66,7 +66,7 @@ describe.each<Goal>(['points', 'resources'])('solving for equal %s', goal => {
 			expect(reports).toContain(true);
 		}
 
-		const plan = planFromTimeline(map, outcome.owners);
+		const plan = planFromTimeline(outcome.owners);
 		const timeline = simulate(map, start, plan);
 		expect(timeline.violations).toEqual([]);
 		expect(timeline.owners).toEqual(outcome.owners);
@@ -100,7 +100,7 @@ describe.each<Goal>(['points', 'resources'])('solving for equal %s', goal => {
 		}
 
 		const scoresOf = (owners: typeof full.owners) =>
-			score(map, simulate(map, start, planFromTimeline(map, owners)));
+			score(map, simulate(map, start, planFromTimeline(owners)));
 		const total = (owners: typeof full.owners) =>
 			scoresOf(owners).reduce((sum, s) => sum + s.points, 0);
 		expect(total(full.owners)).toBeGreaterThan(total(fair.owners));
@@ -135,7 +135,7 @@ describe.each<Goal>(['points', 'resources'])('solving for equal %s', goal => {
 			throw new Error('no plan');
 		}
 
-		const scores = score(map, simulate(map, start, planFromTimeline(map, outcome.owners)));
+		const scores = score(map, simulate(map, start, planFromTimeline(outcome.owners)));
 		for (let g = 0; g + 1 < scores.length; g++) {
 			expect(scores[g]!.points).toBeGreaterThanOrEqual(scores[g + 1]!.points);
 			expect(scores[g]!.held.castle).toBeLessThanOrEqual(scores[g + 1]!.held.castle);
@@ -161,7 +161,7 @@ describe.each<Goal>(['points', 'resources'])('with a guild sitting out, for equa
 			throw new Error('no plan');
 		}
 
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(timeline.violations).toEqual([]);
 		expect(disturbances(timeline, [3])).toEqual([]);
 		const scores = score(map, timeline);
@@ -183,7 +183,7 @@ describe.each<Goal>(['points', 'resources'])('with a guild sitting out, for equa
 			throw new Error('no plan');
 		}
 
-		const timeline = simulate(map, start, planFromTimeline(map, outcome.owners));
+		const timeline = simulate(map, start, planFromTimeline(outcome.owners));
 		expect(disturbances(timeline, [1])).toEqual([]);
 		const scores = score(map, timeline);
 		const playing = [scores[0]!, scores[2]!, scores[3]!];

@@ -110,7 +110,7 @@ describe('simulate', () => {
 		day1[2] = [idx('Hotarubi'), idx('Jabberwock')];
 		const plan = planWith(day1);
 		const timeline = simulate(map, start, plan);
-		expect(planFromTimeline(map, timeline.owners)).toEqual(plan);
+		expect(planFromTimeline(timeline.owners)).toEqual(plan);
 	});
 });
 
@@ -167,7 +167,7 @@ describe('continuePlan', () => {
 		expect(owners[1]).toEqual(wednesday);
 		// Without Vagastrom, guild 1 cannot reach the castle on Thursday.
 		expect(owners[2]![idx('Darkwick')]).toBe(VACANT);
-		const {violations} = simulate(map, start, planFromTimeline(map, owners));
+		const {violations} = simulate(map, start, planFromTimeline(owners));
 		expect(violations).toEqual([]);
 	});
 });
@@ -238,5 +238,13 @@ describe('score', () => {
 			declarations: 1,
 		});
 		expect(scores[1]!.points).toBe(24);
+	});
+
+	it('counts a declaration for every kingdom taken, from Vacant or from a rival', () => {
+		const plan = {
+			declarations: [[[idx('Vagastrom')], [], [], []], [[], [idx('Vagastrom')], [], []], ...Array.from({length: 4}, idle)],
+		};
+		const scores = score(map, simulate(map, start, plan));
+		expect(scores.map(s => s.declarations)).toEqual([1, 1, 0, 0]);
 	});
 });
