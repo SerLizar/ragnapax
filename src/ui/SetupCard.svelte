@@ -153,7 +153,7 @@
 						style:--guild={owner === undefined ? undefined : guildStyle(owner).fill}
 					>
 						<!-- Shows the outline as well as the colour; the list names the guild. -->
-						{#if owner !== undefined}<GuildMark guild={owner} size={24} />{/if}
+						{#if owner !== undefined}<GuildMark guild={owner} />{/if}
 						<select
 							id="{id}-{town.id}"
 							value={owner ?? ''}

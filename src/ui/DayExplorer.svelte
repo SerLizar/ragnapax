@@ -148,7 +148,7 @@
 				aria-pressed={focus === g}
 				onclick={() => (focus = focus === g ? undefined : g)}
 			>
-				<GuildMark guild={g} size={16} /><span class="name">{name}</span>
+				<GuildMark guild={g} /><span class="name">{name}</span>
 			</button>
 		{/each}
 	</div>
@@ -218,7 +218,7 @@
 						{@const mine = captures.filter(c => c.guild === g)}
 						<li style:--guild={guildStyle(g).fill}>
 							<div class="who">
-								<GuildMark guild={g} size={16} />
+								<GuildMark guild={g} />
 								<strong>{guildNames[g]}</strong>
 								<span class="pts" title={t('days.pointsTitle')}>
 									{t('days.points', {

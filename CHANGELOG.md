@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.8.1 - 2026-10-30
+
+### Changed
+
+- The round marks that show each guild's colour and outline beside its name
+  are bigger, so the outlines are easier to tell apart: in the score table,
+  the guild buttons, the day's declares, the whole week and the advanced
+  options. The guild buttons are a little taller to fit them.
+
 ## 1.8.0 - 2026-10-30
 
 ### Changed

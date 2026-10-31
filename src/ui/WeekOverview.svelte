@@ -58,7 +58,7 @@
 				{#each guilds as g (g)}
 					<li style:--guild={guildStyle(g).fill}>
 						<span class="who">
-							<GuildMark guild={g} size={16} />
+							<GuildMark guild={g} />
 							<strong>{guildNames[g]}</strong>
 						</span>
 						<Declares {map} captures={captures.filter(c => c.guild === g)} {guildNames} />

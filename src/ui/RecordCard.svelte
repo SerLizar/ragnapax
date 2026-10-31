@@ -115,7 +115,7 @@
 					aria-label={t('record.assign', {guild: planner.displayNames[g]!})}
 					onclick={() => (brush = g)}
 				>
-					<GuildMark guild={g} size={16} /><span class="name">{planner.displayNames[g]}</span>
+					<GuildMark guild={g} /><span class="name">{planner.displayNames[g]}</span>
 				</button>
 			{/each}
 		</div>

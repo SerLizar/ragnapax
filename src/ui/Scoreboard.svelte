@@ -134,7 +134,7 @@ since few read an abbreviation's title. -->
 				<tr>
 					<th scope="row" class="name">
 						<span class="who">
-							<GuildMark guild={g} size={16} />
+							<GuildMark guild={g} />
 							<span class="text">
 								{guildNames[g]}
 								{#if settings.inactive.includes(g)}

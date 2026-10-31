@@ -67,7 +67,7 @@
 				<tr>
 					<th scope="row" class="name">
 						<span class="who">
-							<GuildMark guild={g} size={16} />
+							<GuildMark guild={g} />
 							<span class="text">
 								{name}
 								{#if isOut}
@@ -134,7 +134,7 @@
 			onchange={isOn => planner.setSittingOut(g, isOn)}
 		>
 			{#snippet title()}
-				<span class="guild"><GuildMark guild={g} size={16} /> {name}</span>
+				<span class="guild"><GuildMark guild={g} /> {name}</span>
 			{/snippet}
 		</Switch>
 	{/each}

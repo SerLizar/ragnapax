@@ -38,7 +38,7 @@
 				<span class="target {kingdom.kind}">{kingdomName(kingdom)}</span>
 				{#if c.from !== VACANT}
 					<span class="from">
-						{from[0]}<GuildMark guild={c.from} size={12} />{guildNames[c.from]}{from[1]}
+						{from[0]}<GuildMark guild={c.from} size={16} />{guildNames[c.from]}{from[1]}
 					</span>
 				{/if}
 			</li>
@@ -88,9 +88,10 @@
 		font-size: 0.8rem;
 	}
 
+	/* In line with the guild's name, after its mark and the gap. */
 	.none {
 		margin-block: 4px 0;
-		margin-inline: 24px 0;
+		margin-inline: 32px 0;
 		color: var(--muted);
 		font-size: 0.9rem;
 	}

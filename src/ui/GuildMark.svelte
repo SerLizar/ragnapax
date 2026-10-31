@@ -23,7 +23,7 @@
 		*/
 		children?: Snippet;
 	}
-	let {guild, size = 14, children}: Props = $props();
+	let {guild, size = 24, children}: Props = $props();
 
 	const style = $derived(guildStyle(guild));
 	const R = 7.4;

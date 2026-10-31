@@ -269,7 +269,8 @@ guild, pressed while picked. Names too long for the room are cut short. */
 	gap: 8px;
 	min-width: 0;
 	max-width: 100%;
-	min-height: 36px;
+	/* 8 px above and below the guild mark. */
+	min-height: 40px;
 	padding: 0 12px;
 	border: 1px solid var(--border);
 	border-radius: 999px;
