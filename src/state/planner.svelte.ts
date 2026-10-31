@@ -40,7 +40,7 @@ import {
 	ShareLinkError,
 	type SharedPlan,
 } from '../share/link.ts';
-import {planToText} from '../share/text.ts';
+import {planToText, type PlanTextOptions} from '../share/text.ts';
 import {defaultGuildName} from '../i18n/describe.ts';
 import type {SolverClient} from '../solver/client.ts';
 import type {PlanQuality} from '../solver/solve.ts';
@@ -423,7 +423,7 @@ export class PlannerState {
 	declarations of `guild`, listing the days from `from` (1 for Wednesday);
 	undefined without a plan.
 	*/
-	shareText(guild?: GuildIndex, from?: number): string | undefined {
+	shareText({guild, from}: Pick<PlanTextOptions, 'guild' | 'from'> = {}): string | undefined {
 		const {result, timeline} = this;
 		return result && timeline && planToText({
 			map: this.map,

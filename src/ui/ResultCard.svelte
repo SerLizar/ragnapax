@@ -12,23 +12,19 @@
 	} from '../i18n/describe.ts';
 	import {t, weekday} from '../i18n/i18n.svelte.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
-	import DayExplorer from './DayExplorer.svelte';
+	import DayExplorer, {type ExplorerView} from './DayExplorer.svelte';
 	import {RESULT_TITLE} from './focus.ts';
 	import Icon from './Icon.svelte';
 	import Scoreboard from './Scoreboard.svelte';
 
 	let {planner}: {planner: PlannerState} = $props();
+	const id = $props.id();
 
+	// What the plan shows, which the copy action follows.
 	let focus = $state<GuildIndex | undefined>();
-	let view = $state<'day' | 'week'>('day');
+	let view = $state<ExplorerView>('day');
 	// Players mostly look during the week for that day's declares.
 	let day = $state(currentDay(new Date()));
-	/**
-	The first day the copied text lists: the day picked, as the days before
-	it are history by then, or Wednesday on the start or the whole week.
-	*/
-	const from = $derived(view === 'day' ? Math.max(day, 1) : 1);
-	const fromDay = $derived(weekday(from, 'long'));
 	let toast = $state<string | undefined>();
 	let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -84,32 +80,34 @@
 		await copy(url, t('result.linkCopied'));
 	}
 
-	// The copy button and its toast name the first day when it is not Wednesday.
-	const copyLabel = $derived.by(() => {
+	/**
+	The first day the copied text lists: the day picked, as the days before
+	it are history by then, or Wednesday on the start or the whole week.
+	*/
+	const from = $derived(view === 'day' ? Math.max(day, 1) : 1);
+	const fromDay = $derived(weekday(from, 'long'));
+	// The copy button and its toast name the guild picked, and the first day
+	// unless it is Wednesday.
+	const copyWording = $derived.by(() => {
 		const guild = focus === undefined ? undefined : planner.displayNames[focus]!;
 		if (from > 1) {
 			return guild === undefined
-				? t('result.copyFrom', {day: fromDay})
-				: t('result.copyDeclaresFrom', {guild, day: fromDay});
+				? {label: t('result.copyFrom', {day: fromDay}), done: t('result.planCopiedFrom', {day: fromDay})}
+				: {
+					label: t('result.copyDeclaresFrom', {guild, day: fromDay}),
+					done: t('result.declaresCopiedFrom', {guild, day: fromDay}),
+				};
 		}
 
-		return guild === undefined ? t('result.copy') : t('result.copyDeclares', {guild});
-	});
-	const copiedMessage = $derived.by(() => {
-		const guild = focus === undefined ? undefined : planner.displayNames[focus]!;
-		if (from > 1) {
-			return guild === undefined
-				? t('result.planCopiedFrom', {day: fromDay})
-				: t('result.declaresCopiedFrom', {guild, day: fromDay});
-		}
-
-		return guild === undefined ? t('result.planCopied') : t('result.declaresCopied', {guild});
+		return guild === undefined
+			? {label: t('result.copy'), done: t('result.planCopied')}
+			: {label: t('result.copyDeclares', {guild}), done: t('result.declaresCopied', {guild})};
 	});
 
 	function copyText() {
-		const text = planner.shareText(focus, from);
+		const text = planner.shareText({guild: focus, from});
 		if (text !== undefined) {
-			copy(text, copiedMessage);
+			copy(text, copyWording.done);
 		}
 	}
 </script>
@@ -192,13 +190,18 @@
 					<Icon name="share" />
 					{t('result.share')}
 				</button>
-				<button class="btn" onclick={copyText} disabled={planner.stale || isSolving}>
+				<button
+					class="btn"
+					onclick={copyText}
+					disabled={planner.stale || isSolving}
+					aria-describedby={from > 1 ? `${id}-copy-from` : undefined}
+				>
 					<Icon name="copy" />
-					{copyLabel}
+					{copyWording.label}
 				</button>
 			</div>
 			{#if from > 1}
-				<p class="hint">{t('result.copyFromHint', {day: fromDay})}</p>
+				<p class="hint" id="{id}-copy-from">{t('result.copyFromHint', {day: fromDay})}</p>
 			{/if}
 		{/if}
 

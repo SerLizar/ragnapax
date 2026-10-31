@@ -1,6 +1,13 @@
 <!-- SPDX-FileCopyrightText: 2026 SerLizar -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 
+<script lang="ts" module>
+	/**
+	A day at a time on the map, or every day's declares in one list.
+	*/
+	export type ExplorerView = 'day' | 'week';
+</script>
+
 <script lang="ts">
 	import {dayOfRagnarok} from '../domain/calendar.ts';
 	import type {GameMap} from '../domain/map.ts';
@@ -34,10 +41,9 @@
 		*/
 		focus: GuildIndex | undefined;
 		/**
-		A day at a time on the map, or every day's declares in one list; shared
-		with the copy action, as is `day`.
+		The view shown, shared with the copy action, as is `day`.
 		*/
-		view: 'day' | 'week';
+		view: ExplorerView;
 		/**
 		The day shown in the day view, 0 for the start.
 		*/
@@ -56,13 +62,12 @@
 	}: Props = $props();
 	const id = $props.id();
 
-	const opened = new Date();
 	/**
 	Which day is today, marked as such. Players switch to the game and back,
 	and a tab can stay open for days, so it is rechecked whenever the page
 	comes back into view; the day being looked at stays put.
 	*/
-	let today = $state(dayOfRagnarok(opened));
+	let today = $state(dayOfRagnarok(new Date()));
 	$effect(() => {
 		const recheck = () => {
 			if (document.visibilityState === 'visible') {
