@@ -31,7 +31,7 @@ export const MARKER = {
 	/**
 	Size of the castle's keep.
 	*/
-	castle: 6.2,
+	castle: 7,
 } as const satisfies Record<KingdomKind, number>;
 
 /**

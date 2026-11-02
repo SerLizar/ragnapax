@@ -4,6 +4,9 @@
 import {readFileSync} from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import {expect, test, type Page} from '@playwright/test';
+import type {Translation} from '../src/i18n/catalogue.ts';
+import en from '../src/i18n/en.ts';
+import {LOCALES, SOURCE_LOCALE} from '../src/i18n/locales.ts';
 import {dayInWeekOf} from '../src/test/fixtures.ts';
 
 /**
@@ -684,14 +687,26 @@ test('keeps to its own site, with no cookies, storing only its own keys', async 
 	expect(keys.filter(key => !key.startsWith('ragnapax/'))).toEqual([]);
 });
 
-test.describe('on a phone set to French', () => {
-	test.use({locale: 'fr-FR'});
+// A phone set to each language the game offers. Each follows locales.ts, so
+// it holds before and after the language is marked ready, when
+// catalogues.test.ts makes sure every message is there.
+for (const {code, english, ready} of LOCALES) {
+	if (code === SOURCE_LOCALE) {
+		continue;
+	}
 
-	test('stays in English until the French translation is finished', async ({page}) => {
-		await page.goto('/');
-		await expect(page.getByRole('heading', {name: 'Starting towns'})).toBeVisible();
-		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-		// Only finished languages are offered, and so far that is English alone.
-		await expect(page.getByRole('combobox', {name: 'Language'})).toHaveCount(0);
+	test.describe(`on a phone set to ${english}`, () => {
+		test.use({locale: code});
+
+		test(ready ? `opens in ${english}` : `stays in English until the ${english} translation is finished`, async ({page}) => {
+			const own = (await import(`../src/i18n/translations/${code}.ts`) as {default: Translation}).default;
+			const text = (key: 'setup.title' | 'header.language') => (ready ? own[key] as string : en[key]);
+			await page.goto('/');
+			await expect(page.getByRole('heading', {name: text('setup.title')})).toBeVisible();
+			await expect(page.locator('html')).toHaveAttribute('lang', ready ? code : SOURCE_LOCALE);
+			// Only finished languages are offered, and a picker needs two of them.
+			const offered = LOCALES.filter(l => l.ready).length;
+			await expect(page.getByRole('combobox', {name: text('header.language')})).toHaveCount(offered > 1 ? 1 : 0);
+		});
 	});
-});
+}

@@ -180,8 +180,8 @@ are not needed.
 ### Names on the map
 
 Names drawn inside markers must fit. Keep dorm short names (`dorm.*.short`)
-and the castle's short name (`castle.short`) to about 6 Latin letters, or 3
-Chinese, Japanese or Korean characters. Full dorm names appear on wide screens
+to about 6 Latin letters, and the castle's short name (`castle.short`) to 7,
+or either to 3 Chinese, Japanese or Korean characters. Full dorm names appear on wide screens
 when there is room; the drawing switches to short names when there is not.
 The tests lay out every map in every language and fail if a name makes
 markers overlap.

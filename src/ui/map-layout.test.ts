@@ -148,6 +148,16 @@ describe.each(LOCALES)('drawing in $english', ({code}) => {
 	});
 });
 
+// Translators are told the castle takes 7 letters (French needs "Château"),
+// so the keep must fit that many even before any language uses them all.
+it('fits 7 letters, or 3 wide characters, inside the castle\'s keep', () => {
+	const castle = MAPS[0]!.kingdoms.find(t => t.kind === 'castle')!;
+	const [keep] = markerOf(castle, false).boxes;
+	for (const label of ['MMMMMMM', '城城城']) {
+		expect(textWidth(label, FONT.castle), label).toBeLessThan(keep!.right - keep!.left);
+	}
+});
+
 describe('moving between kingdoms with arrow keys', () => {
 	const map = MAPS.find(m => m.id === 'floating-city')!;
 	const {points} = layoutMap(map, 400);

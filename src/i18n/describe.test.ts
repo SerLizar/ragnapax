@@ -24,6 +24,9 @@ import {
 	kingdomLabel,
 	kingdomName,
 } from './describe.ts';
+import type {MessageKey, Translation} from './catalogue.ts';
+import en from './en.ts';
+import {formatMessage, placeholders} from './format.ts';
 import {
 	currentLocale,
 	list,
@@ -32,6 +35,7 @@ import {
 	t,
 	weekday,
 } from './i18n.svelte.ts';
+import {LOCALES, SOURCE_LOCALE} from './locales.ts';
 
 afterEach(async () => setLocale('en'));
 
@@ -176,12 +180,38 @@ describe('messages', () => {
 		expect(t('score.points', {count: 1})).toBe('Every guild scores 1 point.');
 	});
 
-	it('switch language, falling back to English for what is not translated yet', async () => {
+	it('switch language, with weekdays and lists from the browser', async () => {
 		await setLocale('fr');
 		expect(currentLocale()).toBe('fr');
 		expect(weekday(1, 'long')).toBe('mercredi');
 		expect(list(['A', 'B', 'C'])).toBe('A, B et C');
-		// The French catalogue is still empty.
-		expect(t('setup.title')).toBe('Starting towns');
+	});
+});
+
+// Each language however far it has got: its own text where translated,
+// English elsewhere, so nothing here needs changing as translations arrive.
+const translationFiles = import.meta.glob<{default: Translation}>('./translations/*.ts', {eager: true});
+const translated = LOCALES.filter(l => l.code !== SOURCE_LOCALE);
+// Only plain messages, which need no parameters.
+const plain = (Object.keys(en) as MessageKey[]).filter(key => {
+	const message = en[key];
+	return typeof message === 'string' && placeholders(message).size === 0;
+});
+// The filter above leaves only keys that take no parameters.
+const plainT = t as (key: MessageKey) => string;
+
+describe.each(translated)('messages in $english', ({code}) => {
+	it('come from its translation, falling back to English for what is not translated yet', async () => {
+		const file = translationFiles[`./translations/${code}.ts`];
+		expect(file, `translations/${code}.ts`).toBeDefined();
+		const own: Translation = file!.default;
+		await setLocale(code);
+		expect(currentLocale()).toBe(code);
+		expect(plain.length).toBeGreaterThan(0);
+		for (const key of plain) {
+			const message = own[key];
+			const expected = message === undefined ? formatMessage(SOURCE_LOCALE, en[key]) : formatMessage(code, message);
+			expect(plainT(key), key).toBe(expected);
+		}
 	});
 });

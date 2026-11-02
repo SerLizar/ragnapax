@@ -143,7 +143,7 @@ export default {
 	'dorm.Sinostra': 'Sinostra',
 	'dorm.Sinostra.short': 'Sino',
 	'castle.name': 'Darkwick Castle',
-	// Drawn inside the castle's marker: at most 6 letters, or 3 characters.
+	// Drawn inside the castle's marker: at most 7 letters, or 3 characters.
 	'castle.short': 'Castle',
 
 	// Setting up starting towns.

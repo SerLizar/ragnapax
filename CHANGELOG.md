@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.8.2 - 2026-11-02
+
+### Changed
+
+- Darkwick Castle is drawn a little bigger on the map, so its short name has
+  room for 7 letters, as the French "Château" needs.
+
 ## 1.8.1 - 2026-10-30
 
 ### Changed
