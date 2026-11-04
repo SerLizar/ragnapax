@@ -6,7 +6,7 @@
 // Read docs/TRANSLATING.md first. src/i18n/en.ts lists every message, with
 // notes on where each one appears.
 
-import type {Translation} from '../catalogue.ts';
+import	type {Translation}	from '../catalogue.ts';
 
 export	default {
     // Page header and footer.
@@ -71,7 +71,7 @@ export	default {
 	// Shown before the first plan. One person plans for the whole group and
 	// shares the link; everyone else only opens it.
 	'intro.name':
-		'**Nommez les 4 guildes** dans votre groupe et indiquez pour chacune leurs villes de départ. Celles-ci apparaissent le mercredi matin, avant le début des déclarations à 11:00 (heure du serveur).',
+		'**Nommez les 4 guildes** dans votre groupe, dans l\'ordre de leur rang, et indiquez pour chacune leurs villes de départ. Celles-ci apparaissent le mercredi matin, avant le début des déclarations à 11:00 (heure du serveur).',
 	'intro.goal': '**Choisissez un objectif** : égalité des points ou égalité des récompenses.',
 	'intro.plan':
 		'**Étabtissez un plan équitable** et partagez le lien avec votre groue. Une seule personne gère le planning : tous les autres ouvrent le lien pour savoir quoi déclarer chaque jour.',
@@ -115,7 +115,7 @@ export	default {
 	'kingdom.vacant': 'Vide',
 
 	// Maps and kingdoms. Use the game's own names where it translates them.
-	'map.floating-city': 'La Cité Volante',
+	'map.floating-city': 'La Ville dans le Ciel',
 	'map.galaxy-terminal': 'Le Terminal Galactique',
 	'map.sea-of-poseidon': 'La Mer de Poséïdon',
 	// {letter}: the town's letter, A to Z.
@@ -416,8 +416,8 @@ export	default {
 	// holdings differ from those set, over or under, in all.
 	'score.targets': 'Chaque guilde obtient ses **paramètres d\'occupation**.',
 	'score.targetsMissed': {
-		one: 'Les occupations sont faussées de **{count} jour** par rapport à celles définies; le tableau montre cette différence sous chaque chiffre.',
-		other: 'Les occupations sont faussées de **{count} jours** par rapport à celles définies; le tableau montre cette différence sous chaque chiffre.',
+		one: 'Les récompenses sont faussées de **{count} jour** par rapport à celles définies; le tableau montre la valeur attendue sous chaque chiffre.',
+		other: 'Les récompenses sont faussées de **{count} jours** par rapport à celles définies; le tableau montre la valeur attendue sous chaque chiffre.',
 	},
 	// Under a number in the table that differs from the one set, with
 	// "advanced.targets" on: {count} is the number set.
