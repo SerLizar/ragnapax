@@ -6,7 +6,7 @@
 // Read docs/TRANSLATING.md first. src/i18n/en.ts lists every message, with
 // notes on where each one appears.
 
-import	type {Translation}	from '../catalogue.ts';
+import type {Translation} from '../catalogue.ts';
 
 export	default {
     // Page header and footer.
@@ -247,7 +247,7 @@ export	default {
 	// switch is then disabled.
 	'advanced.inactive.last': 'Au moins une guilde doit être active.',
 	// A switch, also in the title of a plan copied as text.
-	'advanced.fewestDays': 'Réduire le nombre de déclarations par jour',
+	'advanced.fewestDays': 'Réduire le nombre de jours avec déclarations',
 	'advanced.fewestDays.description':
 		'Chaque guilde déclare le moins de jours différents possibles, afin que les joueurs aient à se connecter moins souvent. Cependant, cela peut augmenter le nombre total de déclarations. ',
 	// A switch for how starting towns are set ("setup."): a list of towns,
@@ -421,7 +421,7 @@ export	default {
 	},
 	// Under a number in the table that differs from the one set, with
 	// "advanced.targets" on: {count} is the number set.
-	'score.target': 'set {count}',
+	'score.target': 'défini : {count}',
 	'score.fillResources':
 		'La map a été entièrement répartie et les occupations ont été aussi équitables que possible. Les excédents sont distribués de façon à ce que le total des points reste le plus proche possible.',
 	// Table headings: a short word, and its meaning when tapped or hovered.
