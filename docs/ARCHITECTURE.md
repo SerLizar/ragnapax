@@ -53,9 +53,10 @@ How Ragnarok runs, which the app takes as given:
 
 Ragnapax does it automatically:
 
-1. During Wednesday's opening phase, the user names the four guilds and taps
-   each guild's starting towns on the map, or, if they prefer, picks each
-   town's guild from a list, as in a spreadsheet.
+1. During Wednesday's opening phase, the user names the four guilds, in
+   rank order (highest first), and taps each guild's starting towns on the
+   map, or, if they prefer, picks each town's guild from a list, as in a
+   spreadsheet.
 2. They pick a goal (equal rewards, the default, or equal points) and
    optionally ask to use every kingdom. Under "Advanced options", they can
    mark guilds the game put in the group that do not play: those are left

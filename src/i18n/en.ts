@@ -75,7 +75,7 @@ export default {
 	// Shown before the first plan. One person plans for the whole group and
 	// shares the link; everyone else only opens it.
 	'intro.name':
-		'**Name the four guilds** in your group and tap the towns each one starts with. They appear early on Wednesday, before declares open at 11:00 server time.',
+		'**Name the four guilds** in your group, in rank order (highest first), and tap the towns each one starts with. They appear early on Wednesday, before declares open at 11:00 server time.',
 	'intro.goal': '**Choose a goal**: equal points or equal rewards.',
 	'intro.plan':
 		'**Find a fair plan** and share the link with your group. Only one person needs to plan: everyone else opens the link to see what to declare each day.',
@@ -148,14 +148,16 @@ export default {
 
 	// Setting up starting towns.
 	'setup.title': 'Starting towns',
+	// Guilds go in rank order, as in plans made by hand: with "goal.fillMap",
+	// the first one gets the most (see "goal.fillMap.description").
 	'setup.help': {
-		one: 'Pick a guild, then tap the town it starts with this week.',
-		other: 'Pick a guild, then tap the {count} towns it starts with this week.',
+		one: 'Name the guilds in rank order (highest first). Then pick a guild and tap the town it starts with this week.',
+		other: 'Name the guilds in rank order (highest first). Then pick a guild and tap the {count} towns it starts with this week.',
 	},
 	// Instead of "setup.help" with "advanced.townLists" on.
 	'setup.help.lists': {
-		one: 'Choose the guild each town starts with this week, {count} town per guild.',
-		other: 'Choose the guild each town starts with this week, {count} towns per guild.',
+		one: 'Name the guilds in rank order (highest first). Then choose the guild each town starts with this week, {count} town per guild.',
+		other: 'Name the guilds in rank order (highest first). Then choose the guild each town starts with this week, {count} towns per guild.',
 	},
 	'setup.clear': 'Clear',
 	'setup.guilds': 'Guild to assign towns to',

@@ -15,6 +15,9 @@ API.
   or points made it easy to type the wrong number: 1 for the castle means
   the castle for one day. The goal "Equal resources" is now "Equal rewards"
   to match, and the scores speak of rewards too.
+- The first steps and the starting towns now say to name the guilds in
+  rank order, highest first, as plans made by hand do: with "Use every
+  kingdom", the first guild gets the most.
 
 ## 1.8.2 - 2026-11-02
 
