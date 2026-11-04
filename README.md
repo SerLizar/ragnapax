@@ -30,7 +30,7 @@ nothing is uploaded.
   moves to the next guild once one is complete, and any leftover town is
   Vacant automatically. Used to spreadsheets? An advanced option lists the
   towns instead, each with its guild to pick.
-- **Two goals.** _Equal resources_, the default (the same number of town-,
+- **Two goals.** _Equal rewards_, the default (the same number of town-,
   dorm- and castle-days for every guild), or _equal points_ (towns, dorms
   and the castle are worth 1, 2 and 3 points a day, on every map, with the
   castle and dorms shared out too).
@@ -45,9 +45,9 @@ nothing is uploaded.
   declares on its kingdoms, and the others share the points between
   themselves. Another advanced switch has each guild declare on as few days
   as possible, so players log in less often, even if that takes more declares.
-- **Holdings set by hand.** Also under "Advanced options": type in how many
-  days each guild holds towns, dorms and the castle, starting from what
-  equal resources usually gives on the map, and plans come as close as they
+- **Rewards set by hand.** Also under "Advanced options": type in how many
+  town, dorm and castle rewards each guild gets in all, starting from what
+  equal rewards usually gives on the map, and plans come as close as they
   can.
 - **Provably fair plans in seconds.** An exact optimiser
   ([HiGHS](https://highs.dev/)) runs in the browser, shows better plans as it

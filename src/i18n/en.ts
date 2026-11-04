@@ -76,7 +76,7 @@ export default {
 	// shares the link; everyone else only opens it.
 	'intro.name':
 		'**Name the four guilds** in your group and tap the towns each one starts with. They appear early on Wednesday, before declares open at 11:00 server time.',
-	'intro.goal': '**Choose a goal**: equal points or equal resources.',
+	'intro.goal': '**Choose a goal**: equal points or equal rewards.',
 	'intro.plan':
 		'**Find a fair plan** and share the link with your group. Only one person needs to plan: everyone else opens the link to see what to declare each day.',
 	'intro.private': 'Everything runs on your device; nothing is uploaded.',
@@ -204,9 +204,9 @@ export default {
 	// {town}, {dorm}, {castle}: points a day for each, 1, 2 and 3.
 	'goal.points.description':
 		'Every guild scores the same total, with castle and dorm days shared out as evenly as possible. Each day, a town is worth {town} point, a dorm {dorm} and the castle {castle}.',
-	'goal.resources': 'Equal resources',
+	'goal.resources': 'Equal rewards',
 	'goal.resources.description':
-		'Every guild holds towns, dorms and the castle for the same number of days.',
+		'Every guild gets the same number of town, dorm and castle rewards.',
 	'goal.fillMap': 'Use every kingdom',
 	// {guild}: the name of the first guild that plays (see "advanced.inactive").
 	'goal.fillMap.description':
@@ -229,9 +229,9 @@ export default {
 	// table follows: a row per guild, with its name, and a number field per
 	// column, headed by "score.townShort", "score.dormShort" and
 	// "score.castleShort".
-	'advanced.targets': 'Set holdings by hand',
+	'advanced.targets': 'Set rewards by hand',
 	'advanced.targets.description':
-		'Choose how many days each guild holds towns, dorms and the castle, and plans come as close as they can, instead of following the goal. It starts from what equal resources usually gives.',
+		'Choose how many town, dorm and castle rewards each guild gets in all. Plans come as close as they can, instead of following the goal. It starts from what equal rewards usually gives.',
 	// Read out for each number field. {kind} is "score.townLong",
 	// "score.dormLong" or "score.castleLong"; {guild} is a guild's name.
 	'advanced.targets.field': '{kind} for {guild}',
@@ -241,7 +241,7 @@ export default {
 	// every kingdom of the kind, every day.
 	'advanced.targets.tooMany':
 		'{kind} add up to {count}, but the map only has {most} in a week. Lower them, or plans will fall short.',
-	// Puts every field back to what equal resources usually gives on the map.
+	// Puts every field back to what equal rewards usually gives on the map.
 	'advanced.targets.reset': 'Reset',
 	// A switch per guild follows, named by the guild's name.
 	'advanced.inactive': 'Guilds sitting out',
@@ -285,7 +285,7 @@ export default {
 	'solve.alreadyBest':
 		'This is already the fairest plan possible for this setup. Planning again cannot make it fairer: change the setup first if something changed.',
 	'solve.alreadyBest.targets':
-		'This already comes as close as possible to the holdings set. Planning again cannot improve it: change the setup first if something changed.',
+		'This already comes as close as possible to the rewards set. Planning again cannot improve it: change the setup first if something changed.',
 	'solve.alreadyBest.fillMap':
 		'This already uses as much of the map as possible, as evenly as it allows. Planning again cannot improve it: change the setup first if something changed.',
 	'solve.loading': 'Loading the solver…',
@@ -325,10 +325,10 @@ export default {
 		'Uses as much of the map as possible, shared as evenly as it allows, with declares on the fewest days.',
 	// Instead of "result.optimal" and "result.proven" with "advanced.targets" on.
 	'result.optimal.targets':
-		'As close as possible to the holdings set for each guild, with the fewest declares.',
+		'As close as possible to the rewards set for each guild, with the fewest declares.',
 	'result.optimal.targets.fewestDays':
-		'As close as possible to the holdings set for each guild, with declares on the fewest days.',
-	'result.proven.targets': 'As close as possible to the holdings set for each guild.',
+		'As close as possible to the rewards set for each guild, with declares on the fewest days.',
+	'result.proven.targets': 'As close as possible to the rewards set for each guild.',
 	'result.unproven': 'The best plan found in the time given. A better one may exist.',
 	// Under the title of a plan brought back from this device, such as after
 	// a refresh or on the next visit.
@@ -400,7 +400,7 @@ export default {
 		other: 'Every guild scores **{count} points**.',
 	},
 	// {towns}, {dorms}, {castle}: the "score.days" messages below.
-	'score.holdings': 'Every guild gets **the same holdings**: {towns}, {dorms} and {castle}.',
+	'score.holdings': 'Every guild gets **the same rewards**: {towns}, {dorms} and {castle}.',
 	'score.townDays': {one: '{count} town-day', other: '{count} town-days'},
 	'score.dormDays': {one: '{count} dorm-day', other: '{count} dorm-days'},
 	'score.castleDays': {one: '{count} castle-day', other: '{count} castle-days'},
@@ -414,20 +414,20 @@ export default {
 	// When the shares are not even and the map is not fully used, as after a
 	// day played off-plan or a plan stopped early: the table has the details.
 	'score.pointsUneven': 'Guilds score between **{least}** and **{most}** points.',
-	'score.holdingsUneven': 'Holdings differ between guilds; the table shows each guild\'s.',
+	'score.holdingsUneven': 'Rewards differ between guilds; the table shows each guild\'s.',
 	// With "advanced.targets" on, when every guild that plays holds exactly
-	// what was set for it, and otherwise, where {count} is the days by which
-	// holdings differ from those set, over or under, in all.
-	'score.targets': 'Every guild gets **the holdings set for it**.',
+	// what was set for it, and otherwise, where {count} is the number of
+	// rewards by which guilds differ from those set, over or under, in all.
+	'score.targets': 'Every guild gets **the rewards set for it**.',
 	'score.targetsMissed': {
-		one: 'Holdings are **{count} day** off those set; the table shows what was set under each number that differs.',
-		other: 'Holdings are **{count} days** off those set; the table shows what was set under each number that differs.',
+		one: '**{count} reward** differs from those set; the table shows what was set under each number that differs.',
+		other: '**{count} rewards** differ from those set; the table shows what was set under each number that differs.',
 	},
 	// Under a number in the table that differs from the one set, with
 	// "advanced.targets" on: {count} is the number set.
 	'score.target': 'set {count}',
 	'score.fillResources':
-		'The map is fully used and holdings are as even as it allows. Extra days are shared out so points stay as close as possible.',
+		'The map is fully used and rewards are as even as it allows. Extra days are shared out so points stay as close as possible.',
 	// Table headings: a short word, and its meaning when tapped or hovered.
 	'score.guild': 'Guild',
 	'score.pointsShort': 'Pts',

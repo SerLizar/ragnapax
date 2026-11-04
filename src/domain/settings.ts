@@ -138,7 +138,7 @@ strictly outranks everything after it, and the solver proves each optimal.
 Equal points also narrows the castle and dormitory gaps: otherwise one guild
 could hold the castle all week and make the points up elsewhere. Holdings
 set by hand replace the goal, the most valuable kind first, as equal
-resources ranks them.
+rewards ranks them.
 */
 export function priorities({goal, fillMap, targets}: PlanSettings): Criterion[] {
 	if (targets) {
@@ -161,7 +161,7 @@ Tie-breakers after the priorities, most important first, still outranking
 `efforts`. The solver improves these while it polishes a plan
 but does not prove them optimal: proving them took minutes on some openings.
 
-Equal resources while filling the map narrows the points gap, so leftover
+Equal rewards while filling the map narrows the points gap, so leftover
 days of different kinds go to different guilds: two extra castle-days and
 two extra town-days go to four guilds, not to the same two.
 */
@@ -195,7 +195,7 @@ when filling the map, as otherwise the main measure is perfectly even anyway,
 and never with holdings set by hand, which say who gets what.
 
 Ordering each kind of holding separately would hand every kind's extra to the
-first guild, so equal resources orders by points too: the guilds with the
+first guild, so equal rewards orders by points too: the guilds with the
 most valuable extras come first.
 */
 export function guildOrders({fillMap, castleLast, targets}: PlanSettings): GuildOrder[] {

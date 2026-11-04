@@ -56,12 +56,12 @@ Ragnapax does it automatically:
 1. During Wednesday's opening phase, the user names the four guilds and taps
    each guild's starting towns on the map, or, if they prefer, picks each
    town's guild from a list, as in a spreadsheet.
-2. They pick a goal (equal resources, the default, or equal points) and
+2. They pick a goal (equal rewards, the default, or equal points) and
    optionally ask to use every kingdom. Under "Advanced options", they can
    mark guilds the game put in the group that do not play: those are left
    alone and left out of the share. They can also ask for declares on as
    few days as possible, rather than as few declares as possible, or set
-   by hand how many days each guild holds towns, dorms and the castle,
+   by hand how many town, dorm and castle rewards each guild gets,
    instead of the goal.
 3. A mixed-integer optimiser finds the declarations for every guild on every
    day, and proves whether the result is the fairest possible.
@@ -226,7 +226,7 @@ helpers keep it to the setup and its plan:
   when Safari refuses too many changes in a few seconds.
 
 - **Inputs** (`$state`): map, guild names, starting towns, goal, fillMap,
-  castleLast, the guilds sitting out (`inactive`), fewestDays, the holdings
+  castleLast, the guilds sitting out (`inactive`), fewestDays, the rewards
   set by hand (`targets`), and the days recorded as played (`played`).
 - **View** (`$state`): `isSetupOpen`, whether the setup is shown or put away,
   and `townLists`, whether starting towns are set from lists rather than on
@@ -244,7 +244,7 @@ helpers keep it to the setup and its plan:
   timeline and scores, `disturbance` (the first declare, after the days
   played, that does not leave a guild sitting out alone), `stale` (inputs
   changed since the plan was made), `isBest` (up to date and proven best),
-  `excessTargets` (kinds whose holdings set by hand add up to more days
+  `excessTargets` (kinds whose rewards set by hand add up to more days
   than the map has),
   `isReceived` and `openedFromLink`, and the
   serialised forms: `ownFragment` and `address`.

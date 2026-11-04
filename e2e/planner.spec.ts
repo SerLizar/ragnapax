@@ -33,7 +33,7 @@ test.beforeEach(async ({page}) => {
 /**
 The summary of the fairest plan for `OPENING` under the default goal.
 */
-const FAIR_SHARE = 'Every guild gets the same holdings: 25 town-days, 10 dorm-days and 1 castle-day.';
+const FAIR_SHARE = 'Every guild gets the same rewards: 25 town-days, 10 dorm-days and 1 castle-day.';
 
 const town = (page: Page, id: string) =>
 	page.getByRole('button', {name: new RegExp(`^Town ${id},`, 'u')});
@@ -131,7 +131,7 @@ test('moves around the map with arrow keys, one stop on the Tab key', async ({pa
 	await expect(page.getByRole('button', {name: 'Town L, Guild 4'})).toBeFocused();
 	// Tab leaves the map rather than visiting every town.
 	await page.keyboard.press('Tab');
-	await expect(page.getByRole('radio', {name: 'Equal resources', exact: true})).toBeFocused();
+	await expect(page.getByRole('radio', {name: 'Equal rewards', exact: true})).toBeFocused();
 });
 
 /**
@@ -309,10 +309,10 @@ test('plans for another group with the same goal and options', async ({page}) =>
 test('remembers settings, including using every kingdom', async ({page}) => {
 	await page.goto('/');
 	// Each option is named by its title and described by the rest.
-	await expect(page.getByRole('radio', {name: 'Equal resources', exact: true})).toHaveAccessibleDescription(
-		/^Every guild holds towns, dorms and the castle/u,
+	await expect(page.getByRole('radio', {name: 'Equal rewards', exact: true})).toHaveAccessibleDescription(
+		/^Every guild gets the same number of town, dorm and castle rewards/u,
 	);
-	await expect(page.getByRole('radio', {name: 'Equal resources', exact: true})).toBeChecked();
+	await expect(page.getByRole('radio', {name: 'Equal rewards', exact: true})).toBeChecked();
 	await expect(page.getByRole('switch', {name: 'Use every kingdom', exact: true})).not.toBeChecked();
 	await page.getByRole('radio', {name: 'Equal points', exact: true}).check();
 	await page.getByRole('switch', {name: 'Use every kingdom', exact: true}).check();
@@ -360,13 +360,13 @@ test('can rank plans by the days with declares, and remembers it', async ({page}
 	await expect(fewerDays).toBeChecked();
 });
 
-test('plans holdings set by hand, in place of the goal, and warns of totals the map cannot hold', async ({page}) => {
+test('plans rewards set by hand, in place of the goal, and warns of totals the map cannot hold', async ({page}) => {
 	await setUp(page);
 	await page.getByText('Advanced options').click();
-	const byHand = page.getByRole('switch', {name: 'Set holdings by hand', exact: true});
-	await expect(byHand).toHaveAccessibleDescription(/^Choose how many days each guild holds/u);
+	const byHand = page.getByRole('switch', {name: 'Set rewards by hand', exact: true});
+	await expect(byHand).toHaveAccessibleDescription(/^Choose how many town, dorm and castle rewards each guild gets/u);
 	await byHand.check();
-	await expect(page.getByRole('radio', {name: 'Equal resources'})).toBeDisabled();
+	await expect(page.getByRole('radio', {name: 'Equal rewards'})).toBeDisabled();
 	await expect(page.getByRole('switch', {name: 'Use every kingdom'})).toBeDisabled();
 	await expect(page).toHaveURL(/&k=25\.10\.1-25\.10\.1-25\.10\.1-25\.10\.1&/u);
 
@@ -387,7 +387,7 @@ test('plans holdings set by hand, in place of the goal, and warns of totals the 
 		'Town-days closest to those set for each guild',
 	]);
 	await page.getByRole('button', {name: 'Find a fair plan'}).click();
-	await expect(page.getByText('Every guild gets the holdings set for it.')).toBeVisible({timeout: 60_000});
+	await expect(page.getByText('Every guild gets the rewards set for it.')).toBeVisible({timeout: 60_000});
 	await expect(page.getByText('Best', {exact: true})).toBeVisible({timeout: 60_000});
 
 	// Kept after a refresh, with the options open to show it.

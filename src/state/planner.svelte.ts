@@ -651,7 +651,7 @@ export class PlannerState {
 	}
 
 	/**
-	Sets holdings by hand, starting every guild from what equal resources
+	Sets holdings by hand, starting every guild from what equal rewards
 	usually gives on the map, even if they were set already; or shares by
 	the goal again.
 	*/

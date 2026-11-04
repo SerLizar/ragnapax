@@ -97,7 +97,7 @@ describe('holdings set by hand', () => {
 	};
 
 	// The defaults when holdings are set by hand.
-	it.each(MAPS)('start from the fair holdings of $id, as equal resources makes them', other => {
+	it.each(MAPS)('start from the fair holdings of $id, as equal rewards makes them', other => {
 		const opening = startingOwnership(other, randomStart(other, 1));
 		const outcome = solvePlanningProblem(highs, {map: other, start: opening, ...DEFAULT_SETTINGS}, {
 			polishSeconds: 0,

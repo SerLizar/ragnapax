@@ -15,7 +15,7 @@
 		settings: PlanSettings;
 	}
 	let {scores, guildNames, settings}: Props = $props();
-	// Holdings set by hand are about holdings, as equal resources is.
+	// Holdings set by hand are about holdings, as equal rewards is.
 	const goal = $derived(settings.targets ? 'resources' : settings.goal);
 
 	/**

@@ -91,7 +91,7 @@ export type MapDefinition = {
 	*/
 	readonly roads: ReadonlyArray<readonly [string, string]>;
 	/**
-	What each guild holds in a plan for equal resources that does not use
+	What each guild holds in a plan for equal rewards that does not use
 	every kingdom, as the solver makes it from almost every opening: the
 	holdings each guild starts with when they are set by hand
 	(`PlanSettings.targets`). `solve-advanced.test.ts` checks it.

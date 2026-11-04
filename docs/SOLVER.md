@@ -13,7 +13,7 @@ A map is declared as data (`MapDefinition` in `src/domain/types.ts`):
 kingdoms with an id, kind (`town`, `dormitory` or `castle`), display
 name, short label and schematic `x`/`y` coordinates, undirected roads
 between kingdom ids, and `fairHoldings`: what each guild holds in a plan
-for equal resources without using every kingdom, which holdings set by hand
+for equal rewards without using every kingdom, which rewards set by hand
 start from (see [Settings and priorities](#settings-and-priorities)). Map files build kingdoms with `town`, `dorm` and
 `castle` from `src/maps/kingdoms.ts`, which hold what is the same on every
 map: towns are "Town A" labelled "A", each dormitory has one name and short
@@ -126,7 +126,7 @@ they break.
 `src/domain/settings.ts` holds `PlanSettings` (`goal`, `fillMap`,
 `castleLast`, `inactive`, `fewestDays` and `targets`), their
 labels, `effectiveSettings`, which turns the player's choices into the
-settings a plan is made with (holdings set by hand turn off Use every
+settings a plan is made with (rewards set by hand turn off Use every
 kingdom, which castle-days last needs), and `priorities(settings)`: what the planner optimises, most important
 first, each proven optimal; `refinements(settings)`: tie-breakers the
 solver improves while polishing but does not prove; and `efforts(settings)`:
@@ -135,16 +135,16 @@ than proven. Together they are the single
 source of truth for both the solver and the "How plans are ranked" disclosure in
 the interface.
 
-| Priority | Equal points                   | Equal resources                | Either goal + Use every kingdom   |
+| Priority | Equal points                   | Equal rewards                  | Either goal + Use every kingdom   |
 | -------- | ------------------------------ | ------------------------------ | --------------------------------- |
 | 1        | Smallest gap in points         | Smallest gap in castle-days    | Most points for everyone combined |
 | 2        | Most points for everyone       | Smallest gap in dormitory-days | then the goal's gaps, in order    |
 | 3        | Smallest gap in castle-days    | Smallest gap in town-days      |                                   |
 | 4        | Smallest gap in dormitory-days | Most points for everyone       |                                   |
-| Polished |                                |                                | Equal resources: gap in points    |
+| Polished |                                |                                | Equal rewards: gap in points      |
 | Last     | Fewest declarations            | Fewest declarations            | Fewest declarations               |
 
-With **Set holdings by hand** (`targets`), the goal and Use every kingdom
+With **Set rewards by hand** (`targets`), the goal and Use every kingdom
 make way for three priorities: town-, dorm- and castle-days as close as
 possible to those set, castle first, then dorms, then towns, each counted
 in days over or under, summed over the guilds that play. Nothing is
@@ -166,7 +166,7 @@ Once days are recorded as played that no longer holds (a guild may already be
 too far ahead to be caught), so the order is dropped and extras go wherever
 they fit.
 
-Equal resources then refines the points gap, so leftover days of different
+Equal rewards then refines the points gap, so leftover days of different
 kinds go to different guilds: two extra castle-days and two extra town-days
 go to four different guilds, castle first, rather than all to the first.
 It is a refinement rather than a priority because proving it took up to two
@@ -195,11 +195,11 @@ did). The solver never makes them, so one in its plans is a bug, reported
 as an error; one in a link, such as a link edited by hand, opens with a
 warning on the plan (`PlannerState.disturbance`).
 
-**Set holdings by hand** (`targets`, under "Advanced options"): each
+**Set rewards by hand** (`targets`, under "Advanced options"): each
 guild's town-, dorm- and castle-days over the week, typed in, for groups
 that have agreed on shares of their own. Turning it on starts every guild
 from the map's `fairHoldings`, which the solver gives from almost every
-opening for equal resources (`solve-advanced.test.ts` checks one opening per map):
+opening for equal rewards (`solve-advanced.test.ts` checks one opening per map):
 on the benchmark, every Floating City and Sea of Poseidon opening, and all
 but one Galaxy Terminal opening, which had a dorm-day less. The holdings
 are soft rather than hard constraints, so holdings no plan can reach, such
@@ -244,7 +244,7 @@ Variables, for guild _g_, scored day _d_ and kingdom _t_:
   the day's total rather than one per gain, polishing left a fifth more days.
 - `most_m`, `least_m`, free: bounds on every guild's total of measure _m_, one
   pair per gap objective.
-- `off[g,k]` ≥ 0, continuous, only with holdings set by hand: how many
+- `off[g,k]` ≥ 0, continuous, only with rewards set by hand: how many
   days guild _g_'s total of kind _k_ is from the one set for it, _set_.
 
 Constraints:
@@ -262,7 +262,7 @@ gain[g,d,t] ≤ declares[g,d]                 a day with declarations, with fewe
 least_m ≤ total_m(g) ≤ most_m               for every gap objective, g playing
 total_m(g) ≥ total_m(g′)                    guild order, when filling the map
 castle(g) ≤ castle(g′)                      castle order, with castleLast too
-off[g,k] ≥ total_k(g) − set[g,k]             over, with holdings set by hand
+off[g,k] ≥ total_k(g) − set[g,k]             over, with rewards set by hand
 off[g,k] ≥ set[g,k] − total_k(g)             under, likewise
 ```
 
@@ -299,14 +299,14 @@ declaration count) are weighted the same way among
 themselves, then scaled so their total stays under `TIE_BREAKER_BUDGET` = 0.5.
 
 The largest coefficient is about 1.4 × 10⁶ on The Floating City (equal
-resources), well within double precision. Crucially, this weighting makes the
+rewards), well within double precision. Crucially, this weighting makes the
 **early stop** below sound.
 
 ### Early stop
 
 Measured on The Floating City, a perfectly fair, maximum-points plan appears in
 about one second, but proving the declaration count minimal took about a minute
-(equal points) and over five minutes (equal resources). Players do not care
+(equal points) and over five minutes (equal rewards). Players do not care
 whether a plan has 16 or 17 declarations.
 
 So `solvePlanningProblem` (`src/solver/solve.ts`) watches HiGHS's primal
@@ -327,7 +327,7 @@ Result quality, shown to users:
 | `saved`    | Brought back from this device; checked against the rules      | "Saved plan" text  |
 | `shared`   | Came from a link; checked against the rules, quality unknown  | "Shared plan" text |
 
-\* "Best" instead with Use every kingdom or holdings set by hand, which
+\* "Best" instead with Use every kingdom or rewards set by hand, which
 do not aim for fairness alone.
 
 Only plans the solver makes during a visit have a known quality. It is
@@ -386,7 +386,7 @@ sequenceDiagram
 1. Create `src/maps/<map-id>.ts` exporting a `MapDefinition`, following
    `floating-city.ts`: towns, dorms and the castle (from `kingdoms.ts`)
    with positions that follow the in-game layout (any scale), roads, and
-   `fairHoldings`, what each guild holds in an equal resources plan (solve
+   `fairHoldings`, what each guild holds in an equal rewards plan (solve
    a few openings, as `npm run bench` does, and take the usual result). A map needs at least 16 towns (4 guilds
    × 4 towns each) and exactly one castle.
 2. Add it to `MAP_DEFINITIONS` in `src/maps/index.ts`; the map picker in the

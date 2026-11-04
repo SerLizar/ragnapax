@@ -6,6 +6,16 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.8.3 - 2026-11-04
+
+### Changed
+
+- "Set holdings by hand" is now "Set rewards by hand", and asks how many
+  town, dorm and castle rewards each guild gets in all. Talking about days
+  or points made it easy to type the wrong number: 1 for the castle means
+  the castle for one day. The goal "Equal resources" is now "Equal rewards"
+  to match, and the scores speak of rewards too.
+
 ## 1.8.2 - 2026-11-02
 
 ### Changed

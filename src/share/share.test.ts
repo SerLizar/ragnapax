@@ -392,7 +392,7 @@ describe('planToText', () => {
 		const text = planToText({
 			map, guildNames, goal: 'resources', fillMap: true, castleLast: false, inactive: [], fewestDays: false, timeline,
 		});
-		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal resources · Use every kingdom');
+		expect(text.split('\n', 1)[0]).toBe('The Floating City · Equal rewards · Use every kingdom');
 	});
 
 	it('mentions when extra castle days go last, only while every kingdom is used', () => {
@@ -400,9 +400,9 @@ describe('planToText', () => {
 			map, guildNames, goal: 'resources', fillMap: isFillMap, castleLast: true, inactive: [], fewestDays: false, timeline,
 		}).split('\n', 1)[0];
 		expect(title(true)).toBe(
-			'The Floating City · Equal resources · Use every kingdom · Extra castle days last',
+			'The Floating City · Equal rewards · Use every kingdom · Extra castle days last',
 		);
-		expect(title(false)).toBe('The Floating City · Equal resources');
+		expect(title(false)).toBe('The Floating City · Equal rewards');
 	});
 
 	it('mentions when guilds declare on the fewest days', () => {
@@ -424,7 +424,7 @@ describe('planToText', () => {
 			targets: [0, 1, 2, 3].map(() => map.fairHoldings),
 			timeline,
 		});
-		expect(text.split('\n', 1)[0]).toBe('The Floating City · Set holdings by hand · Declare on fewer days');
+		expect(text.split('\n', 1)[0]).toBe('The Floating City · Set rewards by hand · Declare on fewer days');
 	});
 });
 

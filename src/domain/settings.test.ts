@@ -31,7 +31,7 @@ describe('priorities', () => {
 		]);
 	});
 
-	it('balances every kind of holding before points for equal resources', () => {
+	it('balances every kind of holding before points for equal rewards', () => {
 		expect(priorities({
 			goal: 'resources', fillMap: false, castleLast: false, inactive: [], fewestDays: false,
 		})).toEqual([

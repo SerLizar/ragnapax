@@ -92,13 +92,13 @@ it('says what an optimal plan keeps down', () => {
 	const targets = [0, 1, 2, 3].map(() => DEFAULT_MAP.fairHoldings);
 	for (const isFillMap of [false, true]) {
 		expect(describeQuality('optimal', {fillMap: isFillMap, fewestDays: false, targets})).toBe(
-			'As close as possible to the holdings set for each guild, with the fewest declares.',
+			'As close as possible to the rewards set for each guild, with the fewest declares.',
 		);
 		expect(describeQuality('optimal', {fillMap: isFillMap, fewestDays: true, targets})).toBe(
-			'As close as possible to the holdings set for each guild, with declares on the fewest days.',
+			'As close as possible to the rewards set for each guild, with declares on the fewest days.',
 		);
 		expect(describeQuality('proven', {fillMap: isFillMap, fewestDays: true, targets})).toBe(
-			'As close as possible to the holdings set for each guild.',
+			'As close as possible to the rewards set for each guild.',
 		);
 	}
 
