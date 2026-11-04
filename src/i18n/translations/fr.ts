@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2026 SerLizar
+// SPDX-FileCopyrightText: 2026 Sly/Laurie
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // French (Français) translation.
@@ -7,7 +8,7 @@
 
 import type {Translation} from '../catalogue.ts';
 
-export default {
+export	default {
     // Page header and footer.
 	'app.tagline': 'Répartition des points au Ragnarok pour Tokyo Debunker',
 	'header.map': 'Map',
@@ -39,7 +40,7 @@ export default {
 	'privacy.contact': 'Pour des questions ou demandes à propos de vos données, {link}.',
 	'privacy.contactLink': 'ouvrir un ticket sur GitHub',
 	'privacy.onDevice':
-		'**Sur votre appareil**, ce navigateur conserve les données concernant vos paramètres pour chaque map, vos choix tels que votre thème et langue ainsi qu\'une copie du planning pour qu\'il continue de fonctionner hors-ligne.',
+		'**Sur votre appareil**, ce navigateur conserve les données concernant vos paramètres pour chaque map, vos choix tels que votre thème et langue ainsi qu\'une copie de l\'application pour qu\'elle continue de fonctionner hors-ligne.',
 	'privacy.deviceMore':
 		'Ces données servent uniquement aux fonctionnalités que vous utilisez, ne quittent jamais votre appareil et sont supprimmables ci-dessous.',
 	'privacy.links':
@@ -224,12 +225,12 @@ export default {
 	// table follows: a row per guild, with its name, and a number field per
 	// column, headed by "score.townShort", "score.dormShort" and
 	// "score.castleShort".
-	'advanced.targets': 'Choisir manuellement le nombre d\'occupations',
+	'advanced.targets': 'Choisir manuellement le nombre de récompenses',
 	'advanced.targets.description':
-		'Choisissez le nombre de points que chaque guilde récupérera à partir des villes, dortoirs et château. Le plan final suivra ce choix autant que possible plutôt que l\'objectif. Les valeurs initiales sont identiques à celles de l\'objectif Égalité des récompenses.',
+		'Choisissez le nombre de récompenses de chaque type pour chacune des guildes. Le plan final suivra ce choix autant que possible plutôt que l\'objectif. Les valeurs initiales sont identiques à celles de l\'objectif Égalité des récompenses.',
 	// Read out for each number field. {kind} is "score.townLong",
 	// "score.dormLong" or "score.castleLong"; {guild} is a guild's name.
-	'advanced.targets.field': '{kind} for {guild}',
+	'advanced.targets.field': '{kind} pour {guild}',
 	// Under the table when the guilds' numbers for a kind add up to more days
 	// than the map has. {kind} is "score.townLong", "score.dormLong" or
 	// "score.castleLong"; {count} is their total, {most} the most possible:
@@ -246,7 +247,7 @@ export default {
 	// switch is then disabled.
 	'advanced.inactive.last': 'Au moins une guilde doit être active.',
 	// A switch, also in the title of a plan copied as text.
-	'advanced.fewestDays': 'Réduire le nombre de déclarations',
+	'advanced.fewestDays': 'Réduire le nombre de déclarations par jour',
 	'advanced.fewestDays.description':
 		'Chaque guilde déclare le moins de jours différents possibles, afin que les joueurs aient à se connecter moins souvent. Cependant, cela peut augmenter le nombre total de déclarations. ',
 	// A switch for how starting towns are set ("setup."): a list of towns,
@@ -283,8 +284,8 @@ export default {
 		'Ce plan est déjà au plus proche des occupations souhaitées. Générer de nouveau le plan ne modifiera pas le résultat : changez d\'abord les paramètres.',
 	'solve.alreadyBest.fillMap':
 		'Ce plan occupe déjà la carte autant que possible, répartie aussi uniformément que possible. Générer de nouveau le plan ne modifiera pas le résultat : changez d\'abord les paramètres.',
-	'solve.loading': 'Plan en cours de réalisation…',
-	'solve.searching': 'À la recherche d\'un plan…',
+	'solve.loading': 'Chargement…',
+	'solve.searching': 'Plan en cours de réalisation…',
 	'solve.checking': 'Plan trouvé. Recherche de meilleure solution…',
 	'solve.trimming': 'Meilleur plan confirmé. Réduction des déclarations…',
 	// Time spent so far, e.g. "12s".
@@ -376,7 +377,7 @@ export default {
 	// Before a list of weekdays: the days up to the one picked went exactly
 	// as planned and can be saved together, so only a day that didn't needs
 	// recording by hand.
-	'record.until': 'Plan suivi jusqu\'à {day}',
+	'record.until': 'Plan suivi jusqu\'à',
 	// {day}: the weekday picked after "record.until", e.g. "Friday".
 	'record.asPlanned': 'Conserver le plan jusqu\'à {day}',
 	'record.editHelp':
@@ -395,7 +396,7 @@ export default {
 		other: 'Chaque guilde a marqué **{count} points**.',
 	},
 	// {towns}, {dorms}, {castle}: the "score.days" messages below.
-	'score.holdings': 'Chaque guilde **garde ses territoires**: {towns}, {dorms} and {castle}.',
+	'score.holdings': 'Chaque guilde **garde ses territoires**: {towns}, {dorms} et {castle}.',
 	'score.townDays': {one: '{count} jour de ville', other: '{count} jours de ville'},
 	'score.dormDays': {one: '{count} jour de dortoir', other: '{count} jours de dortoir'},
 	'score.castleDays': {one: '{count} jour de château', other: '{count} jours de château'},
@@ -442,7 +443,7 @@ export default {
 	// Day-by-day replay and the whole week's list. Weekday names need no
 	// translation: see `weekday`.
 	// Switch between the map a day at a time and every day's declares in a list.
-	'days.view': 'View',
+	'days.view': 'Vue',
 	'days.byDay': 'Jour par jour',
 	'days.week': 'Semaine complète',
 	'days.focus': 'Voir les déclarations pour',
@@ -490,7 +491,7 @@ export default {
 	// Under the title when the days before {day} are left out, e.g. "From Friday on".
 	'text.since': 'À partir de {day}',
 	'text.moves': '{guild} : {moves}',
-	'text.from': '{kingdom} (from {guild})',
+	'text.from': '{kingdom} (à {guild})',
 	'text.none': 'Pas de déclaration',
 	// {guilds}: the guilds sitting out (see "advanced.inactive"), e.g. "Bears, Owls".
 	'text.inactive': 'Inactifs : {guilds}',
