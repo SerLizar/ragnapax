@@ -150,15 +150,9 @@ export default {
 	'setup.title': 'Starting towns',
 	// Guilds go in rank order, as in plans made by hand: with "goal.fillMap",
 	// the first one gets the most (see "goal.fillMap.description").
-	'setup.help': {
-		one: 'Name the guilds in rank order (highest first). Then pick a guild and tap the town it starts with this week.',
-		other: 'Name the guilds in rank order (highest first). Then pick a guild and tap the {count} towns it starts with this week.',
-	},
+	'setup.help': 'Name the guilds in rank order (highest first). Then pick a guild and tap the {count} towns it starts with this week.',
 	// Instead of "setup.help" with "advanced.townLists" on.
-	'setup.help.lists': {
-		one: 'Name the guilds in rank order (highest first). Then choose the guild each town starts with this week, {count} town per guild.',
-		other: 'Name the guilds in rank order (highest first). Then choose the guild each town starts with this week, {count} towns per guild.',
-	},
+	'setup.help.lists': 'Name the guilds in rank order (highest first). Then choose the guild each town starts with this week, {count} towns per guild.',
 	'setup.clear': 'Clear',
 	'setup.guilds': 'Guild to assign towns to',
 	// Instead of "setup.guilds" with "advanced.townLists" on, where the guild
@@ -173,8 +167,8 @@ export default {
 	// named by "town.name" and followed by a list of guilds and "kingdom.vacant".
 	'setup.towns': 'Towns of {map}',
 	'setup.done': 'All set.',
-	// {kingdoms}: a list of towns, e.g. "Town Q" or "Town Q and Town R".
-	'setup.vacant': {one: '{kingdoms} starts Vacant.', other: '{kingdoms} start Vacant.'},
+	// {town}: the town left over on a map with 17, e.g. "Town Q".
+	'setup.vacant': '{town} starts Vacant.',
 	'setup.progress': '{count} of {total} towns assigned.',
 	// Shown under the map (or the towns) once days are recorded as played (see "record.").
 	'setup.locked':
@@ -198,10 +192,7 @@ export default {
 
 	// Choosing a goal.
 	'goal.title': 'Goal',
-	'goal.help': {
-		one: 'Wednesday to Monday, up to {count} declare per guild each day.',
-		other: 'Wednesday to Monday, up to {count} declares per guild each day.',
-	},
+	'goal.help': 'Wednesday to Monday, up to {count} declares per guild each day.',
 	'goal.points': 'Equal points',
 	// {town}, {dorm}, {castle}: points a day for each, 1, 2 and 3.
 	'goal.points.description':
@@ -513,10 +504,8 @@ export default {
 		other: 'The plan covers {count} days instead of {days}.',
 	},
 	'rule.guilds': '{day}: declares for unknown guilds.',
-	'rule.limit': {
-		one: '{day}: {guild} declares {count} time (max {max}).',
-		other: '{day}: {guild} declares {count} times (max {max}).',
-	},
+	// {count} is always more than {max}.
+	'rule.limit': '{day}: {guild} declares {count} times (max {max}).',
 	'rule.unknown': '{day}: {guild} declares on an unknown kingdom.',
 	'rule.held': '{day}: {guild} declares on {kingdom}, which it already holds.',
 	'rule.adjacent': '{day}: {guild} declares on {kingdom} without holding a kingdom next to it.',

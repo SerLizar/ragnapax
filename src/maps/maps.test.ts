@@ -3,7 +3,11 @@
 
 import {describe, expect, it} from 'vitest';
 import {compileMap, findMapProblems, type GameMap} from '../domain/map.ts';
-import type {MapDefinition} from '../domain/types.ts';
+import {
+	GUILD_COUNT,
+	TOWNS_PER_GUILD,
+	type MapDefinition,
+} from '../domain/types.ts';
 import {startOfWeek} from '../domain/calendar.ts';
 import {castle, town} from './kingdoms.ts';
 import {
@@ -19,6 +23,13 @@ import {
 describe.each(MAP_DEFINITIONS)('map $name', def => {
 	it('is well formed', () => {
 		expect(findMapProblems(def)).toEqual([]);
+	});
+
+	// "setup.vacant" names a single town.
+	it('leaves at most one town Vacant', () => {
+		const needed = GUILD_COUNT * TOWNS_PER_GUILD;
+		const leftOver = compileMap(def).towns.length - needed;
+		expect(leftOver).toBeLessThanOrEqual(1);
 	});
 
 	it('is connected', () => {

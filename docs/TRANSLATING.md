@@ -167,11 +167,11 @@ Messages that depend on a number have one text per plural form, chosen by
 
 ```ts
 // English
-'setup.vacant': {one: '{kingdoms} starts Vacant.', other: '{kingdoms} start Vacant.'},
+'score.townDays': {one: '{count} town-day', other: '{count} town-days'},
 // A language with one and other, such as French or German
-'setup.vacant': {one: '…', other: '…'},
+'score.townDays': {one: '…', other: '…'},
 // A language with a single form, such as Japanese: plain text is fine
-'setup.vacant': '…',
+'score.townDays': '…',
 ```
 
 Other forms (such as `many`, which these languages only use for millions)

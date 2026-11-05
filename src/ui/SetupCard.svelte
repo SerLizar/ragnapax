@@ -5,7 +5,7 @@
 	import type {Kingdom} from '../domain/map.ts';
 	import {GUILD_COUNT, TOWNS_PER_GUILD, type GuildIndex} from '../domain/types.ts';
 	import {defaultGuildName, mapName, kingdomName} from '../i18n/describe.ts';
-	import {list, t} from '../i18n/i18n.svelte.ts';
+	import {t} from '../i18n/i18n.svelte.ts';
 	import type {PlannerState} from '../state/planner.svelte.ts';
 	import {focusFallback, SETUP_TITLE} from './focus.ts';
 	import {guildStyle} from './guilds.ts';
@@ -71,7 +71,8 @@
 		planner.assignTown(town.id, value === '' ? undefined : (Number(value) as GuildIndex));
 	}
 
-	const vacantNames = $derived(status.vacant.map(i => kingdomName(map.kingdoms[i]!)));
+	// Once every guild has its towns, a map leaves at most one town over.
+	const vacantTown = $derived(status.vacant[0]);
 </script>
 
 <section class="card" aria-labelledby={SETUP_TITLE}>
@@ -193,8 +194,8 @@
 		{#if status.complete}
 			<Icon name="check" />
 			{t('setup.done')}
-			{#if vacantNames.length}
-				{t('setup.vacant', {count: vacantNames.length, kingdoms: list(vacantNames)})}
+			{#if vacantTown !== undefined}
+				{t('setup.vacant', {town: kingdomName(map.kingdoms[vacantTown]!)})}
 			{/if}
 		{:else}
 			{t('setup.progress', {count: assigned, total: needed})}
