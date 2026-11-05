@@ -28,7 +28,7 @@ keep its artwork inside the central circle of 80% of its width, which the
 platform may crop to; at 80%, that circle is the one inscribed in the source
 icon, so artwork kept inside that circle is always safe.
 */
-export const MASKABLE_SCALE = 0.8;
+const MASKABLE_SCALE = 0.8;
 
 /**
 The icon's background: the fill of its first `<rect>`, the rounded square

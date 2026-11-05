@@ -55,7 +55,7 @@ export type SetupStatus = {
 Longest guild name the game allows, in characters as players see them: an
 emoji or a kanji counts as one, however many bytes or code units it takes.
 */
-export const GUILD_NAME_MAX_LENGTH = 9;
+const GUILD_NAME_MAX_LENGTH = 9;
 
 const characters = new Intl.Segmenter('en', {granularity: 'grapheme'});
 

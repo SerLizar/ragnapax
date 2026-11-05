@@ -62,9 +62,9 @@ export type GameMap = {
 /**
 Most kingdoms a map may have: share links use one character each.
 */
-export const MAX_KINGDOMS = 62;
+const MAX_KINGDOMS = 62;
 
-export class MapDefinitionError extends Error {
+class MapDefinitionError extends Error {
 	constructor(mapId: string, problems: readonly string[]) {
 		super(`Map "${mapId}" is invalid:\n- ${problems.join('\n- ')}`);
 		this.name = 'MapDefinitionError';
