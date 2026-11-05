@@ -8,7 +8,7 @@ import {
 	GUILDS,
 	MAX_DECLARATIONS_PER_DAY,
 	POINTS,
-	KINGDOM_KINDS,
+	perKind,
 	TOWNS_PER_GUILD,
 	VACANT,
 	type GuildIndex,
@@ -353,10 +353,7 @@ export type GuildScore = {
 
 export function score(map: GameMap, timeline: Timeline): GuildScore[] {
 	return GUILDS.map(g => {
-		const held = Object.fromEntries(KINGDOM_KINDS.map(k => [k, 0])) as Record<
-			KingdomKind,
-			number
-		>;
+		const held = perKind(() => 0);
 		const pointsByDay: number[] = [];
 		let declarations = 0;
 		for (let day = 1; day < timeline.owners.length; day++) {

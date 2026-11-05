@@ -18,6 +18,7 @@ import {
 	DAYS,
 	GUILD_COUNT,
 	KINGDOM_KINDS,
+	perKind,
 	type GuildIndex,
 	type Holdings,
 } from '../domain/types.ts';
@@ -216,7 +217,7 @@ function decodeTargets(map: GameMap, parameters: URLSearchParams): Holdings[] | 
 			throw new ShareLinkError('damaged');
 		}
 
-		const held = Object.fromEntries(KINGDOM_KINDS.map((kind, i) => [kind, Number(days[i])])) as Holdings;
+		const held: Holdings = perKind((_, i) => Number(days[i]));
 		if (KINGDOM_KINDS.some(kind => held[kind] > map.mostHeld[kind])) {
 			throw new ShareLinkError('damaged');
 		}

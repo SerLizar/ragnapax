@@ -8,6 +8,13 @@ export const KINGDOM_KINDS = ['town', 'dormitory', 'castle'] as const;
 export type KingdomKind = (typeof KINGDOM_KINDS)[number];
 
 /**
+One value for each kind of kingdom, from `value`, which also gets the kind's
+place in `KINGDOM_KINDS`.
+*/
+export const perKind = <T>(value: (kind: KingdomKind, index: number) => T) =>
+	Object.fromEntries(KINGDOM_KINDS.map((kind, i) => [kind, value(kind, i)])) as Record<KingdomKind, T>;
+
+/**
 Kingdom-days of each kind, such as a guild's over a Ragnarok: one for each
 kingdom of the kind held at the end of each day.
 */

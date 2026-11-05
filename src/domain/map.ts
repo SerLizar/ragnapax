@@ -5,6 +5,7 @@ import {
 	DAYS,
 	GUILD_COUNT,
 	KINGDOM_KINDS,
+	perKind,
 	TOWNS_PER_GUILD,
 	type Holdings,
 	type MapDefinition,
@@ -182,9 +183,7 @@ export function compileMap(def: MapDefinition): GameMap {
 		roads,
 		linkOrder,
 		fairHoldings: def.fairHoldings,
-		mostHeld: Object.fromEntries(
-			KINGDOM_KINDS.map(kind => [kind, DAYS * kingdoms.filter(t => t.kind === kind).length]),
-		) as Record<KingdomKind, number>,
+		mostHeld: perKind(kind => DAYS * kingdoms.filter(t => t.kind === kind).length),
 		indexOf: id => indexById.get(id),
 	};
 }
