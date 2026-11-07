@@ -160,7 +160,7 @@ describe('share links', () => {
 
 	it('still read links written with + for spaces', () => {
 		const link = encodeShareLink({...shared, guildNames: ['Gato Zanh', '', '', '']});
-		expect(decodeShareLink(link.replace('%20', '+'))?.guildNames[0]).toBe('Gato Zanh');
+		expect(decodeShareLink(link.replaceAll('%20', '+'))?.guildNames[0]).toBe('Gato Zanh');
 	});
 
 	it('stay short enough to paste in chat', () => {
