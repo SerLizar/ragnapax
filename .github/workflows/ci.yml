@@ -21,10 +21,12 @@ concurrency:
 # Actions are pinned to a commit, as a tag can be moved to other code; the
 # comment names the release. Dependabot updates both (.github/dependabot.yml).
 # Each job checks out without keeping the token: nothing here runs git.
+# Jobs name their image, as ubuntu-latest can move between two images from one
+# run to the next.
 jobs:
   check:
     name: Lint, types, unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,7 +45,7 @@ jobs:
 
   reuse:
     name: Copyright and licences (REUSE)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,7 +57,7 @@ jobs:
 
   e2e:
     name: Build, end-to-end tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -71,12 +73,17 @@ jobs:
       - run: npm run build
       - run: npm run size
       # The browsers are a few hundred MB; the lockfile fixes Playwright's
-      # version, and so which browsers it wants.
+      # version, and so which browsers it wants. Its WebKit build is made for
+      # one Ubuntu release, under the same folder name on all of them, so a
+      # copy from another image would be restored and then fail to start.
+      # ImageOS is only in the shell: env.ImageOS in the key comes out empty.
+      - id: image
+        run: echo "os=${ImageOS:?}" >> "$GITHUB_OUTPUT"
       - id: browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: playwright-${{ steps.image.outputs.os }}-${{ hashFiles('package-lock.json') }}
       - if: steps.browsers.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium webkit
       # The system libraries they need are not in the cache.
@@ -107,7 +114,7 @@ jobs:
     # first (see "Privacy" in docs/PRIVACY.md).
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: [check, reuse, e2e]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       pages: write

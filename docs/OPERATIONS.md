@@ -227,8 +227,11 @@ these globs is not type-checked: widen the matching project's `include`.
 
   A newer push to a pull request cancels its running checks; on `main`,
   runs queue, so a deploy is never cut short. Every job has a time limit.
-  Actions are pinned to commit SHAs, with the release in a comment, and
-  Playwright's browsers are cached by the lockfile's hash.
+  Actions are pinned to commit SHAs, with the release in a comment. Jobs
+  name their Ubuntu image rather than `ubuntu-latest`, which can move
+  between images from one run to the next. Playwright's browsers are cached
+  by that image and the lockfile's hash, as its WebKit build is made for one
+  Ubuntu release and will not start on another.
 - Dependabot (`.github/dependabot.yml`) proposes updates monthly: development
   tools' minor and patch releases together, GitHub Actions together, and
   major releases, HiGHS and xo one at a time (the config says why). Run `npm run bench` before merging
