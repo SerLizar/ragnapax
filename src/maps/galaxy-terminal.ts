@@ -50,6 +50,7 @@ export const galaxyTerminal: MapDefinition = {
 		['F', 'L'],
 		['F', 'Hotarubi'],
 		['G', 'H'],
+		['G', 'M'],
 		['G', 'Hotarubi'],
 		['H', 'M'],
 		['H', 'Dionysia'],

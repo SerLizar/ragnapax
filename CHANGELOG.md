@@ -6,6 +6,14 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as
 [Versioning](docs/OPERATIONS.md#versioning) explains for a planner without an
 API.
 
+## 1.8.4 - 2026-11-12
+
+### Fixed
+
+- The Galaxy Terminal now has the road between towns G and M, which was
+  missing, so plans can go from one to the other. Plans and links made
+  before still open and stay valid.
+
 ## 1.8.3 - 2026-11-04
 
 ### Changed
